@@ -8,7 +8,6 @@ import Result
 import Result.Extra as Result
 import TransParser exposing (..)
 import Data exposing (..)
-import Parser
 import List.Unique
 
 
@@ -20,50 +19,45 @@ output args =
     in
         input
             |> decodeString (dict string)
-            |> Result.map (convertToElm >> renderElmModule)
+            |> Result.andThen convertToElm
+            |> Result.map renderElmModule
             |> Result.merge
 
 
-convertToElm : Dict String String -> Module
+convertToElm : Dict String String -> Result String Module
 convertToElm messages =
-    let
-        translations =
-            messages
-                |> Dict.toList
-                |> List.map (analyseTranslation >> translationToElm)
-    in
-        Module "Trans" translations
+    messages
+        |> Dict.toList
+        |> List.map analyseTranslation
+        |> Result.combine
+        |> Result.map (List.map translationToElm >> Module "Trans")
 
 
-analyseTranslation : ( String, String ) -> Translation
+analyseTranslation : ( String, String ) -> Result String Translation
 analyseTranslation ( name, message ) =
-    let
-        alternatives =
-            Parser.run alternativesP message
-                |> Result.withDefault
-                    [ { chunks = []
-                      , appliesTo = []
-                      }
-                    ]
+    TransParser.parseAlternatives message
+        |> Result.map
+            (\alternatives ->
+                let
+                    placeholders =
+                        alternatives
+                            |> List.concatMap .chunks
+                            |> List.filterMap
+                                (\e ->
+                                    case e of
+                                        Placeholder p ->
+                                            Just p
 
-        placeholders =
-            alternatives
-                |> List.concatMap .chunks
-                |> List.filterMap
-                    (\e ->
-                        case e of
-                            Placeholder p ->
-                                Just p
-
-                            _ ->
-                                Nothing
-                    )
-                |> List.Unique.filterDuplicates
-    in
-        { name = formatName name
-        , alternatives = alternatives
-        , placeholders = placeholders
-        }
+                                        _ ->
+                                            Nothing
+                                )
+                            |> List.Unique.filterDuplicates
+                in
+                    { name = formatName name
+                    , alternatives = alternatives
+                    , placeholders = placeholders
+                    }
+            )
 
 
 formatName : String -> String
@@ -108,7 +102,7 @@ alternativesToElm alternatives =
                 (alternatives
                     |> List.map
                         (\alt ->
-                            If ( Expr (combineRanges alt.appliesTo), Expr (combineChunks alt.chunks) )
+                            ( Expr (combineRanges alt.appliesTo), Expr (combineChunks alt.chunks) )
                         )
                 )
 
@@ -132,29 +126,54 @@ combineRanges ranges =
 rangeToCondExpr : Range -> String
 rangeToCondExpr range =
     let
+        isLowEqualToHigh =
+            case ( range.low, range.high ) of
+                ( Included low, Included high ) ->
+                    if low == high then
+                        Just <| "choice == " ++ (toString low)
+                    else
+                        Nothing
+
+                _ ->
+                    Nothing
+
         lowBound =
             case range.low of
                 Inf ->
-                    "True"
+                    Nothing
 
                 Included bound ->
-                    "choice >= " ++ (toString bound)
+                    Just <| "choice >= " ++ (toString bound)
 
                 Excluded bound ->
-                    "choice > " ++ (toString bound)
+                    Just <| "choice > " ++ (toString bound)
 
         highBound =
             case range.high of
                 Inf ->
-                    "True"
+                    Nothing
 
                 Included bound ->
-                    "choice <= " ++ (toString bound)
+                    Just <| "choice <= " ++ (toString bound)
 
                 Excluded bound ->
-                    "choice < " ++ (toString bound)
+                    Just <| "choice < " ++ (toString bound)
     in
-        lowBound ++ " && " ++ highBound
+        case ( isLowEqualToHigh, lowBound, highBound ) of
+            ( Just value, _, _ ) ->
+                value
+
+            ( _, Just low, Just high ) ->
+                low ++ " && " ++ high
+
+            ( _, Just low, Nothing ) ->
+                low
+
+            ( _, Nothing, Just high ) ->
+                high
+
+            _ ->
+                "True"
 
 
 combineChunks : List Chunk -> String

@@ -1,5 +1,7 @@
 module Elm exposing (Module(..), Function(..), Arg(..), Expr(..), renderElmModule)
 
+import StringUtil exposing (indent)
+
 
 type Module
     = Module String (List Function)
@@ -15,8 +17,7 @@ type Arg
 
 
 type Expr
-    = Ifs (List Expr)
-    | If ( Expr, Expr )
+    = Ifs (List ( Expr, Expr ))
     | Expr String
 
 
@@ -88,33 +89,40 @@ renderElmExpr expr =
             body
 
         Ifs alternatives ->
-            let
-                renderedAlternatives =
-                    alternatives
-                        |> List.map renderElmExpr
-            in
-                [ "if False then\n"
-                    ++ (indent "\"\"")
-                ]
-                    ++ renderedAlternatives
-                    ++ [ "else\n" ++ (indent "\"\"") ]
-                    |> String.join "\n"
+            case alternatives of
+                [ ( Expr cond, Expr expr ) ] ->
+                    expr
 
-        If ( condition, expression ) ->
-            "else if "
-                ++ (renderElmExpr condition)
-                ++ " then\n"
-                ++ (indent (renderElmExpr expression))
+                ( Expr cond, Expr expr ) :: tail ->
+                    ([ "if " ++ cond ++ " then"
+                     , indent expr
+                     , ""
+                     ]
+                        |> String.join "\n"
+                    )
+                        ++ renderElseIf tail
 
-
-indent : String -> String
-indent lines =
-    String.lines lines
-        |> List.map
-            (\l ->
-                if String.length l > 0 then
-                    "    " ++ l
-                else
+                _ ->
                     ""
+
+
+renderElseIf : List ( Expr, Expr ) -> String
+renderElseIf alternatives =
+    case alternatives of
+        [ ( Expr cond, Expr expr ) ] ->
+            [ "else"
+            , indent expr
+            ]
+                |> String.join "\n"
+
+        ( Expr cond, Expr expr ) :: tail ->
+            ([ "else if " ++ cond ++ " then"
+             , indent expr
+             , ""
+             ]
+                |> String.join "\n"
             )
-        |> String.join "\n"
+                ++ (renderElseIf tail)
+
+        _ ->
+            ""
