@@ -6,6 +6,7 @@ import Char
 import Result
 import Result.Extra as Result
 import List.Extra as List
+import List.Unique
 import Parser exposing (..)
 import Parser.LanguageKit exposing (..)
 import Data exposing (..)
@@ -43,10 +44,10 @@ formatError error =
             (String.repeat (error.col - 1) " ") ++ "^"
 
         problem =
-            formatProblem error.problem
+            formatProblem <| flattenOneOf error.problem
 
         hint =
-            formatHint context.description error.problem
+            formatHint context.description <| flattenOneOf error.problem
     in
         [ mainMessage
         , specificError
@@ -59,6 +60,29 @@ formatError error =
             |> String.join "\n"
 
 
+flattenOneOf problem =
+    let
+        flatten problem =
+            case problem of
+                BadOneOf list ->
+                    list
+                        |> List.concatMap flatten
+
+                error ->
+                    [ error ]
+    in
+        case problem of
+            (BadOneOf list) as badOneOf ->
+                BadOneOf
+                    (badOneOf
+                        |> flatten
+                        |> List.Unique.filterDuplicates
+                    )
+
+            error ->
+                error
+
+
 formatProblem : Problem -> String
 formatProblem problem =
     let
@@ -69,7 +93,6 @@ formatProblem problem =
                         ++ (list
                                 |> List.map (\p -> "- " ++ formatOne p)
                                 |> String.join ";\n"
-                                |> (\s -> s ++ ".")
                                 |> indent
                            )
 
@@ -102,10 +125,10 @@ formatProblem problem =
     in
         case problem of
             Fail fail ->
-                "Failed: " ++ fail ++ "."
+                "Error: " ++ fail ++ "."
 
             BadOneOf list ->
-                "Expected " ++ (formatOne problem)
+                "Expected " ++ (formatOne problem) ++ "."
 
             _ ->
                 "Expected " ++ (formatOne problem) ++ "."
@@ -140,6 +163,45 @@ formatHint description problem =
                 Ranges must contain two values, a low and a high bound.
             """
 
+        ( "a list of values", Fail "empty list of values" ) ->
+            unindent """
+            Hint:
+                A list of values must contain at least one value
+            """
+
+        ( "a list of values", BadOneOf [ ExpectingSymbol ",", ExpectingSymbol "}" ] ) ->
+            unindent """
+            Hint:
+                The values must be separated by a ",".
+            """
+
+        ( "a list of values", BadOneOf [ BadInt, ExpectingSymbol "}" ] ) ->
+            unindent """
+            Hint:
+                Only integer are allowed in a list of values.
+            """
+
+        ( "a list of values", BadInt ) ->
+            unindent """
+            Hint:
+                Only integer are allowed in a list of values.
+            """
+
+        ( "a pluralization", Fail "at least two pluralizations are required" ) ->
+            unindent """
+            Hint:
+                Expected to be parsing a pluralization, found only one variant.
+                If this is a single message, try removing the prefix (the range or
+                the list of values). Otherwise add at least another variant.
+            """
+
+        ( "a block specifying when to apply the message", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[", ExpectingSymbol "{" ] ) ->
+            unindent """
+            Hint:
+                It seems a pluralization is missing either a range or a list of values
+                to specify when to apply this message.
+            """
+
         _ ->
             ""
 
@@ -148,21 +210,7 @@ alternativesP : Parser (List Alternative)
 alternativesP =
     inContext "a translation" <|
         oneOf
-            [ sequence
-                { start = ""
-                , end = ""
-                , separator = "|"
-                , spaces = spacesP
-                , item = alternativeP
-                , trailing = Forbidden
-                }
-                |> Parser.andThen
-                    (\s ->
-                        if List.isEmpty s then
-                            fail "empty sequence"
-                        else
-                            succeed s
-                    )
+            [ pluralizationP
             , messageP
                 |> map
                     (\m ->
@@ -172,6 +220,25 @@ alternativesP =
                         ]
                     )
             ]
+
+
+pluralizationP : Parser (List Alternative)
+pluralizationP =
+    inContext "a pluralization" <|
+        (sequence
+            { start = ""
+            , end = ""
+            , separator = "|"
+            , spaces = spacesP
+            , item = alternativeP
+            , trailing = Forbidden
+            }
+            |> Parser.andThen
+                (failIf
+                    (\l -> List.length l <= 1)
+                    "at least two pluralizations are required"
+                )
+        )
 
 
 spacesP : Parser ()
@@ -246,7 +313,7 @@ rangeP =
 
 listValueP : Parser (List Range)
 listValueP =
-    inContext "a list of value"
+    inContext "a list of values"
         (sequence
             { start = "{"
             , end = "}"
@@ -255,6 +322,7 @@ listValueP =
             , item = int
             , trailing = Forbidden
             }
+            |> Parser.andThen (failIf List.isEmpty "empty list of values")
             |> map
                 (\list ->
                     list
@@ -294,7 +362,7 @@ messageP =
 textP : Parser Chunk
 textP =
     inContext "pure text"
-        (keep (Exactly 1) (\c -> c /= '|')
+        (keep (Exactly 1) ((/=) '|')
             |> map Text
         )
 
@@ -318,3 +386,11 @@ identifierP =
 isIdentifierChar : Char -> Bool
 isIdentifierChar c =
     Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_'
+
+
+failIf : (a -> Bool) -> String -> a -> Parser a
+failIf predicate message value =
+    if predicate value then
+        fail message
+    else
+        succeed value

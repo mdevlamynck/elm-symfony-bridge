@@ -253,6 +253,176 @@ suite =
                             in
                                 Expect.equal expected (output [ input ])
                     ]
+                , describe "Invalid list of values" <|
+                    [ test "Empty list of values" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "user.notifications": "{}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                    }
+                                    """
+
+                                expected =
+                                    unindent """
+                                    Failed to parse a translation.
+
+                                    Error while parsing a list of values:
+
+                                        {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
+                                          ^
+
+                                    Error: empty list of values.
+
+                                    Hint:
+                                        A list of values must contain at least one value
+                                    """
+                            in
+                                Expect.equal expected (output [ input ])
+                    , test "Missing ," <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "user.notifications": "{0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                    }
+                                    """
+
+                                expected =
+                                    unindent """
+                                    Failed to parse a translation.
+
+                                    Error while parsing a list of values:
+
+                                        {0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                           ^
+
+                                    Expected one of:
+                                        - the symbol ",";
+                                        - the symbol "}".
+
+                                    Hint:
+                                        The values must be separated by a ",".
+                                    """
+                            in
+                                Expect.equal expected (output [ input ])
+                    , test "Invalid value in first position" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "user.notifications": "{Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                    }
+                                    """
+
+                                expected =
+                                    unindent """
+                                    Failed to parse a translation.
+
+                                    Error while parsing a list of values:
+
+                                        {Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                         ^
+
+                                    Expected one of:
+                                        - a valid integer;
+                                        - the symbol "}".
+
+                                    Hint:
+                                        Only integer are allowed in a list of values.
+                                    """
+                            in
+                                Expect.equal expected (output [ input ])
+                    , test "Invalid value" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "user.notifications": "{0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                    }
+                                    """
+
+                                expected =
+                                    unindent """
+                                    Failed to parse a translation.
+
+                                    Error while parsing a list of values:
+
+                                        {0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                            ^
+
+                                    Expected a valid integer.
+
+                                    Hint:
+                                        Only integer are allowed in a list of values.
+                                    """
+                            in
+                                Expect.equal expected (output [ input ])
+                    ]
+                , describe "Invalid " <|
+                    [ test "Invalid pluralization" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "user.notifications": "{0, 1}Pas de notification"
+                                    }
+                                    """
+
+                                expected =
+                                    unindent """
+                                    Failed to parse a translation.
+
+                                    Error while parsing a pluralization:
+
+                                        {0, 1}Pas de notification
+                                                                 ^
+
+                                    Error: at least two pluralizations are required.
+
+                                    Hint:
+                                        Expected to be parsing a pluralization, found only one variant.
+                                        If this is a single message, try removing the prefix (the range or
+                                        the list of values). Otherwise add at least another variant.
+                                    """
+                            in
+                                Expect.equal expected (output [ input ])
+                    , test "Missing prefix" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "user.notifications": "{0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                    }
+                                    """
+
+                                expected =
+                                    unindent """
+                                    Failed to parse a translation.
+
+                                    Error while parsing a block specifying when to apply the message:
+
+                                        {0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues
+                                                               ^
+
+                                    Expected one of:
+                                        - the symbol "]";
+                                        - the symbol "[";
+                                        - the symbol "{".
+
+                                    Hint:
+                                        It seems a pluralization is missing either a range or a list of values
+                                        to specify when to apply this message.
+                                    """
+                            in
+                                Expect.equal expected (output [ input ])
+                    ]
                 ]
             ]
         ]
