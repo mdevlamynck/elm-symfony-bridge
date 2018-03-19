@@ -6,7 +6,7 @@ import Dict exposing (Dict)
 import Char
 import Result
 import Result.Extra as Result
-import TransParser exposing (..)
+import TranslationParser
 import Data exposing (..)
 import List.Unique
 
@@ -35,7 +35,7 @@ convertToElm messages =
 
 analyseTranslation : ( String, String ) -> Result String Translation
 analyseTranslation ( name, message ) =
-    TransParser.parseAlternatives message
+    TranslationParser.parseAlternatives message
         |> Result.map
             (\alternatives ->
                 let

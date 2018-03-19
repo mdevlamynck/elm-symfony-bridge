@@ -1,4 +1,4 @@
-module TransParser exposing (..)
+module TranslationParser exposing (parseAlternatives)
 
 import Json.Decode exposing (decodeString, dict, string)
 import Dict exposing (Dict)
