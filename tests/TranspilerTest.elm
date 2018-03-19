@@ -17,14 +17,20 @@ suite =
                         input =
                             unindent """
                             {
-                                "button.validate.global": "Ok",
-                                "button.validate.save": "Enregistrer"
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "button.validate.global": "Ok",
+                                            "button.validate.save": "Enregistrer"
+                                        }
+                                    }
+                                }
                             }
                             """
 
                         expected =
                             unindent """
-                            module Trans exposing (..)
+                            module TransMessages exposing (..)
 
 
                             button_validate_global : String
@@ -44,14 +50,20 @@ suite =
                         input =
                             unindent """
                             {
-                                "user.notifications": "%count% notifications non lues",
-                                "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "user.notifications": "%count% notifications non lues",
+                                            "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
+                                        }
+                                    }
+                                }
                             }
                             """
 
                         expected =
                             unindent """
-                            module Trans exposing (..)
+                            module TransMessages exposing (..)
 
 
                             user_notifications : { count : String } -> String
@@ -71,14 +83,20 @@ suite =
                         input =
                             unindent """
                             {
-                                "user.notifications": "{0}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues",
-                                "user.account.balance": "]Inf, 0[Negative|[0, Inf[Positive"
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "user.notifications": "{0}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues",
+                                            "user.account.balance": "]Inf, 0[Negative|[0, Inf[Positive"
+                                        }
+                                    }
+                                }
                             }
                             """
 
                         expected =
                             unindent """
-                            module Trans exposing (..)
+                            module TransMessages exposing (..)
 
 
                             user_account_balance : Int -> String
@@ -108,12 +126,18 @@ suite =
                         input =
                             unindent """
                             {
-                                "button.validate.global" "Ok"
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "button.validate.global" "Ok"
+                                        }
+                                    }
+                                }
                             }
                             """
 
                         expected =
-                            unindent "Given an invalid JSON: Unexpected string in JSON at position 31"
+                            unindent "Given an invalid JSON: Unexpected string in JSON at position 107"
                     in
                         Expect.equal expected (transpileTranslationToElm input)
             , describe "Prints invalid message format" <|
@@ -124,7 +148,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.account.balance": "[Inf, 0[Negative|[0, Inf[Positive"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "[Inf, 0[Negative|[0, Inf[Positive"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -151,7 +181,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.account.balance": "]Inf, 0[Negative|[0, Inf]Positive"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "]Inf, 0[Negative|[0, Inf]Positive"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -178,7 +214,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.account.balance": "]Inf 0[Negative|[0, Inf]Positive"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "]Inf 0[Negative|[0, Inf]Positive"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -204,7 +246,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.account.balance": "]Inf, 0, 1[Negative|[0, Inf]Positive"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "]Inf, 0, 1[Negative|[0, Inf]Positive"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -232,7 +280,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.account.balance": "[0]Negative|[0, Inf]Positive"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "[0]Negative|[0, Inf]Positive"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -260,7 +314,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.notifications": "{}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -286,7 +346,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.notifications": "{0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -314,7 +380,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.notifications": "{Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -342,7 +414,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.notifications": "{0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -370,7 +448,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.notifications": "{0, 1}Pas de notification"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{0, 1}Pas de notification"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 
@@ -398,7 +482,13 @@ suite =
                                 input =
                                     unindent """
                                     {
-                                        "user.notifications": "{0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                                }
+                                            }
+                                        }
                                     }
                                     """
 

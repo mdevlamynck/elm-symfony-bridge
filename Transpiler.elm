@@ -6,6 +6,7 @@ import Dict exposing (Dict)
 import Char
 import Result
 import Result.Extra as Result
+import String.Extra as String
 import TranslationParser
 import Data exposing (..)
 import List.Unique
@@ -14,19 +15,30 @@ import List.Unique
 transpileTranslationToElm : String -> String
 transpileTranslationToElm input =
     input
-        |> decodeString (dict string)
+        |> extractTranslation
         |> Result.andThen convertToElm
         |> Result.map renderElmModule
         |> Result.merge
 
 
-convertToElm : Dict String String -> Result String Module
-convertToElm messages =
+extractTranslation : String -> Result String ( String, Dict String String )
+extractTranslation =
+    decodeString (dict (dict (dict (dict string))))
+        >> Result.andThen
+            (Dict.get "translations"
+                >> Maybe.andThen (Dict.get "fr")
+                >> Maybe.andThen (Dict.toList >> List.head)
+                >> Result.fromMaybe "No translations found in this JSON"
+            )
+
+
+convertToElm : ( String, Dict String String ) -> Result String Module
+convertToElm ( domain, messages ) =
     messages
         |> Dict.toList
         |> List.map analyseTranslation
         |> Result.combine
-        |> Result.map (List.map translationToElm >> Module "Trans")
+        |> Result.map (List.map translationToElm >> Module ("Trans" ++ (String.toSentenceCase domain)))
 
 
 analyseTranslation : ( String, String ) -> Result String Translation
