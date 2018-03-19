@@ -1,8 +1,14 @@
 const { execSync } = require('child_process');
+const Elm = require('./Main.elm');
 
 function ElmSymfonyBridgePlugin(options) {}
 
 ElmSymfonyBridgePlugin.prototype.apply = function(compiler) {
+	var transpiler = Elm.Main.worker();
+
+	transpiler.ports.sendToElm.send({translation: ""});
+	transpiler.ports.sendToJs.subscribe(data => data.translation);
+
 	// Run symfony dumps commands at the beginning of every compilation
 	compiler.plugin('compilation', compilation => {
 		execSync('./bin/console fos:js-routing:dump');

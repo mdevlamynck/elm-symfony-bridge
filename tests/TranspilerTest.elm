@@ -1,10 +1,10 @@
-module MainTest exposing (..)
+module TranspilerTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
-import Main exposing (output)
 import Unindent exposing (..)
+import Transpiler exposing (transpileTranslationToElm)
 
 
 suite : Test
@@ -37,7 +37,7 @@ suite =
                                 "Enregistrer"
                             """
                     in
-                        Expect.equal expected (output [ input ])
+                        Expect.equal expected (transpileTranslationToElm input)
             , test "Works with translations containing placeholders" <|
                 \_ ->
                     let
@@ -64,7 +64,7 @@ suite =
                                 "Bonjour " ++ firstname ++ " " ++ lastname ++ " et bienvenu !"
                             """
                     in
-                        Expect.equal expected (output [ input ])
+                        Expect.equal expected (transpileTranslationToElm input)
             , test "Works with alternatives translations containing placeholders" <|
                 \_ ->
                     let
@@ -99,7 +99,7 @@ suite =
                                     count ++ " notifications non lues"
                             """
                     in
-                        Expect.equal expected (output [ input ])
+                        Expect.equal expected (transpileTranslationToElm input)
             ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
@@ -115,7 +115,7 @@ suite =
                         expected =
                             unindent "Given an invalid JSON: Unexpected string in JSON at position 31"
                     in
-                        Expect.equal expected (output [ input ])
+                        Expect.equal expected (transpileTranslationToElm input)
             , describe "Prints invalid message format" <|
                 [ describe "Invalid ranges" <|
                     [ test "Invalid range's low side [Inf" <|
@@ -144,7 +144,7 @@ suite =
                                         Try ]Inf instead."
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Invalid range's high side Inf]" <|
                         \_ ->
                             let
@@ -171,7 +171,7 @@ suite =
                                         Try Inf[ instead."
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing ," <|
                         \_ ->
                             let
@@ -197,7 +197,7 @@ suite =
                                         Ranges must contain two values, a low and a high bound.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Too many values" <|
                         \_ ->
                             let
@@ -225,7 +225,7 @@ suite =
                                         Ranges can only contain two values, a low and a high bound.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing values" <|
                         \_ ->
                             let
@@ -251,7 +251,7 @@ suite =
                                         Ranges must contain two values, a low and a high bound.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     ]
                 , describe "Invalid list of values" <|
                     [ test "Empty list of values" <|
@@ -279,7 +279,7 @@ suite =
                                         A list of values must contain at least one value
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing ," <|
                         \_ ->
                             let
@@ -307,7 +307,7 @@ suite =
                                         The values must be separated by a ",".
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Invalid value in first position" <|
                         \_ ->
                             let
@@ -335,7 +335,7 @@ suite =
                                         Only integer are allowed in a list of values.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Invalid value" <|
                         \_ ->
                             let
@@ -361,7 +361,7 @@ suite =
                                         Only integer are allowed in a list of values.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     ]
                 , describe "Invalid " <|
                     [ test "Invalid pluralization" <|
@@ -391,7 +391,7 @@ suite =
                                         the list of values). Otherwise add at least another variant.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing prefix" <|
                         \_ ->
                             let
@@ -421,7 +421,7 @@ suite =
                                         to specify when to apply this message.
                                     """
                             in
-                                Expect.equal expected (output [ input ])
+                                Expect.equal expected (transpileTranslationToElm input)
                     ]
                 ]
             ]

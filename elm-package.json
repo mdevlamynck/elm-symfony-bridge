@@ -1,11 +1,12 @@
 {
     "version": "0.0.1",
     "summary": "Tools to help integrating elm in a symfony project ",
-    "repository": "https://github.com/mdevlamynck/elm-symfony-bridge",
+    "repository": "https://github.com/mdevlamynck/elm-symfony-bridge.git",
     "license": "MIT",
     "source-directories": [
         "."
     ],
+	"exposed-modules": [],
     "dependencies": {
         "Chadtech/unique-list": "2.1.0 <= v < 3.0.0",
         "elm-community/list-extra": "7.1.0 <= v < 8.0.0",
