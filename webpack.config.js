@@ -5,8 +5,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
 	filename: 'elm-symfony-bridge.js',
+	library: 'elm-symfony-bridge',
+	libraryTarget: 'umd'
   },
-  mode: 'production',
   target: 'node',
   module: {
     rules: [{

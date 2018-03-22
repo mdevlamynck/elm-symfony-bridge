@@ -1,7 +1,7 @@
 {
   "name": "elm-symfony-bridge",
   "version": "1.0.0",
-  "author": "Matthias Devlamynck",
+  "author": "Matthias Devlamynck <matthias@chaplean.coop>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
   "description": "Tools to help integrating elm in a symfony project",
@@ -19,7 +19,6 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/webpack",
-	"postinstall": "npm run build",
     "test": "./node_modules/.bin/elm-doc-test && ./node_modules/.bin/elm-test"
   },
   "repository": {
@@ -39,7 +38,7 @@
     "elm-test": "^0.18.12",
     "elm-webpack-loader": "^4.5.0",
     "path": "^0.12.7",
-    "webpack": "^4.2.0",
+    "webpack": "^3.0",
     "webpack-cli": "^2.0.12"
   }
 }
