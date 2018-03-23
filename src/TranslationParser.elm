@@ -1,5 +1,11 @@
 module TranslationParser exposing (parseAlternatives)
 
+{-| Parser for a Translation
+
+@docs parseAlternatives
+
+-}
+
 import Char
 import Result
 import List.Extra as List
@@ -11,12 +17,21 @@ import StringUtil exposing (indent)
 import Unindent exposing (unindent)
 
 
+-- Public
+
+
 parseAlternatives : String -> Result String (List Alternative)
 parseAlternatives input =
     Parser.run alternativesP input
         |> Result.mapError formatError
 
 
+
+-- Error handling
+
+
+{-| Turns an Error into a beautifull error message
+-}
 formatError : Error -> String
 formatError error =
     let
@@ -57,6 +72,8 @@ formatError error =
             |> String.join "\n"
 
 
+{-| Converts nested BadOneOf Problems into a single BadOneOf
+-}
 flattenOneOf : Problem -> Problem
 flattenOneOf problem =
     let
@@ -81,6 +98,11 @@ flattenOneOf problem =
                 error
 
 
+{-| Renders a Problem into a user friendly message
+
+Works better with flattened BadOneOf Problems, use with flattenOneOf.
+
+-}
 formatProblem : Problem -> String
 formatProblem problem =
     let
@@ -132,6 +154,8 @@ formatProblem problem =
                 "Expected " ++ (formatOne problem) ++ "."
 
 
+{-| Render when possible a helpfull message to help diagnose the error and provide context.
+-}
 formatHint : String -> Problem -> String
 formatHint description problem =
     case ( description, problem ) of
@@ -202,6 +226,10 @@ formatHint description problem =
 
         _ ->
             ""
+
+
+
+-- Parsers
 
 
 alternativesP : Parser (List Alternative)
