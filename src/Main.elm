@@ -1,7 +1,10 @@
 port module Main exposing (main)
 
-import Json.Decode as Decode exposing (Value, string)
-import Transpiler
+import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode exposing (Value)
+import Transpiler exposing (File)
+import Dict
+import Result.Extra as Result
 import Platform exposing (Program, program)
 import Platform.Cmd exposing (Cmd)
 import Platform.Sub exposing (Sub)
@@ -19,7 +22,7 @@ main =
 port sendToElm : (Value -> msg) -> Sub msg
 
 
-port sendToJs : String -> Cmd msg
+port sendToJs : Value -> Cmd msg
 
 
 type Msg
@@ -33,6 +36,7 @@ update message =
         TranspileTranslation translation ->
             translation
                 |> Transpiler.transpileTranslationToElm
+                |> encodeTranslationResult
                 |> sendToJs
 
         NoOp ->
@@ -45,7 +49,34 @@ subscriptions =
 
 
 decodeJsValue : Value -> Msg
-decodeJsValue value =
-    Decode.decodeValue string value
-        |> Result.map TranspileTranslation
-        |> Result.withDefault NoOp
+decodeJsValue =
+    Decode.decodeValue (Decode.dict Decode.string)
+        >> Result.toMaybe
+        >> Maybe.andThen (Dict.toList >> List.head)
+        >> Maybe.andThen
+            (\( command, content ) ->
+                if command == "transpile" then
+                    Just <| TranspileTranslation content
+                else
+                    Nothing
+            )
+        >> Maybe.withDefault NoOp
+
+
+encodeTranslationResult : Result String File -> Value
+encodeTranslationResult result =
+    Encode.object
+        [ ( "succeeded", Encode.bool <| Result.isOk result )
+        , result
+            |> Result.map
+                (\file ->
+                    ( "file"
+                    , Encode.object
+                        [ ( "name", Encode.string file.name )
+                        , ( "content", Encode.string file.content )
+                        ]
+                    )
+                )
+            |> Result.mapError (\err -> ( "error", Encode.string err ))
+            |> Result.merge
+        ]

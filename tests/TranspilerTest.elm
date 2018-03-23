@@ -29,19 +29,22 @@ suite =
                             """
 
                         expected =
-                            unindent """
-                            module TransMessages exposing (..)
+                            Ok
+                                { name = "TransMessages.elm"
+                                , content = unindent """
+                                    module TransMessages exposing (..)
 
 
-                            button_validate_global : String
-                            button_validate_global =
-                                "Ok"
+                                    button_validate_global : String
+                                    button_validate_global =
+                                        "Ok"
 
 
-                            button_validate_save : String
-                            button_validate_save =
-                                "Enregistrer"
-                            """
+                                    button_validate_save : String
+                                    button_validate_save =
+                                        "Enregistrer"
+                                    """
+                                }
                     in
                         Expect.equal expected (transpileTranslationToElm input)
             , test "Works with translations containing placeholders" <|
@@ -62,19 +65,22 @@ suite =
                             """
 
                         expected =
-                            unindent """
-                            module TransMessages exposing (..)
+                            Ok
+                                { name = "TransMessages.elm"
+                                , content = unindent """
+                                    module TransMessages exposing (..)
 
 
-                            user_notifications : { count : String } -> String
-                            user_notifications { count } =
-                                count ++ " notifications non lues"
+                                    user_notifications : { count : String } -> String
+                                    user_notifications { count } =
+                                        count ++ " notifications non lues"
 
 
-                            user_welcome : { firstname : String, lastname : String } -> String
-                            user_welcome { firstname, lastname } =
-                                "Bonjour " ++ firstname ++ " " ++ lastname ++ " et bienvenu !"
-                            """
+                                    user_welcome : { firstname : String, lastname : String } -> String
+                                    user_welcome { firstname, lastname } =
+                                        "Bonjour " ++ firstname ++ " " ++ lastname ++ " et bienvenu !"
+                                    """
+                                }
                     in
                         Expect.equal expected (transpileTranslationToElm input)
             , test "Works with alternatives translations containing placeholders" <|
@@ -95,27 +101,30 @@ suite =
                             """
 
                         expected =
-                            unindent """
-                            module TransMessages exposing (..)
+                            Ok
+                                { name = "TransMessages.elm"
+                                , content = unindent """
+                                    module TransMessages exposing (..)
 
 
-                            user_account_balance : Int -> String
-                            user_account_balance choice =
-                                if choice < 0 then
-                                    "Negative"
-                                else
-                                    "Positive"
+                                    user_account_balance : Int -> String
+                                    user_account_balance choice =
+                                        if choice < 0 then
+                                            "Negative"
+                                        else
+                                            "Positive"
 
 
-                            user_notifications : Int -> { count : String } -> String
-                            user_notifications choice { count } =
-                                if choice == 0 then
-                                    "Pas de notification"
-                                else if choice == 1 then
-                                    count ++ " notification non lue"
-                                else
-                                    count ++ " notifications non lues"
-                            """
+                                    user_notifications : Int -> { count : String } -> String
+                                    user_notifications choice { count } =
+                                        if choice == 0 then
+                                            "Pas de notification"
+                                        else if choice == 1 then
+                                            count ++ " notification non lue"
+                                        else
+                                            count ++ " notifications non lues"
+                                    """
+                                }
                     in
                         Expect.equal expected (transpileTranslationToElm input)
             ]
@@ -137,7 +146,7 @@ suite =
                             """
 
                         expected =
-                            unindent "Given an invalid JSON: Unexpected string in JSON at position 107"
+                            Err (unindent "Given an invalid JSON: Unexpected string in JSON at position 107")
                     in
                         Expect.equal expected (transpileTranslationToElm input)
             , describe "Prints invalid message format" <|
@@ -159,20 +168,22 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a range's low side:
+                                            Error while parsing a range's low side:
 
-                                        [Inf, 0[Negative|[0, Inf[Positive
-                                         ^
+                                                [Inf, 0[Negative|[0, Inf[Positive
+                                                 ^
 
-                                    Expected a valid integer.
+                                            Expected a valid integer.
 
-                                    Hint if the input is [Inf:
-                                        In a range's low side, [Inf is invalid as Inf is always exclusive.
-                                        Try ]Inf instead."
-                                    """
+                                            Hint if the input is [Inf:
+                                                In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                                Try ]Inf instead."
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Invalid range's high side Inf]" <|
@@ -192,20 +203,22 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a range's high side:
+                                            Error while parsing a range's high side:
 
-                                        ]Inf, 0[Negative|[0, Inf]Positive
-                                                                ^
+                                                ]Inf, 0[Negative|[0, Inf]Positive
+                                                                        ^
 
-                                    Expected the symbol "[".
+                                            Expected the symbol "[".
 
-                                    Hint if the input is Inf]:
-                                        In a range's high side, Inf] is invalid as Inf is always exclusive.
-                                        Try Inf[ instead."
-                                    """
+                                            Hint if the input is Inf]:
+                                                In a range's high side, Inf] is invalid as Inf is always exclusive.
+                                                Try Inf[ instead."
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing ," <|
@@ -225,19 +238,21 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a range:
+                                            Error while parsing a range:
 
-                                        ]Inf 0[Negative|[0, Inf]Positive
-                                             ^
+                                                ]Inf 0[Negative|[0, Inf]Positive
+                                                     ^
 
-                                    Expected the symbol ",".
+                                            Expected the symbol ",".
 
-                                    Hint:
-                                        Ranges must contain two values, a low and a high bound.
-                                    """
+                                            Hint:
+                                                Ranges must contain two values, a low and a high bound.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Too many values" <|
@@ -257,21 +272,23 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a range's high side:
+                                            Error while parsing a range's high side:
 
-                                        ]Inf, 0, 1[Negative|[0, Inf]Positive
-                                               ^
+                                                ]Inf, 0, 1[Negative|[0, Inf]Positive
+                                                       ^
 
-                                    Expected one of:
-                                        - the symbol "]";
-                                        - the symbol "[".
+                                            Expected one of:
+                                                - the symbol "]";
+                                                - the symbol "[".
 
-                                    Hint:
-                                        Ranges can only contain two values, a low and a high bound.
-                                    """
+                                            Hint:
+                                                Ranges can only contain two values, a low and a high bound.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing values" <|
@@ -291,19 +308,21 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a range:
+                                            Error while parsing a range:
 
-                                        [0]Negative|[0, Inf]Positive
-                                          ^
+                                                [0]Negative|[0, Inf]Positive
+                                                  ^
 
-                                    Expected the symbol ",".
+                                            Expected the symbol ",".
 
-                                    Hint:
-                                        Ranges must contain two values, a low and a high bound.
-                                    """
+                                            Hint:
+                                                Ranges must contain two values, a low and a high bound.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     ]
@@ -325,19 +344,21 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a list of values:
+                                            Error while parsing a list of values:
 
-                                        {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
-                                          ^
+                                                {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
+                                                  ^
 
-                                    Error: empty list of values.
+                                            Error: empty list of values.
 
-                                    Hint:
-                                        A list of values must contain at least one value
-                                    """
+                                            Hint:
+                                                A list of values must contain at least one value
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing ," <|
@@ -357,21 +378,23 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a list of values:
+                                            Error while parsing a list of values:
 
-                                        {0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                           ^
+                                                {0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                                   ^
 
-                                    Expected one of:
-                                        - the symbol ",";
-                                        - the symbol "}".
+                                            Expected one of:
+                                                - the symbol ",";
+                                                - the symbol "}".
 
-                                    Hint:
-                                        The values must be separated by a ",".
-                                    """
+                                            Hint:
+                                                The values must be separated by a ",".
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Invalid value in first position" <|
@@ -391,21 +414,23 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a list of values:
+                                            Error while parsing a list of values:
 
-                                        {Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                         ^
+                                                {Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                                 ^
 
-                                    Expected one of:
-                                        - a valid integer;
-                                        - the symbol "}".
+                                            Expected one of:
+                                                - a valid integer;
+                                                - the symbol "}".
 
-                                    Hint:
-                                        Only integer are allowed in a list of values.
-                                    """
+                                            Hint:
+                                                Only integer are allowed in a list of values.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Invalid value" <|
@@ -425,19 +450,21 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a list of values:
+                                            Error while parsing a list of values:
 
-                                        {0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                            ^
+                                                {0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                                    ^
 
-                                    Expected a valid integer.
+                                            Expected a valid integer.
 
-                                    Hint:
-                                        Only integer are allowed in a list of values.
-                                    """
+                                            Hint:
+                                                Only integer are allowed in a list of values.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     ]
@@ -459,21 +486,23 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a pluralization:
+                                            Error while parsing a pluralization:
 
-                                        {0, 1}Pas de notification
-                                                                 ^
+                                                {0, 1}Pas de notification
+                                                                         ^
 
-                                    Error: at least two pluralizations are required.
+                                            Error: at least two pluralizations are required.
 
-                                    Hint:
-                                        Expected to be parsing a pluralization, found only one variant.
-                                        If this is a single message, try removing the prefix (the range or
-                                        the list of values). Otherwise add at least another variant.
-                                    """
+                                            Hint:
+                                                Expected to be parsing a pluralization, found only one variant.
+                                                If this is a single message, try removing the prefix (the range or
+                                                the list of values). Otherwise add at least another variant.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     , test "Missing prefix" <|
@@ -493,23 +522,25 @@ suite =
                                     """
 
                                 expected =
-                                    unindent """
-                                    Failed to parse a translation.
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
 
-                                    Error while parsing a block specifying when to apply the message:
+                                            Error while parsing a block specifying when to apply the message:
 
-                                        {0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues
-                                                               ^
+                                                {0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues
+                                                                       ^
 
-                                    Expected one of:
-                                        - the symbol "]";
-                                        - the symbol "[";
-                                        - the symbol "{".
+                                            Expected one of:
+                                                - the symbol "]";
+                                                - the symbol "[";
+                                                - the symbol "{".
 
-                                    Hint:
-                                        It seems a pluralization is missing either a range or a list of values
-                                        to specify when to apply this message.
-                                    """
+                                            Hint:
+                                                It seems a pluralization is missing either a range or a list of values
+                                                to specify when to apply this message.
+                                            """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     ]

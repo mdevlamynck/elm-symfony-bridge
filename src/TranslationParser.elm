@@ -1,10 +1,7 @@
 module TranslationParser exposing (parseAlternatives)
 
-import Json.Decode exposing (decodeString, dict, string)
-import Dict exposing (Dict)
 import Char
 import Result
-import Result.Extra as Result
 import List.Extra as List
 import List.Unique
 import Parser exposing (..)
@@ -60,6 +57,7 @@ formatError error =
             |> String.join "\n"
 
 
+flattenOneOf : Problem -> Problem
 flattenOneOf problem =
     let
         flatten problem =
