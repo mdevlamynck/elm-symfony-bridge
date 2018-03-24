@@ -146,7 +146,7 @@ suite =
                             """
 
                         expected =
-                            Err (unindent "Given an invalid JSON: Unexpected string in JSON at position 107")
+                            Err "Given an invalid JSON: Unexpected string in JSON at position 107"
                     in
                         Expect.equal expected (transpileTranslationToElm input)
             , describe "Prints invalid message format" <|

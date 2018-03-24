@@ -25,7 +25,7 @@ import Unindent exposing (unindent)
 parseAlternatives : String -> Result String (List Alternative)
 parseAlternatives input =
     Parser.run alternativesP input
-        >> Result.mapError formatError
+        |> Result.mapError formatError
 
 
 

@@ -1,8 +1,8 @@
-port module Main exposing (main)
+port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 {-| Entry point, receive commands from js, dispatch to elm function and return result to js
 
-@docs main
+@docs main, Msg, update, decodeJsValue
 
 -}
 
@@ -22,8 +22,14 @@ main : Program Never () Msg
 main =
     program
         { init = ( (), Cmd.none )
-        , update = \message _ -> ( (), update message )
-        , subscriptions = \_ -> subscriptions
+        , update =
+            \msg _ ->
+                msg
+                    |> update
+                    |> Maybe.map sendToJs
+                    |> Maybe.withDefault Cmd.none
+                    |> \cmd -> ( (), cmd )
+        , subscriptions = always <| sendToElm decodeJsValue
         }
 
 
@@ -46,24 +52,17 @@ type Msg
 
 {-| Run received commands
 -}
-update : Msg -> Cmd Msg
+update : Msg -> Maybe Value
 update message =
     case message of
         TranspileTranslation translation ->
             translation
                 |> Transpiler.transpileTranslationToElm
                 |> encodeTranslationResult
-                |> sendToJs
+                |> Just
 
         NoOp ->
-            Cmd.none
-
-
-{-| Subscribe to js comamnds
--}
-subscriptions : Sub Msg
-subscriptions =
-    sendToElm decodeJsValue
+            Nothing
 
 
 {-| Decode json commands
@@ -75,7 +74,7 @@ decodeJsValue =
         >> Maybe.andThen (Dict.toList >> List.head)
         >> Maybe.andThen
             (\( command, content ) ->
-                if command == "transpile" then
+                if command == "translation" then
                     Just <| TranspileTranslation content
                 else
                     Nothing
