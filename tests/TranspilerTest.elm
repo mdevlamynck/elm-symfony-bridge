@@ -291,7 +291,7 @@ suite =
                                             """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
-                    , test "Missing values" <|
+                    , test "Missing high value" <|
                         \_ ->
                             let
                                 input =
@@ -325,6 +325,76 @@ suite =
                                             """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
+                    , test "Missing values" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "[]Negative|[0, Inf]Positive"
+                                                }
+                                            }
+                                        }
+                                    }
+                                    """
+
+                                expected =
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
+
+                                            Error while parsing a range's low side:
+
+                                                []Negative|[0, Inf]Positive
+                                                 ^
+
+                                            Expected a valid integer.
+
+                                            Hint if the input is [Inf:
+                                                In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                                Try ]Inf instead."
+                                            """
+                            in
+                                Expect.equal expected (transpileTranslationToElm input)
+                    , test "Missing values with ," <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.account.balance": "[,]Negative|[0, Inf]Positive"
+                                                }
+                                            }
+                                        }
+                                    }
+                                    """
+
+                                expected =
+                                    Err <|
+                                        unindent
+                                            """
+                                            Failed to parse a translation.
+
+                                            Error while parsing a range's low side:
+
+                                                [,]Negative|[0, Inf]Positive
+                                                 ^
+
+                                            Expected a valid integer.
+
+                                            Hint if the input is [Inf:
+                                                In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                                Try ]Inf instead."
+                                            """
+                            in
+                                Expect.equal expected (transpileTranslationToElm input)
                     ]
                 , describe "Invalid list of values" <|
                     [ test "Empty list of values" <|
@@ -354,7 +424,7 @@ suite =
                                                 {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
                                                   ^
 
-                                            Error: empty list of values.
+                                            Expected a non empty list of values.
 
                                             Hint:
                                                 A list of values must contain at least one value
@@ -468,8 +538,8 @@ suite =
                             in
                                 Expect.equal expected (transpileTranslationToElm input)
                     ]
-                , describe "Invalid " <|
-                    [ test "Invalid pluralization" <|
+                , describe "Invalid pluralization" <|
+                    [ test "Only one pluralization" <|
                         \_ ->
                             let
                                 input =
@@ -496,7 +566,7 @@ suite =
                                                 {0, 1}Pas de notification
                                                                          ^
 
-                                            Error: at least two pluralizations are required.
+                                            Expected at least two pluralizations.
 
                                             Hint:
                                                 Expected to be parsing a pluralization, found only one variant.
@@ -540,6 +610,41 @@ suite =
                                             Hint:
                                                 It seems a pluralization is missing either a range or a list of values
                                                 to specify when to apply this message.
+                                            """
+                            in
+                                Expect.equal expected (transpileTranslationToElm input)
+                    , test "Missing prefix in the first message" <|
+                        \_ ->
+                            let
+                                input =
+                                    unindent """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
+                                                }
+                                            }
+                                        }
+                                    }
+                                    """
+
+                                expected =
+                                    Err <|
+                                        unindent """
+                                            Failed to parse a translation.
+
+                                            Error while parsing a translation:
+
+                                                Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
+                                                ^
+
+                                            Expected one of:
+                                                - at least two pluralizations;
+                                                - the end of input.
+
+                                            Hint:
+                                                It seems that either a pluralization is invalid or that a simple message contains a "|".
                                             """
                             in
                                 Expect.equal expected (transpileTranslationToElm input)

@@ -20,10 +20,12 @@ import Unindent exposing (unindent)
 -- Public
 
 
+{-| Runs the Translation parser on the given string
+-}
 parseAlternatives : String -> Result String (List Alternative)
 parseAlternatives input =
     Parser.run alternativesP input
-        |> Result.mapError formatError
+        >> Result.mapError formatError
 
 
 
@@ -126,7 +128,7 @@ formatProblem problem =
                     "a valid repeat"
 
                 ExpectingEnd ->
-                    "the end the input to parse"
+                    "the end of input"
 
                 ExpectingSymbol symbol ->
                     "the symbol \"" ++ symbol ++ "\""
@@ -144,9 +146,6 @@ formatProblem problem =
                     fail
     in
         case problem of
-            Fail fail ->
-                "Error: " ++ fail ++ "."
-
             BadOneOf list ->
                 "Expected " ++ (formatOne problem) ++ "."
 
@@ -185,7 +184,7 @@ formatHint description problem =
                 Ranges must contain two values, a low and a high bound.
             """
 
-        ( "a list of values", Fail "empty list of values" ) ->
+        ( "a list of values", Fail "a non empty list of values" ) ->
             unindent """
             Hint:
                 A list of values must contain at least one value
@@ -209,7 +208,7 @@ formatHint description problem =
                 Only integer are allowed in a list of values.
             """
 
-        ( "a pluralization", Fail "at least two pluralizations are required" ) ->
+        ( "a pluralization", Fail "at least two pluralizations" ) ->
             unindent """
             Hint:
                 Expected to be parsing a pluralization, found only one variant.
@@ -224,6 +223,12 @@ formatHint description problem =
                 to specify when to apply this message.
             """
 
+        ( "a translation", BadOneOf [ Fail "at least two pluralizations", ExpectingEnd ] ) ->
+            unindent """
+            Hint:
+                It seems that either a pluralization is invalid or that a simple message contains a "|".
+            """
+
         _ ->
             ""
 
@@ -232,22 +237,19 @@ formatHint description problem =
 -- Parsers
 
 
+{-| Parses a Translation
+-}
 alternativesP : Parser (List Alternative)
 alternativesP =
     inContext "a translation" <|
         oneOf
             [ pluralizationP
-            , messageP
-                |> map
-                    (\m ->
-                        [ { chunks = m
-                          , appliesTo = []
-                          }
-                        ]
-                    )
+            , singleMessageP
             ]
 
 
+{-| Parses a Translation as a list of Alternavites
+-}
 pluralizationP : Parser (List Alternative)
 pluralizationP =
     inContext "a pluralization" <|
@@ -259,19 +261,21 @@ pluralizationP =
             , item = alternativeP
             , trailing = Forbidden
             }
-            |> Parser.andThen
-                (failIf
-                    (\l -> List.length l <= 1)
-                    "at least two pluralizations are required"
-                )
+            |> failIf
+                (\l -> List.length l < 2)
+                "at least two pluralizations"
         )
 
 
+{-| Parses spaces
+-}
 spacesP : Parser ()
 spacesP =
     ignore zeroOrMore ((==) ' ')
 
 
+{-| Parses a single Alternative
+-}
 alternativeP : Parser Alternative
 alternativeP =
     inContext "a message in a translation with pluralization" <|
@@ -280,6 +284,8 @@ alternativeP =
             |= messageP
 
 
+{-| Parses an Alternative prefix (the appliesTo bloc:)
+-}
 appliesToP : Parser (List Range)
 appliesToP =
     inContext "a block specifying when to apply the message" <|
@@ -289,6 +295,8 @@ appliesToP =
             ]
 
 
+{-| Parses a Range
+-}
 rangeP : Parser Range
 rangeP =
     let
@@ -337,6 +345,8 @@ rangeP =
                 |= highRangeP
 
 
+{-| Parses a list of Ranges as a list of values
+-}
 listValueP : Parser (List Range)
 listValueP =
     inContext "a list of values"
@@ -348,7 +358,7 @@ listValueP =
             , item = int
             , trailing = Forbidden
             }
-            |> Parser.andThen (failIf List.isEmpty "empty list of values")
+            |> failIf List.isEmpty "a non empty list of values"
             |> map
                 (\list ->
                     list
@@ -363,6 +373,18 @@ listValueP =
         )
 
 
+{-| Parses a Translation as a single message
+-}
+singleMessageP : Parser (List Alternative)
+singleMessageP =
+    inContext "a single message"
+        (delayedCommitMap (\chunks _ -> Alternative [] chunks) messageP end
+            |> map List.singleton
+        )
+
+
+{-| Parses a message
+-}
 messageP : Parser (List Chunk)
 messageP =
     inContext "a message"
@@ -372,10 +394,7 @@ messageP =
                     (\elem acc ->
                         case ( elem, acc ) of
                             ( Text elem, (Text t) :: tail ) ->
-                                (Text (elem ++ t)) :: tail
-
-                            ( elem, c :: tail ) ->
-                                elem :: c :: tail
+                                Text (elem ++ t) :: tail
 
                             ( elem, acc ) ->
                                 elem :: acc
@@ -385,6 +404,8 @@ messageP =
         )
 
 
+{-| Parses a single character of a Text Chunk
+-}
 textP : Parser Chunk
 textP =
     inContext "pure text"
@@ -393,6 +414,8 @@ textP =
         )
 
 
+{-| Parses a placeholder of a Chunk
+-}
 placeholderP : Parser Chunk
 placeholderP =
     inContext "a placeholder"
@@ -404,19 +427,27 @@ placeholderP =
         )
 
 
+{-| Parses an identifier (ex: a variable name)
+-}
 identifierP : Parser String
 identifierP =
     keep oneOrMore isIdentifierChar
 
 
+{-| Is the given Char allowed to appear in in identifier
+-}
 isIdentifierChar : Char -> Bool
 isIdentifierChar c =
     Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_'
 
 
-failIf : (a -> Bool) -> String -> a -> Parser a
-failIf predicate message value =
-    if predicate value then
-        fail message
-    else
-        succeed value
+{-| Make a parser fail with the given message if the given predicate is True
+-}
+failIf : (a -> Bool) -> String -> Parser a -> Parser a
+failIf predicate message =
+    Parser.andThen <|
+        \value ->
+            if predicate value then
+                fail message
+            else
+                succeed value
