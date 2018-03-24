@@ -1,6 +1,6 @@
 module Data exposing (..)
 
-{-| Types common to several module
+{-| Types common to several modules
 
 @docs Translation, Alternative, Chunk, Range, RangeBound
 

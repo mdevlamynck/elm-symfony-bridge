@@ -1,5 +1,11 @@
 port module Main exposing (main)
 
+{-| Entry point, receive commands from js, dispatch to elm function and return result to js
+
+@docs main
+
+-}
+
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
 import Transpiler exposing (File)
@@ -10,6 +16,8 @@ import Platform.Cmd exposing (Cmd)
 import Platform.Sub exposing (Sub)
 
 
+{-| Entry point
+-}
 main : Program Never () Msg
 main =
     program
@@ -19,17 +27,25 @@ main =
         }
 
 
+{-| Allows receiving json values from js
+-}
 port sendToElm : (Value -> msg) -> Sub msg
 
 
+{-| Allows sending json values to js
+-}
 port sendToJs : Value -> Cmd msg
 
 
+{-| Handled commands
+-}
 type Msg
     = NoOp
     | TranspileTranslation String
 
 
+{-| Run received commands
+-}
 update : Msg -> Cmd Msg
 update message =
     case message of
@@ -43,11 +59,15 @@ update message =
             Cmd.none
 
 
+{-| Subscribe to js comamnds
+-}
 subscriptions : Sub Msg
 subscriptions =
     sendToElm decodeJsValue
 
 
+{-| Decode json commands
+-}
 decodeJsValue : Value -> Msg
 decodeJsValue =
     Decode.decodeValue (Decode.dict Decode.string)
@@ -63,6 +83,8 @@ decodeJsValue =
         >> Maybe.withDefault NoOp
 
 
+{-| Encode transpile translation results
+-}
 encodeTranslationResult : Result String File -> Value
 encodeTranslationResult result =
     Encode.object

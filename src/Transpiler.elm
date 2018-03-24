@@ -3,7 +3,7 @@ module Transpiler exposing (transpileTranslationToElm, File)
 {-| Converts a JSON containing translations from Symfony
 and turn them into an elm file.
 
-@docs transpileTranslationToElm
+@docs transpileTranslationToElm, File
 
 -}
 
