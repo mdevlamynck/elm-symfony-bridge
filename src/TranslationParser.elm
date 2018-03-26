@@ -1,8 +1,8 @@
-module TranslationParser exposing (parseAlternatives)
+module TranslationParser exposing (parseTranslationContent)
 
-{-| Parser for a Translation
+{-| Parser for a TranslationContent
 
-@docs parseAlternatives
+@docs parseTranslationContent
 
 -}
 
@@ -20,10 +20,10 @@ import Unindent exposing (unindent)
 -- Public
 
 
-{-| Runs the Translation parser on the given string
+{-| Runs the TranslationContent parser on the given string
 -}
-parseAlternatives : String -> Result String (List Alternative)
-parseAlternatives input =
+parseTranslationContent : String -> Result String TranslationContent
+parseTranslationContent input =
     Parser.run alternativesP input
         |> Result.mapError formatError
 
@@ -237,21 +237,21 @@ formatHint description problem =
 -- Parsers
 
 
-{-| Parses a Translation
+{-| Parses a TranslationContent
 -}
-alternativesP : Parser (List Alternative)
+alternativesP : Parser TranslationContent
 alternativesP =
     inContext "a translation" <|
         oneOf
-            [ pluralizationP
+            [ pluralizedMessageP
             , singleMessageP
             ]
 
 
-{-| Parses a Translation as a list of Alternavites
+{-| Parses a TranslationContent as a PluralizedMessage
 -}
-pluralizationP : Parser (List Alternative)
-pluralizationP =
+pluralizedMessageP : Parser TranslationContent
+pluralizedMessageP =
     inContext "a pluralization" <|
         (sequence
             { start = ""
@@ -264,6 +264,7 @@ pluralizationP =
             |> failIf
                 (\l -> List.length l < 2)
                 "at least two pluralizations"
+            |> map PluralizedMessage
         )
 
 
@@ -284,7 +285,7 @@ alternativeP =
             |= messageP
 
 
-{-| Parses an Alternative prefix (the appliesTo bloc:)
+{-| Parses an Alternative prefix (the appliesTo block)
 -}
 appliesToP : Parser (List Range)
 appliesToP =
@@ -373,14 +374,12 @@ listValueP =
         )
 
 
-{-| Parses a Translation as a single message
+{-| Parses a TranslationContent as a SingleMessage
 -}
-singleMessageP : Parser (List Alternative)
+singleMessageP : Parser TranslationContent
 singleMessageP =
-    inContext "a single message"
-        (delayedCommitMap (\chunks _ -> Alternative [] chunks) messageP end
-            |> map List.singleton
-        )
+    inContext "a single message" <|
+        delayedCommitMap (\chunks _ -> SingleMessage chunks) messageP end
 
 
 {-| Parses a message

@@ -2,7 +2,7 @@ module Data exposing (..)
 
 {-| Types common to several modules
 
-@docs Translation, Alternative, Chunk, Range, RangeBound
+@docs Translation, TranslationContent, Alternative, Chunk, Range, RangeBound
 
 -}
 
@@ -11,15 +11,25 @@ module Data exposing (..)
 
 name is the name of the translation
 placeholders is the list of variables
-alternatives is the list of alternatives in a pluralized translation. In a translation without pluralization it's a list of one element.
+content is the actual content of the translation
 
 -}
 type alias Translation =
     { name : String
     , placeholders : List String
-    , alternatives :
-        List Alternative
+    , content : TranslationContent
     }
+
+
+{-| The content of a translation
+
+Can either be a single message or in a pluralized translation a list of
+alternatives messages with the conditions to choose one over the others.
+
+-}
+type TranslationContent
+    = SingleMessage (List Chunk)
+    | PluralizedMessage (List Alternative)
 
 
 {-| A plurilized translation message is constitued of several alternatives, represented by this type

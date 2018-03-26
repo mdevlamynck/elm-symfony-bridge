@@ -97,12 +97,12 @@ convertToElm { domain, translations } =
 -}
 parseTranslation : ( String, String ) -> Result String Translation
 parseTranslation ( name, message ) =
-    TranslationParser.parseAlternatives message
+    TranslationParser.parseTranslationContent message
         |> Result.map
-            (\alternatives ->
+            (\translationContent ->
                 { name = formatName name
-                , placeholders = extractPlaceholders alternatives
-                , alternatives = alternatives
+                , placeholders = extractPlaceholders translationContent
+                , content = translationContent
                 }
             )
 
@@ -114,21 +114,31 @@ formatName =
     String.split "." >> String.join "_"
 
 
-{-| Extracts the list of placeholders used in any alternative
+{-| Extracts the list of placeholders used in the TranslationContent
 -}
-extractPlaceholders : List Alternative -> List String
-extractPlaceholders =
-    List.concatMap .chunks
-        >> List.filterMap
-            (\e ->
-                case e of
-                    Placeholder p ->
-                        Just p
+extractPlaceholders : TranslationContent -> List String
+extractPlaceholders translationContent =
+    let
+        chunks =
+            case translationContent of
+                SingleMessage chunks ->
+                    chunks
 
-                    _ ->
-                        Nothing
-            )
-        >> List.Unique.filterDuplicates
+                PluralizedMessage alternatives ->
+                    alternatives
+                        |> List.concatMap .chunks
+    in
+        chunks
+            |> List.filterMap
+                (\e ->
+                    case e of
+                        Placeholder p ->
+                            Just p
+
+                        _ ->
+                            Nothing
+                )
+            |> List.Unique.filterDuplicates
 
 
 {-| Turns a translation into an elm function
@@ -140,10 +150,12 @@ translationToElm translation =
             choice ++ record
 
         choice =
-            if List.length translation.alternatives > 1 then
-                [ Primitive "Int" "choice" ]
-            else
-                []
+            case translation.content of
+                SingleMessage _ ->
+                    []
+
+                PluralizedMessage _ ->
+                    [ Primitive "Int" "choice" ]
 
         recordArgs =
             List.map (\arg -> ( "String", arg )) translation.placeholders
@@ -154,18 +166,18 @@ translationToElm translation =
             else
                 [ Record recordArgs ]
     in
-        Function translation.name arguments "String" (alternativesToElm translation.alternatives)
+        Function translation.name arguments "String" (translationContentToElm translation.content)
 
 
-{-| Turns a list of alternatives into the body of an elm function
+{-| Turns a TranslationContent into the body of an elm function
 -}
-alternativesToElm : List Alternative -> Expr
-alternativesToElm alternatives =
-    case alternatives of
-        head :: [] ->
-            Expr (combineChunks head.chunks)
+translationContentToElm : TranslationContent -> Expr
+translationContentToElm translationContent =
+    case translationContent of
+        SingleMessage chunks ->
+            Expr (combineChunks chunks)
 
-        alternatives ->
+        PluralizedMessage alternatives ->
             Ifs
                 (alternatives
                     |> List.map
