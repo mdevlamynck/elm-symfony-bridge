@@ -51,12 +51,13 @@ suite =
                                 Just <|
                                     Encode.object
                                         [ ( "succeeded", Encode.bool True )
+                                        , ( "type", Encode.string "translation" )
                                         , ( "file"
                                           , Encode.object
-                                                [ ( "name", Encode.string "TransMessages.elm" )
+                                                [ ( "name", Encode.string "Trans/Messages.elm" )
                                                 , ( "content"
                                                   , Encode.string <| unindent """
-                                            module TransMessages exposing (..)
+                                            module Trans.Messages exposing (..)
 
 
                                             button_validate_global : String
@@ -89,6 +90,7 @@ suite =
                                 Just <|
                                     Encode.object
                                         [ ( "succeeded", Encode.bool False )
+                                        , ( "type", Encode.string "translation" )
                                         , ( "error", Encode.string "Given an invalid JSON: Unexpected string in JSON at position 107" )
                                         ]
                         in

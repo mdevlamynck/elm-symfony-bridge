@@ -88,6 +88,7 @@ encodeTranslationResult : Result String File -> Value
 encodeTranslationResult result =
     Encode.object
         [ ( "succeeded", Encode.bool <| Result.isOk result )
+        , ( "type", Encode.string "translation" )
         , result
             |> Result.map
                 (\file ->

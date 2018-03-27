@@ -78,7 +78,7 @@ parseTranslationDomain { domain, translations } =
         |> Result.combine
         |> Result.map
             (\translations ->
-                { domain = "Trans" ++ (String.toSentenceCase domain)
+                { domain = String.toSentenceCase domain
                 , translations = translations
                 }
             )
@@ -88,8 +88,8 @@ parseTranslationDomain { domain, translations } =
 -}
 convertToElm : TranslationDomain -> File
 convertToElm { domain, translations } =
-    { name = domain ++ ".elm"
-    , content = renderElmModule <| Module domain (List.map translationToElm translations)
+    { name = "Trans/" ++ domain ++ ".elm"
+    , content = renderElmModule <| Module ("Trans." ++ domain) (List.map translationToElm translations)
     }
 
 

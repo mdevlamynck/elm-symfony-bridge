@@ -31,7 +31,10 @@
   "engines": {
     "node": ">=6.11.5"
   },
-  "dependencies": {},
+  "dependencies": {
+    "glob": "^7.1.2",
+    "var": "^0.3.2"
+  },
   "devDependencies": {
     "elm": "^0.18.0",
     "elm-doc-test": "^4.0.0",

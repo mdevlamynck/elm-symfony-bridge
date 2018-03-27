@@ -30,9 +30,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "TransMessages.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module TransMessages exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     button_validate_global : String
@@ -66,9 +66,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "TransMessages.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module TransMessages exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     user_notifications : { count : String } -> String
@@ -102,9 +102,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "TransMessages.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module TransMessages exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     user_account_balance : Int -> String
