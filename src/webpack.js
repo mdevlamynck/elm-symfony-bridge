@@ -6,16 +6,15 @@ const Elm = require('./Main.elm');
 // TODO handle errors
 
 class ElmSymfonyBridgePlugin {
-	construct() {}
 
 	apply(compiler) {
-		var transpiler = Elm.Main.worker();
+		this.transpiler = Elm.Main.worker();
 
 		// Run symfony dumps commands at the beginning of every compilation
 		compiler.plugin('before-compile', (compilationParameters, callback) => {
 			execSync('./bin/console fos:js-routing:dump');
 			execSync('./bin/console bazinga:js-translation:dump');
-			transpileTranslations(callback);
+			this.transpileTranslations(callback);
 		});
 
 		// Trigger recompilation via watching symfony files
@@ -33,9 +32,10 @@ class ElmSymfonyBridgePlugin {
 	}
 
 	transpileTranslations(callback) {
-		const files = glob.sync('./**/Resources/**/translations/*.yml');
+		const files = glob.sync('./web/js/translations/*/fr.json');
 		var remainingTranslations = files.length;
 
+		var that = this;
 		var elmSubscribtion = function(data) {
 			if (data.succeeded) {
 				fs.writeFileSync('./assets/elm/' + data.file.name, data.file.content);
@@ -45,15 +45,15 @@ class ElmSymfonyBridgePlugin {
 
 			remainingTranslations--;
 			if (remainingTranslations === 0) {
-				transpiler.ports.sendToJs.unsubscribe(elmSubscribtion);
+				that.transpiler.ports.sendToJs.unsubscribe(elmSubscribtion);
 				callback();
 			}
 		};
 
-		transpiler.ports.sendToJs.subscribe(elmSubscribtion);
+		this.transpiler.ports.sendToJs.subscribe(elmSubscribtion);
 		files.map(file => {
 			const content = fs.readFileSync(file, 'utf8');
-			transpiler.ports.sendToElm.send({translation: content}));
+			this.transpiler.ports.sendToElm.send({translation: content});
 		});
 	}
 }
