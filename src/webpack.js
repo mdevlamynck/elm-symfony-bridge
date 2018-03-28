@@ -38,6 +38,7 @@ class ElmSymfonyBridgePlugin {
 		var that = this;
 		var elmSubscribtion = function(data) {
 			if (data.succeeded) {
+				that.makeDir('./assets/elm/Trans');
 				fs.writeFileSync('./assets/elm/' + data.file.name, data.file.content);
 			} else {
 				console.log(data.error);
@@ -55,6 +56,16 @@ class ElmSymfonyBridgePlugin {
 			const content = fs.readFileSync(file, 'utf8');
 			this.transpiler.ports.sendToElm.send({translation: content});
 		});
+	}
+
+	makeDir(dir) {
+		try {
+			fs.mkdirSync(dir);
+		} catch (err) {
+			if (err.code !== 'EEXIST') {
+				throw err
+			}
+		}
 	}
 }
 
