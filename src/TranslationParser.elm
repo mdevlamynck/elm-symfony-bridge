@@ -387,7 +387,7 @@ singleMessageP =
 messageP : Parser (List Chunk)
 messageP =
     inContext "a message"
-        (repeat (AtLeast 1) (oneOf [ placeholderP, textP ])
+        (repeat (AtLeast 1) (oneOf [ variableP, textP ])
             |> map
                 (List.foldr
                     (\elem acc ->
@@ -413,16 +413,22 @@ textP =
         )
 
 
-{-| Parses a placeholder of a Chunk
+{-| Parses a variable of a Chunk
 -}
-placeholderP : Parser Chunk
-placeholderP =
-    inContext "a placeholder"
+variableP : Parser Chunk
+variableP =
+    inContext "a variable"
         (succeed identity
             |. symbol "%"
             |= identifierP
             |. symbol "%"
-            |> map Placeholder
+            |> map
+                (\variable ->
+                    if variable == "count" then
+                        VariableCount
+                    else
+                        Variable variable
+                )
         )
 
 

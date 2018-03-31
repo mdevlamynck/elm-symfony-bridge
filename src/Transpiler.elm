@@ -101,7 +101,7 @@ parseTranslation ( name, message ) =
         |> Result.map
             (\translationContent ->
                 { name = formatName name
-                , placeholders = extractPlaceholders translationContent
+                , variables = extractVariables translationContent
                 , content = translationContent
                 }
             )
@@ -114,10 +114,10 @@ formatName =
     String.split "." >> String.join "_"
 
 
-{-| Extracts the list of placeholders used in the TranslationContent
+{-| Extracts the list of variables used in the TranslationContent
 -}
-extractPlaceholders : TranslationContent -> List String
-extractPlaceholders translationContent =
+extractVariables : TranslationContent -> List String
+extractVariables translationContent =
     let
         chunks =
             case translationContent of
@@ -132,8 +132,8 @@ extractPlaceholders translationContent =
             |> List.filterMap
                 (\e ->
                     case e of
-                        Placeholder p ->
-                            Just p
+                        Variable v ->
+                            Just v
 
                         _ ->
                             Nothing
@@ -147,18 +147,16 @@ translationToElm : Translation -> Function
 translationToElm translation =
     let
         arguments =
-            choice ++ record
+            count ++ record
 
-        choice =
-            case translation.content of
-                SingleMessage _ ->
-                    []
-
-                PluralizedMessage _ ->
-                    [ Primitive "Int" "choice" ]
+        count =
+            if hasCountVariable translation.content then
+                [ Primitive "Int" "count" ]
+            else
+                []
 
         recordArgs =
-            List.map (\arg -> ( "String", arg )) translation.placeholders
+            List.map (\arg -> ( "String", arg )) translation.variables
 
         record =
             if recordArgs == [] then
@@ -167,6 +165,27 @@ translationToElm translation =
                 [ Record recordArgs ]
     in
         Function translation.name arguments "String" (translationContentToElm translation.content)
+
+
+{-| Does a TranslationContent contains a `count` variable
+-}
+hasCountVariable : TranslationContent -> Bool
+hasCountVariable translationContent =
+    case translationContent of
+        SingleMessage chunks ->
+            chunks
+                |> List.any
+                    (\chunk ->
+                        case chunk of
+                            VariableCount ->
+                                True
+
+                            _ ->
+                                False
+                    )
+
+        PluralizedMessage _ ->
+            True
 
 
 {-| Turns a TranslationContent into the body of an elm function
@@ -214,7 +233,7 @@ rangeToCondExpr range =
             case ( range.low, range.high ) of
                 ( Included low, Included high ) ->
                     if low == high then
-                        Just <| "choice == " ++ (toString low)
+                        Just <| "count == " ++ (toString low)
                     else
                         Nothing
 
@@ -227,10 +246,10 @@ rangeToCondExpr range =
                     Nothing
 
                 Included bound ->
-                    Just <| "choice >= " ++ (toString bound)
+                    Just <| "count >= " ++ (toString bound)
 
                 Excluded bound ->
-                    Just <| "choice > " ++ (toString bound)
+                    Just <| "count > " ++ (toString bound)
 
         highBound =
             case range.high of
@@ -238,10 +257,10 @@ rangeToCondExpr range =
                     Nothing
 
                 Included bound ->
-                    Just <| "choice <= " ++ (toString bound)
+                    Just <| "count <= " ++ (toString bound)
 
                 Excluded bound ->
-                    Just <| "choice < " ++ (toString bound)
+                    Just <| "count < " ++ (toString bound)
     in
         case ( isLowEqualToHigh, lowBound, highBound ) of
             ( Just value, _, _ ) ->
@@ -275,5 +294,8 @@ chunkToString chunk =
         Text text ->
             "\"" ++ text ++ "\""
 
-        Placeholder placeholder ->
-            placeholder
+        Variable variable ->
+            variable
+
+        VariableCount ->
+            "(toString count)"

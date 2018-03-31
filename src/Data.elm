@@ -10,13 +10,13 @@ module Data exposing (..)
 {-| Represents a Translation
 
 name is the name of the translation
-placeholders is the list of variables
+variables is the list of variables
 content is the actual content of the translation
 
 -}
 type alias Translation =
     { name : String
-    , placeholders : List String
+    , variables : List String
     , content : TranslationContent
     }
 
@@ -43,15 +43,18 @@ type alias Alternative =
     }
 
 
-{-| A translation's message is constant string with placeholder for variables
+{-| A translation's message is constant string with variable for variables
 
-Text represent the contant part
-Placeholder represent the variable name
+Text represents the contant part
+Variable represents the variable name
+VariableCount represents the special variable `count` controlling the selection
+of the variant in a pluralized message
 
 -}
 type Chunk
     = Text String
-    | Placeholder String
+    | Variable String
+    | VariableCount
 
 
 {-| A range with a minimal value and a maximal value
