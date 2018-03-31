@@ -2,7 +2,7 @@ module Data exposing (..)
 
 {-| Types common to several modules
 
-@docs Translation, TranslationContent, Alternative, Chunk, Range, RangeBound
+@docs Translation, TranslationContent, Alternative, Chunk, Interval, IntervalBound
 
 -}
 
@@ -38,7 +38,7 @@ A translation without pluralization is considered to be constitued of a single A
 
 -}
 type alias Alternative =
-    { appliesTo : List Range
+    { appliesTo : List Interval
     , chunks : List Chunk
     }
 
@@ -57,26 +57,26 @@ type Chunk
     | VariableCount
 
 
-{-| A range with a minimal value and a maximal value
+{-| A interval with a minimal value and a maximal value
 
 Used to determine which alternative to use for a given value
-by checking in which range the value falls.
+by checking in which interval the value falls.
 
 -}
-type alias Range =
-    { low : RangeBound
-    , high : RangeBound
+type alias Interval =
+    { low : IntervalBound
+    , high : IntervalBound
     }
 
 
-{-| Represent either the lower limit or the high limit of a Range
+{-| Represent either the lower limit or the high limit of a Interval
 
 Inf is -infinity or +infinity depending if its present in the low or high bound.
-Included means the limit falls in the range
-Excluded means the limit falls out of the range
+Included means the limit falls in the interval
+Excluded means the limit falls out of the interval
 
 -}
-type RangeBound
+type IntervalBound
     = Inf
     | Included Int
     | Excluded Int

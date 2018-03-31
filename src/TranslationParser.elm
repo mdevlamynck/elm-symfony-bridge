@@ -158,30 +158,30 @@ formatProblem problem =
 formatHint : String -> Problem -> String
 formatHint description problem =
     case ( description, problem ) of
-        ( "a range's low side", BadInt ) ->
+        ( "a interval's low side", BadInt ) ->
             unindent """
             Hint if the input is [Inf:
-                In a range's low side, [Inf is invalid as Inf is always exclusive.
+                In a interval's low side, [Inf is invalid as Inf is always exclusive.
                 Try ]Inf instead."
             """
 
-        ( "a range's high side", ExpectingSymbol "[" ) ->
+        ( "a interval's high side", ExpectingSymbol "[" ) ->
             unindent """
             Hint if the input is Inf]:
-                In a range's high side, Inf] is invalid as Inf is always exclusive.
+                In a interval's high side, Inf] is invalid as Inf is always exclusive.
                 Try Inf[ instead."
             """
 
-        ( "a range's high side", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[" ] ) ->
+        ( "a interval's high side", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[" ] ) ->
             unindent """
             Hint:
-                Ranges can only contain two values, a low and a high bound.
+                Intervals can only contain two values, a low and a high bound.
             """
 
-        ( "a range", ExpectingSymbol "," ) ->
+        ( "a interval", ExpectingSymbol "," ) ->
             unindent """
             Hint:
-                Ranges must contain two values, a low and a high bound.
+                Intervals must contain two values, a low and a high bound.
             """
 
         ( "a list of values", Fail "a non empty list of values" ) ->
@@ -212,14 +212,14 @@ formatHint description problem =
             unindent """
             Hint:
                 Expected to be parsing a pluralization, found only one variant.
-                If this is a single message, try removing the prefix (the range or
+                If this is a single message, try removing the prefix (the interval or
                 the list of values). Otherwise add at least another variant.
             """
 
         ( "a block specifying when to apply the message", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[", ExpectingSymbol "{" ] ) ->
             unindent """
             Hint:
-                It seems a pluralization is missing either a range or a list of values
+                It seems a pluralization is missing either a interval or a list of values
                 to specify when to apply this message.
             """
 
@@ -287,19 +287,19 @@ alternativeP =
 
 {-| Parses an Alternative prefix (the appliesTo block)
 -}
-appliesToP : Parser (List Range)
+appliesToP : Parser (List Interval)
 appliesToP =
     inContext "a block specifying when to apply the message" <|
         oneOf
-            [ rangeP |> map List.singleton
+            [ intervalP |> map List.singleton
             , listValueP
             ]
 
 
-{-| Parses a Range
+{-| Parses a Interval
 -}
-rangeP : Parser Range
-rangeP =
+intervalP : Parser Interval
+intervalP =
     let
         lowInf =
             symbol "]"
@@ -329,26 +329,26 @@ rangeP =
                     , symbol "[" |> map (\_ -> Excluded)
                     ]
 
-        lowRangeP =
-            inContext "a range's low side" <|
+        lowIntervalP =
+            inContext "a interval's low side" <|
                 oneOf [ lowInf, lowValue ]
 
-        highRangeP =
-            inContext "a range's high side" <|
+        highIntervalP =
+            inContext "a interval's high side" <|
                 oneOf [ highInf, highValue ]
     in
-        inContext "a range" <|
-            succeed Range
-                |= lowRangeP
+        inContext "a interval" <|
+            succeed Interval
+                |= lowIntervalP
                 |. spacesP
                 |. symbol ","
                 |. spacesP
-                |= highRangeP
+                |= highIntervalP
 
 
-{-| Parses a list of Ranges as a list of values
+{-| Parses a list of Intervals as a list of values
 -}
-listValueP : Parser (List Range)
+listValueP : Parser (List Interval)
 listValueP =
     inContext "a list of values"
         (sequence

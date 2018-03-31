@@ -171,7 +171,7 @@ suite =
                                     """
                                     Failed to parse a translation.
 
-                                    Error while parsing a range's low side:
+                                    Error while parsing a interval's low side:
 
                                         [Inf, 0[Negative|[0, Inf[Positive
                                          ^
@@ -179,7 +179,7 @@ suite =
                                     Expected a valid integer.
 
                                     Hint if the input is [Inf:
-                                        In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                        In a interval's low side, [Inf is invalid as Inf is always exclusive.
                                         Try ]Inf instead."
                                     """
                     in

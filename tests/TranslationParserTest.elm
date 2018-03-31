@@ -63,8 +63,8 @@ suite =
                         Expect.equal expected (parseTranslationContent input)
             ]
         , describe "Failed parsing" <|
-            [ describe "Invalid ranges" <|
-                [ test "Invalid range's low side [Inf" <|
+            [ describe "Invalid intervals" <|
+                [ test "Invalid interval's low side [Inf" <|
                     \_ ->
                         let
                             input =
@@ -76,7 +76,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range's low side:
+                                        Error while parsing a interval's low side:
 
                                             [Inf, 0[Negative|[0, Inf[Positive
                                              ^
@@ -84,12 +84,12 @@ suite =
                                         Expected a valid integer.
 
                                         Hint if the input is [Inf:
-                                            In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                            In a interval's low side, [Inf is invalid as Inf is always exclusive.
                                             Try ]Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
-                , test "Invalid range's high side Inf]" <|
+                , test "Invalid interval's high side Inf]" <|
                     \_ ->
                         let
                             input =
@@ -101,7 +101,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range's high side:
+                                        Error while parsing a interval's high side:
 
                                             ]Inf, 0[Negative|[0, Inf]Positive
                                                                     ^
@@ -109,7 +109,7 @@ suite =
                                         Expected the symbol "[".
 
                                         Hint if the input is Inf]:
-                                            In a range's high side, Inf] is invalid as Inf is always exclusive.
+                                            In a interval's high side, Inf] is invalid as Inf is always exclusive.
                                             Try Inf[ instead."
                                         """
                         in
@@ -126,7 +126,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range:
+                                        Error while parsing a interval:
 
                                             ]Inf 0[Negative|[0, Inf]Positive
                                                  ^
@@ -134,7 +134,7 @@ suite =
                                         Expected the symbol ",".
 
                                         Hint:
-                                            Ranges must contain two values, a low and a high bound.
+                                            Intervals must contain two values, a low and a high bound.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -150,7 +150,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range's high side:
+                                        Error while parsing a interval's high side:
 
                                             ]Inf, 0, 1[Negative|[0, Inf]Positive
                                                    ^
@@ -160,7 +160,7 @@ suite =
                                             - the symbol "[".
 
                                         Hint:
-                                            Ranges can only contain two values, a low and a high bound.
+                                            Intervals can only contain two values, a low and a high bound.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -176,7 +176,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range:
+                                        Error while parsing a interval:
 
                                             [0]Negative|[0, Inf]Positive
                                               ^
@@ -184,7 +184,7 @@ suite =
                                         Expected the symbol ",".
 
                                         Hint:
-                                            Ranges must contain two values, a low and a high bound.
+                                            Intervals must contain two values, a low and a high bound.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -200,7 +200,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range's low side:
+                                        Error while parsing a interval's low side:
 
                                             []Negative|[0, Inf]Positive
                                              ^
@@ -208,7 +208,7 @@ suite =
                                         Expected a valid integer.
 
                                         Hint if the input is [Inf:
-                                            In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                            In a interval's low side, [Inf is invalid as Inf is always exclusive.
                                             Try ]Inf instead."
                                         """
                         in
@@ -225,7 +225,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a range's low side:
+                                        Error while parsing a interval's low side:
 
                                             [,]Negative|[0, Inf]Positive
                                              ^
@@ -233,7 +233,7 @@ suite =
                                         Expected a valid integer.
 
                                         Hint if the input is [Inf:
-                                            In a range's low side, [Inf is invalid as Inf is always exclusive.
+                                            In a interval's low side, [Inf is invalid as Inf is always exclusive.
                                             Try ]Inf instead."
                                         """
                         in
@@ -363,7 +363,7 @@ suite =
 
                                         Hint:
                                             Expected to be parsing a pluralization, found only one variant.
-                                            If this is a single message, try removing the prefix (the range or
+                                            If this is a single message, try removing the prefix (the interval or
                                             the list of values). Otherwise add at least another variant.
                                         """
                         in
@@ -391,7 +391,7 @@ suite =
                                             - the symbol "{".
 
                                         Hint:
-                                            It seems a pluralization is missing either a range or a list of values
+                                            It seems a pluralization is missing either a interval or a list of values
                                             to specify when to apply this message.
                                         """
                         in

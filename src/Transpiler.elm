@@ -201,36 +201,36 @@ translationContentToElm translationContent =
                 (alternatives
                     |> List.map
                         (\alt ->
-                            ( Expr (combineRanges alt.appliesTo), Expr (combineChunks alt.chunks) )
+                            ( Expr (combineIntervals alt.appliesTo), Expr (combineChunks alt.chunks) )
                         )
                 )
 
 
-{-| Turns a list of Ranges into an elm expression usable in a if
+{-| Turns a list of Intervals into an elm expression usable in a if
 -}
-combineRanges : List Range -> String
-combineRanges ranges =
-    case ranges of
+combineIntervals : List Interval -> String
+combineIntervals intervals =
+    case intervals of
         head :: [] ->
-            rangeToCondExpr head
+            intervalToCondExpr head
 
-        ranges ->
+        intervals ->
             let
                 conditions =
-                    ranges
-                        |> List.map rangeToCondExpr
+                    intervals
+                        |> List.map intervalToCondExpr
                         |> String.join ") || ("
             in
                 "(" ++ conditions ++ ")"
 
 
-{-| Turns a Range into an elm expression usable in a if
+{-| Turns a Interval into an elm expression usable in a if
 -}
-rangeToCondExpr : Range -> String
-rangeToCondExpr range =
+intervalToCondExpr : Interval -> String
+intervalToCondExpr interval =
     let
         isLowEqualToHigh =
-            case ( range.low, range.high ) of
+            case ( interval.low, interval.high ) of
                 ( Included low, Included high ) ->
                     if low == high then
                         Just <| "count == " ++ (toString low)
@@ -241,7 +241,7 @@ rangeToCondExpr range =
                     Nothing
 
         lowBound =
-            case range.low of
+            case interval.low of
                 Inf ->
                     Nothing
 
@@ -252,7 +252,7 @@ rangeToCondExpr range =
                     Just <| "count > " ++ (toString bound)
 
         highBound =
-            case range.high of
+            case interval.high of
                 Inf ->
                     Nothing
 
