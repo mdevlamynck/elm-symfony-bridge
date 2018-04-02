@@ -158,27 +158,27 @@ formatProblem problem =
 formatHint : String -> Problem -> String
 formatHint description problem =
     case ( description, problem ) of
-        ( "a interval's low side", BadInt ) ->
+        ( "an interval's low side", BadInt ) ->
             unindent """
             Hint if the input is [Inf:
-                In a interval's low side, [Inf is invalid as Inf is always exclusive.
+                In an interval's low side, [Inf is invalid as Inf is always exclusive.
                 Try ]Inf instead."
             """
 
-        ( "a interval's high side", ExpectingSymbol "[" ) ->
+        ( "an interval's high side", ExpectingSymbol "[" ) ->
             unindent """
             Hint if the input is Inf]:
-                In a interval's high side, Inf] is invalid as Inf is always exclusive.
+                In an interval's high side, Inf] is invalid as Inf is always exclusive.
                 Try Inf[ instead."
             """
 
-        ( "a interval's high side", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[" ] ) ->
+        ( "an interval's high side", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[" ] ) ->
             unindent """
             Hint:
                 Intervals can only contain two values, a low and a high bound.
             """
 
-        ( "a interval", ExpectingSymbol "," ) ->
+        ( "an interval", ExpectingSymbol "," ) ->
             unindent """
             Hint:
                 Intervals must contain two values, a low and a high bound.
@@ -208,27 +208,6 @@ formatHint description problem =
                 Only integer are allowed in a list of values.
             """
 
-        ( "a pluralization", Fail "at least two pluralizations" ) ->
-            unindent """
-            Hint:
-                Expected to be parsing a pluralization, found only one variant.
-                If this is a single message, try removing the prefix (the interval or
-                the list of values). Otherwise add at least another variant.
-            """
-
-        ( "a block specifying when to apply the message", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[", ExpectingSymbol "{" ] ) ->
-            unindent """
-            Hint:
-                It seems a pluralization is missing either a interval or a list of values
-                to specify when to apply this message.
-            """
-
-        ( "a translation", BadOneOf [ Fail "at least two pluralizations", ExpectingEnd ] ) ->
-            unindent """
-            Hint:
-                It seems that either a pluralization is invalid or that a simple message contains a "|".
-            """
-
         _ ->
             ""
 
@@ -241,31 +220,26 @@ formatHint description problem =
 -}
 alternativesP : Parser TranslationContent
 alternativesP =
-    inContext "a translation" <|
-        oneOf
-            [ pluralizedMessageP
-            , singleMessageP
-            ]
+    let
+        alternativesConstructor alternatives =
+            case alternatives of
+                alternative :: [] ->
+                    SingleMessage alternative.chunks
 
-
-{-| Parses a TranslationContent as a PluralizedMessage
--}
-pluralizedMessageP : Parser TranslationContent
-pluralizedMessageP =
-    inContext "a pluralization" <|
-        (sequence
-            { start = ""
-            , end = ""
-            , separator = "|"
-            , spaces = spacesP
-            , item = alternativeP
-            , trailing = Forbidden
-            }
-            |> failIf
-                (\l -> List.length l < 2)
-                "at least two pluralizations"
-            |> map PluralizedMessage
-        )
+                alternatives ->
+                    PluralizedMessage alternatives
+    in
+        inContext "a translation" <|
+            succeed alternativesConstructor
+                |= sequence
+                    { start = ""
+                    , end = ""
+                    , separator = "|"
+                    , spaces = spacesP
+                    , item = alternativeP
+                    , trailing = Forbidden
+                    }
+                |. end
 
 
 {-| Parses spaces
@@ -279,45 +253,63 @@ spacesP =
 -}
 alternativeP : Parser Alternative
 alternativeP =
-    inContext "a message in a translation with pluralization" <|
+    inContext "a message in a translation" <|
         succeed Alternative
-            |= appliesToP
+            |. spacesP
+            |= oneOf
+                [ appliesToIntervalP
+                , appliesToIndexedP
+                ]
+            |. spacesP
             |= messageP
+            |. spacesP
 
 
-{-| Parses an Alternative prefix (the appliesTo block)
+{-| Parses an AppliesTo in its interval form
 -}
-appliesToP : Parser (List Interval)
-appliesToP =
+appliesToIntervalP : Parser AppliesTo
+appliesToIntervalP =
     inContext "a block specifying when to apply the message" <|
         oneOf
-            [ intervalP |> map List.singleton
+            [ intervalP
             , listValueP
             ]
 
 
-{-| Parses a Interval
+{-| Parses an AppliesTo in its indexed form
 -}
-intervalP : Parser Interval
+appliesToIndexedP : Parser AppliesTo
+appliesToIndexedP =
+    succeed Indexed
+        |. oneOf
+            [ labelP
+            , succeed ""
+            ]
+
+
+{-| Parses an Interval
+-}
+intervalP : Parser AppliesTo
 intervalP =
     let
         lowInf =
-            symbol "]"
+            succeed Inf
+                |. symbol "]"
                 |. spacesP
                 |. keyword "Inf"
-                |> map (\_ -> Inf)
 
         highInf =
-            keyword "Inf"
+            succeed Inf
+                |. keyword "Inf"
                 |. spacesP
                 |. symbol "["
-                |> map (\_ -> Inf)
 
         lowValue =
-            oneOf
-                [ symbol "]" |> map (\_ -> Excluded)
-                , symbol "[" |> map (\_ -> Included)
-                ]
+            succeed (<|)
+                |= oneOf
+                    [ symbol "]" |> map (\_ -> Excluded)
+                    , symbol "[" |> map (\_ -> Included)
+                    ]
                 |. spacesP
                 |= int
 
@@ -330,123 +322,130 @@ intervalP =
                     ]
 
         lowIntervalP =
-            inContext "a interval's low side" <|
+            inContext "an interval's low side" <|
                 oneOf [ lowInf, lowValue ]
 
         highIntervalP =
-            inContext "a interval's high side" <|
+            inContext "an interval's high side" <|
                 oneOf [ highInf, highValue ]
     in
-        inContext "a interval" <|
-            succeed Interval
+        inContext "an interval"
+            (succeed Interval
                 |= lowIntervalP
                 |. spacesP
                 |. symbol ","
                 |. spacesP
                 |= highIntervalP
+                |> map (Intervals << List.singleton)
+            )
 
 
 {-| Parses a list of Intervals as a list of values
 -}
-listValueP : Parser (List Interval)
+listValueP : Parser AppliesTo
 listValueP =
-    inContext "a list of values"
-        (sequence
-            { start = "{"
-            , end = "}"
-            , separator = ","
-            , spaces = spacesP
-            , item = int
-            , trailing = Forbidden
-            }
-            |> failIf List.isEmpty "a non empty list of values"
-            |> map
-                (\list ->
-                    list
-                        |> List.sort
-                        |> List.map
-                            (\v ->
-                                { low = Included v
-                                , high = Included v
-                                }
-                            )
-                )
-        )
-
-
-{-| Parses a TranslationContent as a SingleMessage
--}
-singleMessageP : Parser TranslationContent
-singleMessageP =
-    inContext "a single message" <|
-        delayedCommitMap (\chunks _ -> SingleMessage chunks) messageP end
+    let
+        listValueConstructor =
+            List.sort
+                >> List.map
+                    (\v ->
+                        { low = Included v
+                        , high = Included v
+                        }
+                    )
+                >> Intervals
+    in
+        inContext "a list of values" <|
+            succeed listValueConstructor
+                |= (sequence
+                        { start = "{"
+                        , end = "}"
+                        , separator = ","
+                        , spaces = spacesP
+                        , item = int
+                        , trailing = Forbidden
+                        }
+                        |> failIf List.isEmpty "a non empty list of values"
+                   )
 
 
 {-| Parses a message
 -}
 messageP : Parser (List Chunk)
 messageP =
-    inContext "a message"
-        (repeat (AtLeast 1) (oneOf [ variableP, textP ])
-            |> map
-                (List.foldr
-                    (\elem acc ->
-                        case ( elem, acc ) of
-                            ( Text elem, (Text t) :: tail ) ->
-                                Text (elem ++ t) :: tail
+    let
+        messageConstructor =
+            List.foldr
+                (\elem acc ->
+                    case ( elem, acc ) of
+                        ( elem, (Text " ") :: [] ) ->
+                            [ elem ]
 
-                            ( elem, acc ) ->
-                                elem :: acc
-                    )
-                    []
+                        ( Text elem, (Text t) :: tail ) ->
+                            Text (elem ++ t) :: tail
+
+                        ( elem, acc ) ->
+                            elem :: acc
                 )
-        )
+                []
+    in
+        inContext "a message" <|
+            succeed messageConstructor
+                |= repeat (AtLeast 1) (oneOf [ variableP, textP ])
 
 
 {-| Parses a single character of a Text Chunk
 -}
 textP : Parser Chunk
 textP =
-    inContext "pure text"
-        (keep (Exactly 1) ((/=) '|')
-            |> map Text
-        )
+    inContext "pure text" <|
+        succeed Text
+            |= keep (Exactly 1) ((/=) '|')
 
 
 {-| Parses a variable of a Chunk
 -}
 variableP : Parser Chunk
 variableP =
-    inContext "a variable"
-        (succeed identity
-            |. symbol "%"
-            |= identifierP
-            |. symbol "%"
-            |> map
-                (\variable ->
-                    if variable == "count" then
-                        VariableCount
-                    else
-                        Variable variable
-                )
-        )
+    let
+        variableConstructor variable =
+            if variable == "count" then
+                VariableCount
+            else
+                Variable variable
+    in
+        inContext "a variable" <|
+            succeed variableConstructor
+                |. symbol "%"
+                |= keep oneOrMore isIdentifierChar
+                |. symbol "%"
 
 
-{-| Parses an identifier (ex: a variable name)
+{-| Parses label
 -}
-identifierP : Parser String
-identifierP =
-    keep oneOrMore isIdentifierChar
+labelP : Parser String
+labelP =
+    inContext "a label" <|
+        succeed identity
+            |= keep oneOrMore isLabelChar
+            |. symbol ":"
 
 
-{-| Is the given Char allowed to appear in in identifier
+{-| Is the given Char allowed to appear in an identifier
 -}
 isIdentifierChar : Char -> Bool
 isIdentifierChar c =
     Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_'
 
 
-{-| Make a parser fail with the given message if the given predicate is True
+{-| Is the given Char allowed to appear in a label
+-}
+isLabelChar : Char -> Bool
+isLabelChar c =
+    Char.isLower c
+
+
+{-| Makes a parser fail with the given message if the given predicate is True
 -}
 failIf : (a -> Bool) -> String -> Parser a -> Parser a
 failIf predicate message =

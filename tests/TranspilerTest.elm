@@ -83,7 +83,7 @@ suite =
                                 }
                     in
                         Expect.equal expected (transpileTranslationToElm input)
-            , test "Works with alternatives translations containing variables" <|
+            , test "Works with pluralized translations containing variables" <|
                 \_ ->
                     let
                         input =
@@ -171,7 +171,7 @@ suite =
                                     """
                                     Failed to parse a translation.
 
-                                    Error while parsing a interval's low side:
+                                    Error while parsing an interval's low side:
 
                                         [Inf, 0[Negative|[0, Inf[Positive
                                          ^
@@ -179,7 +179,7 @@ suite =
                                     Expected a valid integer.
 
                                     Hint if the input is [Inf:
-                                        In a interval's low side, [Inf is invalid as Inf is always exclusive.
+                                        In an interval's low side, [Inf is invalid as Inf is always exclusive.
                                         Try ]Inf instead."
                                     """
                     in

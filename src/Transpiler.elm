@@ -201,9 +201,20 @@ translationContentToElm translationContent =
                 (alternatives
                     |> List.map
                         (\alt ->
-                            ( Expr (combineIntervals alt.appliesTo), Expr (combineChunks alt.chunks) )
+                            ( Expr (appliesToConditionToElm alt.appliesTo), Expr (combineChunks alt.chunks) )
                         )
                 )
+
+
+{-| -}
+appliesToConditionToElm : AppliesTo -> String
+appliesToConditionToElm appliesTo =
+    case appliesTo of
+        Intervals intervals ->
+            combineIntervals intervals
+
+        Indexed ->
+            ""
 
 
 {-| Turns a list of Intervals into an elm expression usable in a if

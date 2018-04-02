@@ -38,9 +38,14 @@ A translation without pluralization is considered to be constitued of a single A
 
 -}
 type alias Alternative =
-    { appliesTo : List Interval
+    { appliesTo : AppliesTo
     , chunks : List Chunk
     }
+
+
+type AppliesTo
+    = Intervals (List Interval)
+    | Indexed
 
 
 {-| A translation's message is constant string with variable for variables

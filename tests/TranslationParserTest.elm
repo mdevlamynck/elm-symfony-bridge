@@ -32,30 +32,88 @@ suite =
                             Ok (SingleMessage [ VariableCount, Text " notifications non lues" ])
                     in
                         Expect.equal expected (parseTranslationContent input)
-            , test "Works with alternatives translations containing variables" <|
+            , test "Works with pluralized translations containing variables" <|
                 \_ ->
                     let
                         input =
-                            "{0}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
+                            "{0} Pas de notification | {1} %count% notification non lue | [2, Inf[ %count% notifications non lues"
 
                         expected =
                             Ok <|
                                 PluralizedMessage <|
-                                    [ { appliesTo = [ { low = Included 0, high = Included 0 } ]
+                                    [ { appliesTo = Intervals [ { low = Included 0, high = Included 0 } ]
                                       , chunks =
                                             [ Text "Pas de notification"
                                             ]
                                       }
-                                    , { appliesTo = [ { low = Included 1, high = Included 1 } ]
+                                    , { appliesTo = Intervals [ { low = Included 1, high = Included 1 } ]
                                       , chunks =
                                             [ VariableCount
                                             , Text " notification non lue"
                                             ]
                                       }
-                                    , { appliesTo = [ { low = Included 2, high = Inf } ]
+                                    , { appliesTo = Intervals [ { low = Included 2, high = Inf } ]
                                       , chunks =
                                             [ VariableCount
                                             , Text " notifications non lues"
+                                            ]
+                                      }
+                                    ]
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with pluralized translations in interval and indexed forms" <|
+                \_ ->
+                    let
+                        input =
+                            "{0} There are no apples|There is one apple|There are %count% apples"
+
+                        expected =
+                            Ok <|
+                                PluralizedMessage <|
+                                    [ { appliesTo = Intervals [ { low = Included 0, high = Included 0 } ]
+                                      , chunks =
+                                            [ Text "There are no apples"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "There is one apple"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "There are "
+                                            , VariableCount
+                                            , Text " apples"
+                                            ]
+                                      }
+                                    ]
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with pluralized translations in interval and indexed forms with labels" <|
+                \_ ->
+                    let
+                        input =
+                            "{0} There are no apples|one: There is one apple|more: There are %count% apples"
+
+                        expected =
+                            Ok <|
+                                PluralizedMessage <|
+                                    [ { appliesTo = Intervals [ { low = Included 0, high = Included 0 } ]
+                                      , chunks =
+                                            [ Text "There are no apples"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "There is one apple"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "There are "
+                                            , VariableCount
+                                            , Text " apples"
                                             ]
                                       }
                                     ]
@@ -76,7 +134,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval's low side:
+                                        Error while parsing an interval's low side:
 
                                             [Inf, 0[Negative|[0, Inf[Positive
                                              ^
@@ -84,7 +142,7 @@ suite =
                                         Expected a valid integer.
 
                                         Hint if the input is [Inf:
-                                            In a interval's low side, [Inf is invalid as Inf is always exclusive.
+                                            In an interval's low side, [Inf is invalid as Inf is always exclusive.
                                             Try ]Inf instead."
                                         """
                         in
@@ -101,7 +159,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval's high side:
+                                        Error while parsing an interval's high side:
 
                                             ]Inf, 0[Negative|[0, Inf]Positive
                                                                     ^
@@ -109,7 +167,7 @@ suite =
                                         Expected the symbol "[".
 
                                         Hint if the input is Inf]:
-                                            In a interval's high side, Inf] is invalid as Inf is always exclusive.
+                                            In an interval's high side, Inf] is invalid as Inf is always exclusive.
                                             Try Inf[ instead."
                                         """
                         in
@@ -126,7 +184,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval:
+                                        Error while parsing an interval:
 
                                             ]Inf 0[Negative|[0, Inf]Positive
                                                  ^
@@ -150,7 +208,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval's high side:
+                                        Error while parsing an interval's high side:
 
                                             ]Inf, 0, 1[Negative|[0, Inf]Positive
                                                    ^
@@ -176,7 +234,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval:
+                                        Error while parsing an interval:
 
                                             [0]Negative|[0, Inf]Positive
                                               ^
@@ -200,7 +258,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval's low side:
+                                        Error while parsing an interval's low side:
 
                                             []Negative|[0, Inf]Positive
                                              ^
@@ -208,7 +266,7 @@ suite =
                                         Expected a valid integer.
 
                                         Hint if the input is [Inf:
-                                            In a interval's low side, [Inf is invalid as Inf is always exclusive.
+                                            In an interval's low side, [Inf is invalid as Inf is always exclusive.
                                             Try ]Inf instead."
                                         """
                         in
@@ -225,7 +283,7 @@ suite =
                                         """
                                         Failed to parse a translation.
 
-                                        Error while parsing a interval's low side:
+                                        Error while parsing an interval's low side:
 
                                             [,]Negative|[0, Inf]Positive
                                              ^
@@ -233,7 +291,7 @@ suite =
                                         Expected a valid integer.
 
                                         Hint if the input is [Inf:
-                                            In a interval's low side, [Inf is invalid as Inf is always exclusive.
+                                            In an interval's low side, [Inf is invalid as Inf is always exclusive.
                                             Try ]Inf instead."
                                         """
                         in
@@ -337,87 +395,6 @@ suite =
 
                                         Hint:
                                             Only integer are allowed in a list of values.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                ]
-            , describe "Invalid pluralization" <|
-                [ test "Only one pluralization" <|
-                    \_ ->
-                        let
-                            input =
-                                "{0, 1}Pas de notification"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-
-                                        Error while parsing a pluralization:
-
-                                            {0, 1}Pas de notification
-                                                                     ^
-
-                                        Expected at least two pluralizations.
-
-                                        Hint:
-                                            Expected to be parsing a pluralization, found only one variant.
-                                            If this is a single message, try removing the prefix (the interval or
-                                            the list of values). Otherwise add at least another variant.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing prefix" <|
-                    \_ ->
-                        let
-                            input =
-                                "{0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-
-                                        Error while parsing a block specifying when to apply the message:
-
-                                            {0}Pas de notification|%count% notification non lue|[2, Inf[%count% notifications non lues
-                                                                   ^
-
-                                        Expected one of:
-                                            - the symbol "]";
-                                            - the symbol "[";
-                                            - the symbol "{".
-
-                                        Hint:
-                                            It seems a pluralization is missing either a interval or a list of values
-                                            to specify when to apply this message.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing prefix in the first message" <|
-                    \_ ->
-                        let
-                            input =
-                                "Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
-
-                            expected =
-                                Err <|
-                                    unindent """
-                                        Failed to parse a translation.
-
-                                        Error while parsing a translation:
-
-                                            Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
-                                            ^
-
-                                        Expected one of:
-                                            - at least two pluralizations;
-                                            - the end of input.
-
-                                        Hint:
-                                            It seems that either a pluralization is invalid or that a simple message contains a "|".
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
