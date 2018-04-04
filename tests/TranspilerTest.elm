@@ -93,7 +93,7 @@ suite =
                                     "fr": {
                                         "messages": {
                                             "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
-                                            "user.account.balance": "]Inf, 0[Negative|[0, Inf[Positive"
+                                            "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
                                         }
                                     }
                                 }
@@ -158,7 +158,7 @@ suite =
                                 "translations": {
                                     "fr": {
                                         "messages": {
-                                            "user.account.balance": "[Inf, 0[Negative|[0, Inf[Positive"
+                                            "user.account.balance": "[-Inf, 0[Negative|[0, Inf[Positive"
                                         }
                                     }
                                 }
@@ -173,14 +173,14 @@ suite =
 
                                     Error while parsing an interval's low side:
 
-                                        [Inf, 0[Negative|[0, Inf[Positive
+                                        [-Inf, 0[Negative|[0, Inf[Positive
                                          ^
 
                                     Expected a valid integer.
 
-                                    Hint if the input is [Inf:
-                                        In an interval's low side, [Inf is invalid as Inf is always exclusive.
-                                        Try ]Inf instead."
+                                    Hint if the input is [-Inf:
+                                        In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                        Try ]-Inf instead."
                                     """
                     in
                         Expect.equal expected (transpileTranslationToElm input)

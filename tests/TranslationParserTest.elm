@@ -122,7 +122,55 @@ suite =
             ]
         , describe "Failed parsing" <|
             [ describe "Invalid intervals" <|
-                [ test "Invalid interval's low side [Inf" <|
+                [ test "Invalid interval's low side ]Inf instead of ]-Inf" <|
+                    \_ ->
+                        let
+                            input =
+                                "]Inf, 0[Negative|[0, Inf[Positive"
+
+                            expected =
+                                Err <|
+                                    unindent
+                                        """
+                                        Failed to parse a translation.
+
+                                        Error while parsing an interval's low side:
+
+                                            ]Inf, 0[Negative|[0, Inf[Positive
+                                             ^
+
+                                        Expected one of:
+                                            - the symbol "-Inf";
+                                            - a valid integer.
+                                        """
+                        in
+                            Expect.equal expected (parseTranslationContent input)
+                , test "Invalid interval's low side [-Inf" <|
+                    \_ ->
+                        let
+                            input =
+                                "[-Inf, 0[Negative|[0, Inf[Positive"
+
+                            expected =
+                                Err <|
+                                    unindent
+                                        """
+                                        Failed to parse a translation.
+
+                                        Error while parsing an interval's low side:
+
+                                            [-Inf, 0[Negative|[0, Inf[Positive
+                                             ^
+
+                                        Expected a valid integer.
+
+                                        Hint if the input is [-Inf:
+                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                            Try ]-Inf instead."
+                                        """
+                        in
+                            Expect.equal expected (parseTranslationContent input)
+                , test "Invalid interval's low side [Inf" <|
                     \_ ->
                         let
                             input =
@@ -141,9 +189,9 @@ suite =
 
                                         Expected a valid integer.
 
-                                        Hint if the input is [Inf:
-                                            In an interval's low side, [Inf is invalid as Inf is always exclusive.
-                                            Try ]Inf instead."
+                                        Hint if the input is [-Inf:
+                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                            Try ]-Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -151,7 +199,7 @@ suite =
                     \_ ->
                         let
                             input =
-                                "]Inf, 0[Negative|[0, Inf]Positive"
+                                "]-Inf, 0[Negative|[0, Inf]Positive"
 
                             expected =
                                 Err <|
@@ -161,8 +209,8 @@ suite =
 
                                         Error while parsing an interval's high side:
 
-                                            ]Inf, 0[Negative|[0, Inf]Positive
-                                                                    ^
+                                            ]-Inf, 0[Negative|[0, Inf]Positive
+                                                                     ^
 
                                         Expected the symbol "[".
 
@@ -176,7 +224,7 @@ suite =
                     \_ ->
                         let
                             input =
-                                "]Inf 0[Negative|[0, Inf]Positive"
+                                "]-Inf 0[Negative|[0, Inf]Positive"
 
                             expected =
                                 Err <|
@@ -186,8 +234,8 @@ suite =
 
                                         Error while parsing an interval:
 
-                                            ]Inf 0[Negative|[0, Inf]Positive
-                                                 ^
+                                            ]-Inf 0[Negative|[0, Inf]Positive
+                                                  ^
 
                                         Expected the symbol ",".
 
@@ -200,7 +248,7 @@ suite =
                     \_ ->
                         let
                             input =
-                                "]Inf, 0, 1[Negative|[0, Inf]Positive"
+                                "]-Inf, 0, 1[Negative|[0, Inf]Positive"
 
                             expected =
                                 Err <|
@@ -210,8 +258,8 @@ suite =
 
                                         Error while parsing an interval's high side:
 
-                                            ]Inf, 0, 1[Negative|[0, Inf]Positive
-                                                   ^
+                                            ]-Inf, 0, 1[Negative|[0, Inf]Positive
+                                                    ^
 
                                         Expected one of:
                                             - the symbol "]";
@@ -246,7 +294,7 @@ suite =
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
-                , test "Missing values" <|
+                , test "Missing values inclusive" <|
                     \_ ->
                         let
                             input =
@@ -265,9 +313,32 @@ suite =
 
                                         Expected a valid integer.
 
-                                        Hint if the input is [Inf:
-                                            In an interval's low side, [Inf is invalid as Inf is always exclusive.
-                                            Try ]Inf instead."
+                                        Hint if the input is [-Inf:
+                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                            Try ]-Inf instead."
+                                        """
+                        in
+                            Expect.equal expected (parseTranslationContent input)
+                , test "Missing values exclusive" <|
+                    \_ ->
+                        let
+                            input =
+                                "][Negative|[0, Inf]Positive"
+
+                            expected =
+                                Err <|
+                                    unindent
+                                        """
+                                        Failed to parse a translation.
+
+                                        Error while parsing an interval's low side:
+
+                                            ][Negative|[0, Inf]Positive
+                                             ^
+
+                                        Expected one of:
+                                            - the symbol "-Inf";
+                                            - a valid integer.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -290,9 +361,9 @@ suite =
 
                                         Expected a valid integer.
 
-                                        Hint if the input is [Inf:
-                                            In an interval's low side, [Inf is invalid as Inf is always exclusive.
-                                            Try ]Inf instead."
+                                        Hint if the input is [-Inf:
+                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                            Try ]-Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)

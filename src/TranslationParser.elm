@@ -160,9 +160,9 @@ formatHint description problem =
     case ( description, problem ) of
         ( "an interval's low side", BadInt ) ->
             unindent """
-            Hint if the input is [Inf:
-                In an interval's low side, [Inf is invalid as Inf is always exclusive.
-                Try ]Inf instead."
+            Hint if the input is [-Inf:
+                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                Try ]-Inf instead."
             """
 
         ( "an interval's high side", ExpectingSymbol "[" ) ->
@@ -292,11 +292,22 @@ appliesToIndexedP =
 intervalP : Parser AppliesTo
 intervalP =
     let
-        lowInf =
-            succeed Inf
+        lowInclusive =
+            succeed Included
+                |. symbol "["
+                |. spacesP
+                |= int
+
+        lowExclusive =
+            succeed identity
                 |. symbol "]"
                 |. spacesP
-                |. keyword "Inf"
+                |= oneOf
+                    [ succeed Inf
+                        |. symbol "-Inf"
+                    , succeed Excluded
+                        |= int
+                    ]
 
         highInf =
             succeed Inf
@@ -304,26 +315,20 @@ intervalP =
                 |. spacesP
                 |. symbol "["
 
-        lowValue =
-            succeed (<|)
-                |= oneOf
-                    [ symbol "]" |> map (\_ -> Excluded)
-                    , symbol "[" |> map (\_ -> Included)
-                    ]
-                |. spacesP
-                |= int
-
         highValue =
             succeed (|>)
                 |= int
+                |. spacesP
                 |= oneOf
-                    [ symbol "]" |> map (\_ -> Included)
-                    , symbol "[" |> map (\_ -> Excluded)
+                    [ succeed Included
+                        |. symbol "]"
+                    , succeed Excluded
+                        |. symbol "["
                     ]
 
         lowIntervalP =
             inContext "an interval's low side" <|
-                oneOf [ lowInf, lowValue ]
+                oneOf [ lowInclusive, lowExclusive ]
 
         highIntervalP =
             inContext "an interval's high side" <|
