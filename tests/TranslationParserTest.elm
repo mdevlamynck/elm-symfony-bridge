@@ -90,6 +90,35 @@ suite =
                                     ]
                     in
                         Expect.equal expected (parseTranslationContent input)
+            , test "Labels in indexed form plurals are optional" <|
+                \_ ->
+                    let
+                        input =
+                            "zero: there are no apples|there is one apple|more: there are %count% apples"
+
+                        expected =
+                            Ok <|
+                                PluralizedMessage <|
+                                    [ { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "there are no apples"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "there is one apple"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "there are "
+                                            , VariableCount
+                                            , Text " apples"
+                                            ]
+                                      }
+                                    ]
+                    in
+                        Expect.equal expected (parseTranslationContent input)
             , test "Works with pluralized translations in interval and indexed forms with labels" <|
                 \_ ->
                     let

@@ -431,9 +431,9 @@ variableP =
 labelP : Parser String
 labelP =
     inContext "a label" <|
-        succeed identity
-            |= keep oneOrMore isLabelChar
-            |. symbol ":"
+        delayedCommitMap (\label _ -> label)
+            (keep oneOrMore isLabelChar)
+            (symbol ":")
 
 
 {-| Is the given Char allowed to appear in an identifier

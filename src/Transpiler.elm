@@ -214,7 +214,7 @@ appliesToConditionToElm appliesTo =
             combineIntervals intervals
 
         Indexed ->
-            ""
+            "False"
 
 
 {-| Turns a list of Intervals into an elm expression usable in a if
