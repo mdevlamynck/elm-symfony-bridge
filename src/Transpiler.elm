@@ -11,6 +11,7 @@ import Elm exposing (..)
 import Json.Decode exposing (decodeString, dict, string)
 import Dict exposing (Dict)
 import Result
+import Char
 import Result.Extra as Result
 import String.Extra as String
 import TranslationParser
@@ -97,21 +98,41 @@ convertToElm { domain, translations } =
 -}
 parseTranslation : ( String, String ) -> Result String Translation
 parseTranslation ( name, message ) =
-    TranslationParser.parseTranslationContent message
-        |> Result.map
-            (\translationContent ->
-                { name = formatName name
+    let
+        parsedTranslations =
+            TranslationParser.parseTranslationContent message
+
+        parsedName =
+            formatName name
+    in
+        Result.map2
+            (\translationContent name ->
+                { name = name
                 , variables = extractVariables translationContent
                 , content = translationContent
                 }
             )
+            parsedTranslations
+            parsedName
 
 
 {-| Format the name of a translation to match elm rules on function name
 -}
-formatName : String -> String
-formatName =
-    String.split "." >> String.join "_"
+formatName : String -> Result String String
+formatName name =
+    let
+        formatedName =
+            String.replace "." "_" name
+
+        onlyAllowedChars =
+            String.all
+                (\c -> Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_')
+                formatedName
+    in
+        if onlyAllowedChars then
+            Ok formatedName
+        else
+            Err ("Translation name contains invalid characters: " ++ name)
 
 
 {-| Extracts the list of variables used in the TranslationContent

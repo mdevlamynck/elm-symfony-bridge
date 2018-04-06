@@ -22,10 +22,10 @@ class ElmSymfonyBridgePlugin {
 		compiler.plugin('after-compile', (compilation, callback) => {
 			var dirs = compilation.contextDependencies;
 
-			if (!dirs.includes('src')) {
-				dirs.push('src');
-				compilation.contextDependencies = dirs;
-			}
+			this.arrayAddIfNotPresent(dirs, 'src');
+			this.arrayAddIfNotPresent(dirs, 'app');
+
+			compilation.contextDependencies = dirs;
 		
 			callback();
 		});
@@ -39,7 +39,7 @@ class ElmSymfonyBridgePlugin {
 		var elmSubscribtion = function(data) {
 			if (data.succeeded) {
 				that.makeDir('./assets/elm/Trans');
-				fs.writeFileSync('./assets/elm/' + data.file.name, data.file.content);
+				that.writeIfChanged('./assets/elm/' + data.file.name, data.file.content);
 			} else {
 				console.log(data.error);
 			}
@@ -65,6 +65,24 @@ class ElmSymfonyBridgePlugin {
 			if (err.code !== 'EEXIST') {
 				throw err
 			}
+		}
+	}
+
+	writeIfChanged(path, content) {
+		try {
+			const existingContent = fs.readFileSync(path, 'utf8');
+
+			if (content !== existingContent) {
+				fs.writeFileSync(path, content);
+			}
+		} catch (err) {
+			fs.writeFileSync(path, content);
+		}
+	}
+
+	arrayAddIfNotPresent(array, value) {
+		if (!array.includes(value)) {
+			array.push(value);
 		}
 	}
 }
