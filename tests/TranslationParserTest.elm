@@ -162,15 +162,14 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's low side (2, 1):
 
-                                        Error while parsing an interval's low side:
+                                                ]Inf, 0[Negative|[0, Inf[Positive
+                                                 ^
 
-                                            ]Inf, 0[Negative|[0, Inf[Positive
-                                             ^
-
-                                        Expected one of:
-                                            - the symbol "-Inf";
-                                            - a valid integer.
+                                            Expected one of:
+                                                - the symbol "-Inf";
+                                                - a valid integer.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -185,17 +184,16 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's low side (2, 1):
 
-                                        Error while parsing an interval's low side:
+                                                [-Inf, 0[Negative|[0, Inf[Positive
+                                                 ^
 
-                                            [-Inf, 0[Negative|[0, Inf[Positive
-                                             ^
+                                            Expected a valid integer.
 
-                                        Expected a valid integer.
-
-                                        Hint if the input is [-Inf:
-                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                            Try ]-Inf instead."
+                                            Hint if the input is [-Inf:
+                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                                Try ]-Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -210,17 +208,16 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's low side (2, 1):
 
-                                        Error while parsing an interval's low side:
+                                                [Inf, 0[Negative|[0, Inf[Positive
+                                                 ^
 
-                                            [Inf, 0[Negative|[0, Inf[Positive
-                                             ^
+                                            Expected a valid integer.
 
-                                        Expected a valid integer.
-
-                                        Hint if the input is [-Inf:
-                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                            Try ]-Inf instead."
+                                            Hint if the input is [-Inf:
+                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                                Try ]-Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -235,17 +232,16 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's high side (26, 1):
 
-                                        Error while parsing an interval's high side:
+                                                ]-Inf, 0[Negative|[0, Inf]Positive
+                                                                         ^
 
-                                            ]-Inf, 0[Negative|[0, Inf]Positive
-                                                                     ^
+                                            Expected the symbol "[".
 
-                                        Expected the symbol "[".
-
-                                        Hint if the input is Inf]:
-                                            In an interval's high side, Inf] is invalid as Inf is always exclusive.
-                                            Try Inf[ instead."
+                                            Hint if the input is Inf]:
+                                                In an interval's high side, Inf] is invalid as Inf is always exclusive.
+                                                Try Inf[ instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -260,16 +256,15 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval (7, 1):
 
-                                        Error while parsing an interval:
+                                                ]-Inf 0[Negative|[0, Inf]Positive
+                                                      ^
 
-                                            ]-Inf 0[Negative|[0, Inf]Positive
-                                                  ^
+                                            Expected the symbol ",".
 
-                                        Expected the symbol ",".
-
-                                        Hint:
-                                            Intervals must contain two values, a low and a high bound.
+                                            Hint:
+                                                Intervals must contain two values, a low and a high bound.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -284,18 +279,17 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's high side (9, 1):
 
-                                        Error while parsing an interval's high side:
+                                                ]-Inf, 0, 1[Negative|[0, Inf]Positive
+                                                        ^
 
-                                            ]-Inf, 0, 1[Negative|[0, Inf]Positive
-                                                    ^
+                                            Expected one of:
+                                                - the symbol "]";
+                                                - the symbol "[".
 
-                                        Expected one of:
-                                            - the symbol "]";
-                                            - the symbol "[".
-
-                                        Hint:
-                                            Intervals can only contain two values, a low and a high bound.
+                                            Hint:
+                                                Intervals can only contain two values, a low and a high bound.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -310,16 +304,15 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval (3, 1):
 
-                                        Error while parsing an interval:
+                                                [0]Negative|[0, Inf]Positive
+                                                  ^
 
-                                            [0]Negative|[0, Inf]Positive
-                                              ^
+                                            Expected the symbol ",".
 
-                                        Expected the symbol ",".
-
-                                        Hint:
-                                            Intervals must contain two values, a low and a high bound.
+                                            Hint:
+                                                Intervals must contain two values, a low and a high bound.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -334,17 +327,16 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's low side (2, 1):
 
-                                        Error while parsing an interval's low side:
+                                                []Negative|[0, Inf]Positive
+                                                 ^
 
-                                            []Negative|[0, Inf]Positive
-                                             ^
+                                            Expected a valid integer.
 
-                                        Expected a valid integer.
-
-                                        Hint if the input is [-Inf:
-                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                            Try ]-Inf instead."
+                                            Hint if the input is [-Inf:
+                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                                Try ]-Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -359,15 +351,14 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's low side (2, 1):
 
-                                        Error while parsing an interval's low side:
+                                                ][Negative|[0, Inf]Positive
+                                                 ^
 
-                                            ][Negative|[0, Inf]Positive
-                                             ^
-
-                                        Expected one of:
-                                            - the symbol "-Inf";
-                                            - a valid integer.
+                                            Expected one of:
+                                                - the symbol "-Inf";
+                                                - a valid integer.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -382,17 +373,16 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing an interval's low side (2, 1):
 
-                                        Error while parsing an interval's low side:
+                                                [,]Negative|[0, Inf]Positive
+                                                 ^
 
-                                            [,]Negative|[0, Inf]Positive
-                                             ^
+                                            Expected a valid integer.
 
-                                        Expected a valid integer.
-
-                                        Hint if the input is [-Inf:
-                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                            Try ]-Inf instead."
+                                            Hint if the input is [-Inf:
+                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                                Try ]-Inf instead."
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -409,16 +399,15 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing a list of values (3, 1):
 
-                                        Error while parsing a list of values:
+                                                {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
+                                                  ^
 
-                                            {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
-                                              ^
+                                            Expected a non empty list of values.
 
-                                        Expected a non empty list of values.
-
-                                        Hint:
-                                            A list of values must contain at least one value
+                                            Hint:
+                                                A list of values must contain at least one value
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -433,18 +422,17 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing a list of values (4, 1):
 
-                                        Error while parsing a list of values:
+                                                {0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                                   ^
 
-                                            {0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                               ^
+                                            Expected one of:
+                                                - the symbol ",";
+                                                - the symbol "}".
 
-                                        Expected one of:
-                                            - the symbol ",";
-                                            - the symbol "}".
-
-                                        Hint:
-                                            The values must be separated by a ",".
+                                            Hint:
+                                                The values must be separated by a ",".
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -459,18 +447,17 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing a list of values (2, 1):
 
-                                        Error while parsing a list of values:
+                                                {Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                                 ^
 
-                                            {Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                             ^
+                                            Expected one of:
+                                                - a valid integer;
+                                                - the symbol "}".
 
-                                        Expected one of:
-                                            - a valid integer;
-                                            - the symbol "}".
-
-                                        Hint:
-                                            Only integer are allowed in a list of values.
+                                            Hint:
+                                                Only integer are allowed in a list of values.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)
@@ -485,16 +472,15 @@ suite =
                                     unindent
                                         """
                                         Failed to parse a translation.
+                                            Error while parsing a list of values (5, 1):
 
-                                        Error while parsing a list of values:
+                                                {0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
+                                                    ^
 
-                                            {0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                                ^
+                                            Expected a valid integer.
 
-                                        Expected a valid integer.
-
-                                        Hint:
-                                            Only integer are allowed in a list of values.
+                                            Hint:
+                                                Only integer are allowed in a list of values.
                                         """
                         in
                             Expect.equal expected (parseTranslationContent input)

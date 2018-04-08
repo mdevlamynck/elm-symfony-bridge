@@ -170,17 +170,16 @@ suite =
                                 unindent
                                     """
                                     Failed to parse a translation.
+                                        Error while parsing an interval's low side (2, 1):
 
-                                    Error while parsing an interval's low side:
+                                            [-Inf, 0[Negative|[0, Inf[Positive
+                                             ^
 
-                                        [-Inf, 0[Negative|[0, Inf[Positive
-                                         ^
+                                        Expected a valid integer.
 
-                                    Expected a valid integer.
-
-                                    Hint if the input is [-Inf:
-                                        In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                        Try ]-Inf instead."
+                                        Hint if the input is [-Inf:
+                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
+                                            Try ]-Inf instead."
                                     """
                     in
                         Expect.equal expected (transpileTranslationToElm input)

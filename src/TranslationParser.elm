@@ -45,8 +45,14 @@ formatError error =
                 |> List.head
                 |> Maybe.withDefault { row = error.row, col = error.col, description = "a translation" }
 
-        specificError =
-            "Error while parsing " ++ context.description ++ ":"
+        errorMessage =
+            "Error while parsing "
+                ++ context.description
+                ++ " ("
+                ++ (toString error.col)
+                ++ ", "
+                ++ (toString error.row)
+                ++ "):"
 
         source =
             error.source
@@ -64,13 +70,18 @@ formatError error =
             formatHint context.description <| flattenOneOf error.problem
     in
         [ mainMessage
-        , specificError
-        , [ source, sourceErrorPointer ] |> String.join "\n" |> indent
-        , problem
-        , hint
-        ]
+        , [ errorMessage
+          , [ source, sourceErrorPointer ]
+                |> String.join "\n"
+                |> indent
+          , problem
+          , hint
+          ]
             |> List.filter (not << ((==) ""))
             |> List.intersperse ""
+            |> String.join "\n"
+            |> indent
+        ]
             |> String.join "\n"
 
 
