@@ -3,15 +3,20 @@ const fs = require('fs');
 const glob = require('glob')
 const Elm = require('./Main.elm');
 
-// TODO handle errors
-
 class ElmSymfonyBridgePlugin {
 
 	apply(compiler) {
 		this.transpiler = Elm.Main.worker();
+		this.hasAlreadyRun = false;
 
 		// Run symfony dumps commands at the beginning of every compilation
 		compiler.plugin('before-compile', (compilationParameters, callback) => {
+			if (this.hasAlreadyRun) {
+				callback();
+				return;
+			}
+			this.hasAlreadyRun = true;
+
 			execSync('./bin/console fos:js-routing:dump');
 			execSync('./bin/console bazinga:js-translation:dump');
 			this.transpileTranslations(callback);
@@ -20,6 +25,8 @@ class ElmSymfonyBridgePlugin {
 		// Trigger recompilation via watching symfony files
 		// Only needed to be enabled after the first compilation
 		compiler.plugin('after-compile', (compilation, callback) => {
+			this.hasAlreadyRun = false;
+
 			var dirs = compilation.contextDependencies;
 
 			this.arrayAddIfNotPresent(dirs, 'src');
@@ -54,7 +61,7 @@ class ElmSymfonyBridgePlugin {
 		this.transpiler.ports.sendToJs.subscribe(elmSubscribtion);
 		files.map(file => {
 			const content = fs.readFileSync(file, 'utf8');
-			this.transpiler.ports.sendToElm.send({translation: content});
+			this.transpiler.ports.sendToElm.send({translation: {name: file, content: content}});
 		});
 	}
 
@@ -85,6 +92,7 @@ class ElmSymfonyBridgePlugin {
 			array.push(value);
 		}
 	}
+
 }
 
 module.exports = ElmSymfonyBridgePlugin;

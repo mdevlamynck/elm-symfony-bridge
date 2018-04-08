@@ -16,10 +16,17 @@ suite =
                 \_ ->
                     let
                         input =
-                            Encode.object [ ( "translation", Encode.string "{}" ) ]
+                            Encode.object
+                                [ ( "translation"
+                                  , Encode.object
+                                        [ ( "name", Encode.string "fileName" )
+                                        , ( "content", Encode.string "{}" )
+                                        ]
+                                  )
+                                ]
 
                         expected =
-                            TranspileTranslation "{}"
+                            TranspileTranslation { name = "fileName", content = "{}" }
                     in
                         Expect.equal expected (decodeJsValue input)
             ]
@@ -35,17 +42,20 @@ suite =
                         let
                             input =
                                 TranspileTranslation <|
-                                    unindent """
-                                        {
-                                            "translations": {
-                                                "fr": {
-                                                    "messages": {
-                                                        "button.validate.global": "Ok"
+                                    { name = "fileName"
+                                    , content =
+                                        unindent """
+                                            {
+                                                "translations": {
+                                                    "fr": {
+                                                        "messages": {
+                                                            "button.validate.global": "Ok"
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        """
+                                            """
+                                    }
 
                             expected =
                                 Just <|
@@ -74,24 +84,28 @@ suite =
                     \_ ->
                         let
                             input =
-                                TranspileTranslation <| unindent """
-                                {
-                                    "translations": {
-                                        "fr": {
-                                            "messages": {
-                                                "button.validate.global" "Ok"
+                                TranspileTranslation <|
+                                    { name = "fileName"
+                                    , content =
+                                        unindent """
+                                            {
+                                                "translations": {
+                                                    "fr": {
+                                                        "messages": {
+                                                            "button.validate.global" "Ok"
+                                                        }
+                                                    }
+                                                }
                                             }
-                                        }
+                                            """
                                     }
-                                }
-                                """
 
                             expected =
                                 Just <|
                                     Encode.object
                                         [ ( "succeeded", Encode.bool False )
                                         , ( "type", Encode.string "translation" )
-                                        , ( "error", Encode.string "Given an invalid JSON: Unexpected string in JSON at position 107" )
+                                        , ( "error", Encode.string "Error fileName: Given an invalid JSON: Unexpected string in JSON at position 107" )
                                         ]
                         in
                             Expect.equal expected (update input)

@@ -47,7 +47,7 @@ port sendToJs : Value -> Cmd msg
 -}
 type Msg
     = NoOp
-    | TranspileTranslation String
+    | TranspileTranslation File
 
 
 {-| Run received commands
@@ -56,8 +56,9 @@ update : Msg -> Maybe Value
 update message =
     case message of
         TranspileTranslation translation ->
-            translation
+            translation.content
                 |> Transpiler.transpileTranslationToElm
+                |> formatResult translation.name
                 |> encodeTranslationResult
                 |> Just
 
@@ -69,15 +70,24 @@ update message =
 -}
 decodeJsValue : Value -> Msg
 decodeJsValue =
-    Decode.decodeValue (Decode.dict Decode.string)
+    Decode.decodeValue (Decode.dict (Decode.dict Decode.string))
         >> Result.toMaybe
         >> Maybe.andThen (Dict.toList >> List.head)
         >> Maybe.andThen
-            (\( command, content ) ->
-                if command == "translation" then
-                    Just <| TranspileTranslation content
-                else
-                    Nothing
+            (\( command, commandArgs ) ->
+                let
+                    fileName =
+                        Dict.get "name" commandArgs
+
+                    content =
+                        Dict.get "content" commandArgs
+                in
+                    case ( command, fileName, content ) of
+                        ( "translation", Just fileName, Just content ) ->
+                            Just <| TranspileTranslation { name = fileName, content = content }
+
+                        _ ->
+                            Nothing
             )
         >> Maybe.withDefault NoOp
 
@@ -102,3 +112,9 @@ encodeTranslationResult result =
             |> Result.mapError (\err -> ( "error", Encode.string err ))
             |> Result.merge
         ]
+
+
+formatResult : String -> Result String File -> Result String File
+formatResult fileName result =
+    result
+        |> Result.mapError (\error -> "Error " ++ fileName ++ ": " ++ error)
