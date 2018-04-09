@@ -17,8 +17,8 @@ class ElmSymfonyBridgePlugin {
 			}
 			this.hasAlreadyRun = true;
 
-			execSync('./bin/console fos:js-routing:dump');
-			execSync('./bin/console bazinga:js-translation:dump');
+			execSync('./bin/console fos:js-routing:dump --env=prod');
+			execSync('./bin/console bazinga:js-translation:dump --env=prod');
 			this.transpileTranslations(callback);
 		});
 
