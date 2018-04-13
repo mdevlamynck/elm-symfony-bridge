@@ -11,7 +11,30 @@ suite : Test
 suite =
     describe "Converts a translation json to an elm module" <|
         [ describe "Succeesfull conversion" <|
-            [ test "Works with plain constant translations" <|
+            [ test "Works with empty translation file" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": []
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileTranslationToElm input)
+            , test "Works with plain constant translations" <|
                 \_ ->
                     let
                         input =

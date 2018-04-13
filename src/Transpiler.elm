@@ -8,7 +8,7 @@ and turn them into an elm file.
 -}
 
 import Elm exposing (..)
-import Json.Decode exposing (decodeString, dict, string)
+import Json.Decode as Decode exposing (decodeString, oneOf, list, dict, string)
 import Dict exposing (Dict)
 import Result
 import Char
@@ -56,7 +56,18 @@ type alias TranslationDomain =
 -}
 readJsonContent : String -> Result String JsonTranslationDomain
 readJsonContent =
-    decodeString (dict (dict (dict (dict string))))
+    decodeString
+        (dict
+            (dict
+                (dict
+                    (oneOf
+                        [ list string |> Decode.map (\_ -> Dict.empty)
+                        , dict string
+                        ]
+                    )
+                )
+            )
+        )
         >> Result.andThen
             (Dict.get "translations"
                 >> Maybe.andThen (Dict.get "fr")
@@ -98,41 +109,31 @@ convertToElm { domain, translations } =
 -}
 parseTranslation : ( String, String ) -> Result String Translation
 parseTranslation ( name, message ) =
-    let
-        parsedTranslations =
-            TranslationParser.parseTranslationContent message
-
-        parsedName =
-            formatName name
-    in
-        Result.map2
-            (\translationContent name ->
-                { name = name
+    TranslationParser.parseTranslationContent message
+        |> Result.map
+            (\translationContent ->
+                { name = formatName name
                 , variables = extractVariables translationContent
                 , content = translationContent
                 }
             )
-            parsedTranslations
-            parsedName
 
 
 {-| Format the name of a translation to match elm rules on function name
 -}
-formatName : String -> Result String String
+formatName : String -> String
 formatName name =
     let
-        formatedName =
-            String.replace "." "_" name
-
-        onlyAllowedChars =
-            String.all
-                (\c -> Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_')
-                formatedName
+        convertChar c =
+            if Char.isLower c || Char.isUpper c || Char.isDigit c then
+                c
+            else
+                '_'
     in
-        if onlyAllowedChars then
-            Ok formatedName
-        else
-            Err ("Translation name contains invalid characters: " ++ name)
+        name
+            |> String.toList
+            |> List.map convertChar
+            |> String.fromList
 
 
 {-| Extracts the list of variables used in the TranslationContent

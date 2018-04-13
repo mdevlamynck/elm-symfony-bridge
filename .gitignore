@@ -3,3 +3,4 @@ tests/Doc
 doc.json
 node_modules
 dist
+.idea
