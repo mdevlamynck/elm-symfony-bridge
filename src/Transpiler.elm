@@ -126,7 +126,7 @@ formatName name =
     let
         convertChar c =
             if Char.isLower c || Char.isUpper c || Char.isDigit c then
-                c
+                Char.toLower c
             else
                 '_'
     in
@@ -323,12 +323,16 @@ combineChunks =
 -}
 chunkToString : Chunk -> String
 chunkToString chunk =
-    case chunk of
-        Text text ->
-            "\"" ++ text ++ "\""
+    let
+        escape =
+            String.replace "\"" "\\\""
+    in
+        case chunk of
+            Text text ->
+                "\"" ++ (escape text) ++ "\""
 
-        Variable variable ->
-            variable
+            Variable variable ->
+                variable
 
-        VariableCount ->
-            "(toString count)"
+            VariableCount ->
+                "(toString count)"

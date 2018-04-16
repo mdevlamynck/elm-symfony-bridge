@@ -70,6 +70,42 @@ suite =
                                 }
                     in
                         Expect.equal expected (transpileTranslationToElm input)
+            , test "Works with plain translations containing double quotes" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "button.validate.global": "\\"Ok\\"",
+                                            "button.validate.save": "Enregistrer"
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    button_validate_global : String
+                                    button_validate_global =
+                                        "\\"Ok\\""
+
+
+                                    button_validate_save : String
+                                    button_validate_save =
+                                        "Enregistrer"
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileTranslationToElm input)
             , test "Works with translations containing variables" <|
                 \_ ->
                     let

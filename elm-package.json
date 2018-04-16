@@ -1,5 +1,5 @@
 {
-    "version": "0.0.6",
+    "version": "0.0.7",
     "summary": "Tools to help integrating elm in a symfony project ",
     "repository": "https://github.com/mdevlamynck/elm-symfony-bridge.git",
     "license": "MIT",
