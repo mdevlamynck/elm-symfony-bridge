@@ -60,17 +60,17 @@ suite =
 
                                     button_validate_global : String
                                     button_validate_global =
-                                        "Ok"
+                                        \"\"\"Ok\"\"\"
 
 
                                     button_validate_save : String
                                     button_validate_save =
-                                        "Enregistrer"
+                                        \"\"\"Enregistrer\"\"\"
                                     """
                                 }
                     in
                         Expect.equal expected (transpileTranslationToElm input)
-            , test "Works with plain translations containing double quotes" <|
+            , test "Works with plain translations containing double quotes, line returns and anti slashes" <|
                 \_ ->
                     let
                         input =
@@ -79,8 +79,7 @@ suite =
                                 "translations": {
                                     "fr": {
                                         "messages": {
-                                            "button.validate.global": "\\"Ok\\"",
-                                            "button.validate.save": "Enregistrer"
+                                            "multiline.html.translation": "<a href=\\"\\">\\n</a>\\n"
                                         }
                                     }
                                 }
@@ -94,14 +93,41 @@ suite =
                                     module Trans.Messages exposing (..)
 
 
-                                    button_validate_global : String
-                                    button_validate_global =
-                                        "\\"Ok\\""
+                                    multiline_html_translation : String
+                                    multiline_html_translation =
+                                        \"\"\"<a href="">
+                                        </a>
+                                        \"\"\"
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileTranslationToElm input)
+            , test "Works with weird translation names" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "This value is not valid.": "Cette valeur n'est pas valide."
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
 
 
-                                    button_validate_save : String
-                                    button_validate_save =
-                                        "Enregistrer"
+                                    this_value_is_not_valid_ : String
+                                    this_value_is_not_valid_ =
+                                        \"\"\"Cette valeur n'est pas valide.\"\"\"
                                     """
                                 }
                     in
@@ -132,12 +158,12 @@ suite =
 
                                     user_notifications : Int -> String
                                     user_notifications count =
-                                        (toString count) ++ " notifications non lues"
+                                        (toString count) ++ \"\"\" notifications non lues\"\"\"
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
                                     user_welcome { firstname, lastname } =
-                                        "Bonjour " ++ firstname ++ " " ++ lastname ++ " et bienvenu !"
+                                        \"\"\"Bonjour \"\"\" ++ firstname ++ \"\"\" \"\"\" ++ lastname ++ \"\"\" et bienvenu !\"\"\"
                                     """
                                 }
                     in
@@ -169,19 +195,19 @@ suite =
                                     user_account_balance : Int -> String
                                     user_account_balance count =
                                         if count < 0 then
-                                            "Negative"
+                                            \"\"\"Negative\"\"\"
                                         else
-                                            "Positive"
+                                            \"\"\"Positive\"\"\"
 
 
                                     user_notifications : Int -> { user : String } -> String
                                     user_notifications count { user } =
                                         if count == 0 then
-                                            user ++ ", pas de notification"
+                                            user ++ \"\"\", pas de notification\"\"\"
                                         else if count == 1 then
-                                            user ++ ", " ++ (toString count) ++ " notification non lue"
+                                            user ++ \"\"\", \"\"\" ++ (toString count) ++ \"\"\" notification non lue\"\"\"
                                         else
-                                            user ++ ", " ++ (toString count) ++ " notifications non lues"
+                                            user ++ \"\"\", \"\"\" ++ (toString count) ++ \"\"\" notifications non lues\"\"\"
                                     """
                                 }
                     in

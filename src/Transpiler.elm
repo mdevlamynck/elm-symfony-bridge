@@ -323,16 +323,12 @@ combineChunks =
 -}
 chunkToString : Chunk -> String
 chunkToString chunk =
-    let
-        escape =
-            String.replace "\"" "\\\""
-    in
-        case chunk of
-            Text text ->
-                "\"" ++ (escape text) ++ "\""
+    case chunk of
+        Text text ->
+            "\"\"\"" ++ text ++ "\"\"\""
 
-            Variable variable ->
-                variable
+        Variable variable ->
+            variable
 
-            VariableCount ->
-                "(toString count)"
+        VariableCount ->
+            "(toString count)"
