@@ -79,7 +79,7 @@ suite =
                                 "translations": {
                                     "fr": {
                                         "messages": {
-                                            "multiline.html.translation": "<a href=\\"\\">\\n</a>\\n"
+                                            "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
                                         }
                                     }
                                 }
@@ -93,9 +93,9 @@ suite =
                                     module Trans.Messages exposing (..)
 
 
-                                    multiline_html_translation : String
-                                    multiline_html_translation =
-                                        \"\"\"<a href="">
+                                    multiline_html_translation : { link : String } -> String
+                                    multiline_html_translation { link } =
+                                        \"\"\"<a href=\\\"\"\"\" ++ link ++ \"\"\"\\">
                                         </a>
                                         \"\"\"
                                     """
