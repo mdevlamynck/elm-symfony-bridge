@@ -1,9 +1,34 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
-const glob = require('glob')
+const mkdirp = require('mkdirp');
+const path = require('path');
+const glob = require('glob');
 const Elm = require('./Main.elm');
 
 class ElmSymfonyBridgePlugin {
+	constructor(options) {
+		if (typeof options.dev === 'undefined') {
+			throw new Error('You must configure the dev option, it must be true when building for the dev env and false when building for the prod env');
+		}
+
+		this.dev = options.dev === true;
+        this.urlPrefix = this.ifDefined(options.urlPrefix, '/app_dev.php');
+        this.elmRoot = this.ifDefined(options.elmRoot, './assets/elm');
+
+        if (this.dev) {
+            this.routePrefix =
+				'module RoutePrefix exposing (prefix)\n\n\n' +
+				'prefix : String\n' +
+				'prefix = \n' +
+				'    "' + this.urlPrefix + '"\n';
+        } else {
+            this.routePrefix =
+                'module RoutePrefix exposing (prefix)\n\n\n' +
+                'prefix : String\n' +
+                'prefix = \n' +
+                '    ""\n';
+		}
+	}
 
 	apply(compiler) {
 		this.transpiler = Elm.Main.worker();
@@ -17,8 +42,8 @@ class ElmSymfonyBridgePlugin {
 			}
 			this.hasAlreadyRun = true;
 
-			execSync('./bin/console fos:js-routing:dump --env=prod');
 			execSync('./bin/console bazinga:js-translation:dump --env=prod');
+			this.writeIfChanged(this.elmRoot + '/RoutePrefix.elm', this.routePrefix);
 			this.transpileTranslations(callback);
 		});
 
@@ -27,7 +52,7 @@ class ElmSymfonyBridgePlugin {
 		compiler.plugin('after-compile', (compilation, callback) => {
 			this.hasAlreadyRun = false;
 
-			var dirs = compilation.contextDependencies;
+			let dirs = compilation.contextDependencies;
 
 			this.arrayAddIfNotPresent(dirs, 'src');
 			this.arrayAddIfNotPresent(dirs, 'app');
@@ -40,13 +65,13 @@ class ElmSymfonyBridgePlugin {
 
 	transpileTranslations(callback) {
 		const files = glob.sync('./web/js/translations/*/fr.json');
-		var remainingTranslations = files.length;
+		let remainingTranslations = files.length;
 
-		var that = this;
-		var elmSubscribtion = function(data) {
+		const that = this;
+		const elmSubscribtion = function(data) {
 			if (data.succeeded) {
-				that.makeDir('./assets/elm/Trans');
-				that.writeIfChanged('./assets/elm/' + data.file.name, data.file.content);
+				that.makeDir(that.elmRoot + '/Trans');
+				that.writeIfChanged(that.elmRoot + '/' + data.file.name, data.file.content);
 			} else {
 				console.log(data.error);
 			}
@@ -67,7 +92,7 @@ class ElmSymfonyBridgePlugin {
 
 	makeDir(dir) {
 		try {
-			fs.mkdirSync(dir);
+			mkdirp.sync(dir);
 		} catch (err) {
 			if (err.code !== 'EEXIST') {
 				throw err
@@ -75,16 +100,21 @@ class ElmSymfonyBridgePlugin {
 		}
 	}
 
-	writeIfChanged(path, content) {
+	writeIfChanged(filePath, content) {
 		try {
-			const existingContent = fs.readFileSync(path, 'utf8');
+			const existingContent = fs.readFileSync(filePath, 'utf8');
 
 			if (content !== existingContent) {
-				fs.writeFileSync(path, content);
+				this.writeFile(filePath, content);
 			}
 		} catch (err) {
-			fs.writeFileSync(path, content);
+            this.writeFile(filePath, content);
 		}
+	}
+
+	writeFile(filePath, content) {
+	    this.makeDir(path.dirname(filePath));
+        fs.writeFileSync(filePath, content);
 	}
 
 	arrayAddIfNotPresent(array, value) {
@@ -93,6 +123,9 @@ class ElmSymfonyBridgePlugin {
 		}
 	}
 
+	ifDefined(value, defaultValue) {
+        return (typeof value !== 'undefined' && value !== null) ? value : defaultValue;
+    }
 }
 
 module.exports = ElmSymfonyBridgePlugin;

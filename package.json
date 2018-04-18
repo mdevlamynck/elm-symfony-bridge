@@ -1,6 +1,6 @@
 {
   "name": "elm-symfony-bridge",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "author": "Matthias Devlamynck <matthias@chaplean.coop>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "glob": "^7.1.2",
+    "mkdirp": "^0.5.1",
     "var": "^0.3.2"
   },
   "devDependencies": {
