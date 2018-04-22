@@ -14,12 +14,12 @@ class ElmSymfonyBridgePlugin {
         this.dev = options.dev === true;
         this.urlPrefix = this.ifDefined(options.urlPrefix, '/app_dev.php');
         this.elmRoot = this.ifDefined(options.elmRoot, './assets/elm');
+
+        this.transpiler = Elm.Main.worker();
+        this.hasAlreadyRun = false;
     }
 
     apply(compiler) {
-        this.transpiler = Elm.Main.worker();
-        this.hasAlreadyRun = false;
-
         // Run symfony dumps commands at the beginning of every compilation
         compiler.plugin('before-compile', (compilationParameters, callback) => {
             if (this.hasAlreadyRun) {
@@ -29,13 +29,10 @@ class ElmSymfonyBridgePlugin {
 
             this.hasAlreadyRun = true;
 
-            this.chain(
-                [
-                    this.transpileRouting,
-                    this.transpileTranslations
-                ],
-                callback
-            );
+            const that = this;
+            this.transpileRouting(function () {
+                that.transpileTranslations(callback);
+            });
         });
 
         // Trigger recompilation via watching symfony files
@@ -55,18 +52,19 @@ class ElmSymfonyBridgePlugin {
     }
 
     transpileRouting (callback) {
-        const content = execSync('./bin/console debug:router --format=json');
+        const content = execSync('./bin/console debug:router --format=json', {encoding: 'utf8'});
 
         const that = this;
-        this.transpiler.ports.sendToJs.subscribe(function (data) {
-            that.onSuccess(data, function() {
+        const elmSubscribtion = function (data) {
+            that.onSuccess("routing", data, function() {
                 that.writeIfChanged(that.elmRoot + '/Routing.elm', data.content);
             });
 
-            that.transpiler.ports.sendToJs.unsubscribe(this);
+            that.transpiler.ports.sendToJs.unsubscribe(elmSubscribtion);
             callback();
-        });
+        };
 
+        this.transpiler.ports.sendToJs.subscribe(elmSubscribtion);
         this.transpiler.ports.sendToElm.send({
             routing: {
                 urlPrefix: this.dev ? this.urlPrefix : '',
@@ -78,33 +76,33 @@ class ElmSymfonyBridgePlugin {
     transpileTranslations(callback) {
         execSync('./bin/console bazinga:js-translation:dump --env=prod');
 
-        const that = this;
         const files = glob.sync('./web/js/translations/*/fr.json');
+        let remainingTranslations = files.length;
 
-        this.chain(
-            files.map(file => {
-                return (callback) => {
-                    this.transpiler.ports.sendToJs.subscribe(function (data) {
-                        that.onSuccess(data, function() {
-                            that.makeDir(that.elmRoot + '/Trans');
-                            that.writeIfChanged(that.elmRoot + '/' + data.file.name, data.file.content);
-                        });
+        const that = this;
+        const elmSubscribtion = function (data) {
+            that.onSuccess("translation", data, function() {
+                that.makeDir(that.elmRoot + '/Trans');
+                that.writeIfChanged(that.elmRoot + '/' + data.file.name, data.file.content);
+            });
 
-                        that.transpiler.ports.sendToJs.unsubscribe(this);
-                        callback();
-                    });
+            remainingTranslations--;
+            if (remainingTranslations === 0) {
+                that.transpiler.ports.sendToJs.unsubscribe(elmSubscribtion);
+                callback();
+            }
+        };
 
-                    const content = fs.readFileSync(file, 'utf8');
-                    that.transpiler.ports.sendToElm.send({
-                        translation: {
-                            name: file,
-                            content: content
-                        }
-                    });
-                };
-            }),
-            callback
-        );
+        this.transpiler.ports.sendToJs.subscribe(elmSubscribtion);
+        files.map(file => {
+            const content = fs.readFileSync(file, 'utf8');
+            that.transpiler.ports.sendToElm.send({
+                translation: {
+                    name: file,
+                    content: content
+                }
+            });
+        });
     }
 
     makeDir(dir) {
@@ -144,25 +142,14 @@ class ElmSymfonyBridgePlugin {
         return (typeof value !== 'undefined' && value !== null) ? value : defaultValue;
     }
 
-    onSuccess(data, callback) {
-        if (data.succeeded) {
+    onSuccess(type, data, callback) {
+        if (data.type === type && data.succeeded === true) {
             callback();
+        } else if (data.succeeded === true) {
+            console.log("Expected " + type + " got " + data.type + ".");
         } else {
             console.log(data.error);
         }
-    }
-
-    chain(functions, callback) {
-        if (functions.length === 0) {
-            callback();
-            return;
-        }
-
-        const head = functions[0];
-        const tail = functions.slice(1);
-
-        const that = this;
-        head(function() { that.chain(tail, callback)});
     }
 }
 
