@@ -48,7 +48,7 @@ port sendToJs : Value -> Cmd msg
 -}
 type Msg
     = NoOp
-    | TranspileRouting String
+    | TranspileRouting Routing.Command
     | TranspileTranslation File
 
 
@@ -90,12 +90,15 @@ decodeJsValue =
 
                     content =
                         Dict.get "content" commandArgs
-                in
-                    case ( command, fileName, content ) of
-                        ( "routing", Nothing, Just content ) ->
-                            Just <| TranspileRouting content
 
-                        ( "translation", Just fileName, Just content ) ->
+                    urlPrefix =
+                        Dict.get "urlPrefix" commandArgs
+                in
+                    case ( command, fileName, content, urlPrefix ) of
+                        ( "routing", Nothing, Just content, Just urlPrefix ) ->
+                            Just <| TranspileRouting { content = content, urlPrefix = urlPrefix }
+
+                        ( "translation", Just fileName, Just content, Nothing ) ->
                             Just <| TranspileTranslation { name = fileName, content = content }
 
                         _ ->

@@ -1,18 +1,28 @@
-module Routing.Transpiler exposing (transpileToElm)
+module Routing.Transpiler exposing (Command, transpileToElm)
 
 {-| Converts a JSON containing routing from Symfony
 and turn it into an elm file.
 
-@docs transpileToElm
+@docs Command, transpileToElm
 
 -}
 
 import Elm exposing (..)
-import Json.Decode as Decode exposing (decodeString, oneOf, list, dict, string)
+import Unindent
+
+
+type alias Command =
+    { urlPrefix : String
+    , content : String
+    }
 
 
 {-| Converts a JSON containing routing to an Elm file
 -}
-transpileToElm : String -> Result String String
-transpileToElm =
-    Ok
+transpileToElm : Command -> Result String String
+transpileToElm command =
+    Module "Routing"
+        [ Function "prefix" [] "String" (Expr command.urlPrefix)
+        ]
+        |> renderElmModule
+        |> Ok
