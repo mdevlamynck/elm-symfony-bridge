@@ -1,10 +1,10 @@
-module TranspilerTest exposing (..)
+module Translation.TranspilerTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
 import Unindent exposing (..)
-import Transpiler exposing (transpileTranslationToElm)
+import Translation.Transpiler exposing (transpileToElm)
 
 
 suite : Test
@@ -33,7 +33,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with plain constant translations" <|
                 \_ ->
                     let
@@ -69,7 +69,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with plain translations containing double quotes, line returns and anti slashes" <|
                 \_ ->
                     let
@@ -101,7 +101,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with weird translation names" <|
                 \_ ->
                     let
@@ -131,7 +131,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with translations containing variables" <|
                 \_ ->
                     let
@@ -167,7 +167,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing variables" <|
                 \_ ->
                     let
@@ -211,7 +211,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
@@ -233,7 +233,7 @@ suite =
                         expected =
                             Err "Given an invalid JSON: Unexpected string in JSON at position 107"
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Prints invalid message format" <|
                 \_ ->
                     let
@@ -267,6 +267,6 @@ suite =
                                             Try ]-Inf instead."
                                     """
                     in
-                        Expect.equal expected (transpileTranslationToElm input)
+                        Expect.equal expected (transpileToElm input)
             ]
         ]

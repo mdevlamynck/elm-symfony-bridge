@@ -8,7 +8,8 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
-import Transpiler exposing (File)
+import Routing.Transpiler as Routing
+import Translation.Transpiler as Translation exposing (File)
 import Dict
 import Result.Extra as Result
 import Platform exposing (Program, program)
@@ -47,6 +48,7 @@ port sendToJs : Value -> Cmd msg
 -}
 type Msg
     = NoOp
+    | TranspileRouting String
     | TranspileTranslation File
 
 
@@ -55,15 +57,22 @@ type Msg
 update : Msg -> Maybe Value
 update message =
     case message of
+        NoOp ->
+            Nothing
+
+        TranspileRouting routing ->
+            routing
+                |> Routing.transpileToElm
+                |> formatResult "Routing"
+                |> encodeRoutingResult
+                |> Just
+
         TranspileTranslation translation ->
             translation.content
-                |> Transpiler.transpileTranslationToElm
+                |> Translation.transpileToElm
                 |> formatResult translation.name
                 |> encodeTranslationResult
                 |> Just
-
-        NoOp ->
-            Nothing
 
 
 {-| Decode json commands
@@ -83,6 +92,9 @@ decodeJsValue =
                         Dict.get "content" commandArgs
                 in
                     case ( command, fileName, content ) of
+                        ( "routing", Nothing, Just content ) ->
+                            Just <| TranspileRouting content
+
                         ( "translation", Just fileName, Just content ) ->
                             Just <| TranspileTranslation { name = fileName, content = content }
 
@@ -90,6 +102,20 @@ decodeJsValue =
                             Nothing
             )
         >> Maybe.withDefault NoOp
+
+
+{-| Encode transpile routing results
+-}
+encodeRoutingResult : Result String String -> Value
+encodeRoutingResult result =
+    Encode.object
+        [ ( "succeeded", Encode.bool <| Result.isOk result )
+        , ( "type", Encode.string "routing" )
+        , result
+            |> Result.map (\content -> ( "content", Encode.string content ))
+            |> Result.mapError (\err -> ( "error", Encode.string err ))
+            |> Result.merge
+        ]
 
 
 {-| Encode transpile translation results
@@ -114,7 +140,7 @@ encodeTranslationResult result =
         ]
 
 
-formatResult : String -> Result String File -> Result String File
+formatResult : String -> Result String a -> Result String a
 formatResult fileName result =
     result
         |> Result.mapError (\error -> "Error " ++ fileName ++ ": " ++ error)

@@ -1,4 +1,4 @@
-module Data exposing (..)
+module Translation.Data exposing (..)
 
 {-| Types common to several modules
 

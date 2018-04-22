@@ -1,9 +1,9 @@
-module Transpiler exposing (transpileTranslationToElm, File)
+module Translation.Transpiler exposing (transpileToElm, File)
 
 {-| Converts a JSON containing translations from Symfony
 and turn them into an elm file.
 
-@docs transpileTranslationToElm, File
+@docs transpileToElm, File
 
 -}
 
@@ -14,8 +14,8 @@ import Result
 import Char
 import Result.Extra as Result
 import String.Extra as String
-import TranslationParser
-import Data exposing (..)
+import Translation.Parser as Parser
+import Translation.Data exposing (..)
 import List.Unique
 
 
@@ -29,8 +29,8 @@ type alias File =
 
 {-| Converts a JSON containing translations to an Elm file
 -}
-transpileTranslationToElm : String -> Result String File
-transpileTranslationToElm =
+transpileToElm : String -> Result String File
+transpileToElm =
     readJsonContent
         >> Result.andThen parseTranslationDomain
         >> Result.map convertToElm
@@ -109,7 +109,7 @@ convertToElm { domain, translations } =
 -}
 parseTranslation : ( String, String ) -> Result String Translation
 parseTranslation ( name, message ) =
-    TranslationParser.parseTranslationContent message
+    Parser.parseTranslationContent message
         |> Result.map
             (\translationContent ->
                 { name = formatName name

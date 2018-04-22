@@ -1,11 +1,11 @@
-module TranslationParserTest exposing (..)
+module Translation.ParserTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
 import Unindent exposing (..)
-import Data exposing (..)
-import TranslationParser exposing (parseTranslationContent)
+import Translation.Data exposing (..)
+import Translation.Parser exposing (parseTranslationContent)
 
 
 suite : Test

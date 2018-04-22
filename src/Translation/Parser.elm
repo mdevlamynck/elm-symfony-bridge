@@ -1,4 +1,4 @@
-module TranslationParser exposing (parseTranslationContent)
+module Translation.Parser exposing (parseTranslationContent)
 
 {-| Parser for a TranslationContent
 
@@ -12,7 +12,7 @@ import List.Extra as List
 import List.Unique
 import Parser exposing (..)
 import Parser.LanguageKit exposing (..)
-import Data exposing (..)
+import Translation.Data exposing (..)
 import StringUtil exposing (indent)
 import Unindent exposing (unindent)
 
