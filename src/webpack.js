@@ -52,7 +52,7 @@ class ElmSymfonyBridgePlugin {
     }
 
     transpileRouting (callback) {
-        const content = execSync('./bin/console debug:router --format=json --env=prod', {encoding: 'utf8'});
+		const content = this.runSymfonyCommand('debug:router --format=json');
 
         const that = this;
         const elmSubscribtion = function (data) {
@@ -74,7 +74,7 @@ class ElmSymfonyBridgePlugin {
     }
 
     transpileTranslations(callback) {
-        execSync('./bin/console bazinga:js-translation:dump --env=prod');
+		this.runSymfonyCommand('bazinga:js-translation:dump');
 
         const files = glob.sync('./web/js/translations/*/fr.json');
         let remainingTranslations = files.length;
@@ -151,6 +151,10 @@ class ElmSymfonyBridgePlugin {
             console.log(data.error);
         }
     }
+
+	runSymfonyCommand(command) {
+        return execSync('./bin/console ' + command + ' --env=' + (this.dev ? 'dev' : 'prod'), {encoding: 'utf8'});
+	}
 }
 
 module.exports = ElmSymfonyBridgePlugin;
