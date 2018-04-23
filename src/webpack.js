@@ -52,7 +52,7 @@ class ElmSymfonyBridgePlugin {
     }
 
     transpileRouting (callback) {
-        const content = execSync('./bin/console debug:router --format=json', {encoding: 'utf8'});
+        const content = execSync('./bin/console debug:router --format=json --env=prod', {encoding: 'utf8'});
 
         const that = this;
         const elmSubscribtion = function (data) {
