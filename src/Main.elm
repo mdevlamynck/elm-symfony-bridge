@@ -6,15 +6,15 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 -}
 
+import Dict
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
-import Routing.Transpiler as Routing
-import Translation.Transpiler as Translation exposing (File)
-import Dict
-import Result.Extra as Result
 import Platform exposing (Program, program)
 import Platform.Cmd exposing (Cmd)
 import Platform.Sub exposing (Sub)
+import Result.Extra as Result
+import Routing.Transpiler as Routing
+import Translation.Transpiler as Translation exposing (File)
 
 
 {-| Entry point

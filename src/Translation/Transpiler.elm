@@ -7,16 +7,16 @@ and turn them into an elm file.
 
 -}
 
+import Char
+import Dict exposing (Dict)
 import Elm exposing (..)
 import Json.Decode as Decode exposing (decodeString, oneOf, list, dict, string)
-import Dict exposing (Dict)
+import List.Unique
 import Result
-import Char
 import Result.Extra as Result
 import String.Extra as String
-import Translation.Parser as Parser
 import Translation.Data exposing (..)
-import List.Unique
+import Translation.Parser as Parser
 
 
 {-| Represents a file

@@ -12,7 +12,10 @@ import Dict exposing (Dict)
 import Elm exposing (..)
 import Json.Decode exposing (Decoder, decodeString, string, dict, oneOf, map)
 import Json.Decode.Pipeline exposing (decode, required)
+import Result.Extra as Result
+import Routing.Data exposing (Routing, Method(..), Path(..), ArgumentType(..))
 import Unindent
+import Routing.Parser as Parser
 
 
 type alias Command =
@@ -24,15 +27,6 @@ type alias Command =
 type alias JsonRouting =
     { path : String
     , method : String
-    , defaults : Dict String String
-    , requirements : Dict String String
-    }
-
-
-type alias Routing =
-    { path : String
-    , method : String
-    , defaults : Dict String String
     , requirements : Dict String String
     }
 
@@ -53,12 +47,11 @@ readJsonContent content =
         |> decodeString (dict decodeRouting)
 
 
-decodeRouting : Decoder Routing
+decodeRouting : Decoder JsonRouting
 decodeRouting =
-    decode Routing
+    decode JsonRouting
         |> required "path" string
         |> required "method" string
-        |> required "defaults" (dict string)
         |> required "requirements"
             (oneOf
                 [ dict string
@@ -70,25 +63,100 @@ decodeRouting =
 parseRouting : Dict String JsonRouting -> Result String (Dict String Routing)
 parseRouting routing =
     routing
-        |> Dict.filter (\key value -> isValidRouteName key)
-        |> Ok
+        |> Dict.toList
+        |> List.map
+            (\( key, value ) ->
+                routingFromJson value
+                    |> Result.map (\routing -> ( formatName key, routing ))
+            )
+        |> Result.combine
+        |> Result.map
+            (Dict.fromList
+                >> Dict.filter (\key value -> not (String.startsWith "_" key))
+            )
 
 
-isValidRouteName : String -> Bool
-isValidRouteName name =
+formatName : String -> String
+formatName name =
+    name
+        |> String.toLower
+        |> String.toList
+        |> List.map
+            (\c ->
+                if Char.isLower c || Char.isDigit c then
+                    c
+                else
+                    '_'
+            )
+        |> String.fromList
+
+
+routingFromJson : JsonRouting -> Result String Routing
+routingFromJson json =
     let
-        nameDoesntStartWithUnderscore =
-            not (String.startsWith "_" name)
+        typeFromRequirement name =
+            json.requirements
+                |> Dict.get name
+                |> Maybe.map
+                    (\requirement ->
+                        if requirement == "\\d+" then
+                            Int
+                        else
+                            String
+                    )
 
-        validChar c =
-            Char.isLower c || Char.isUpper c || c == '_'
+        formatName name =
+            if String.startsWith "_" name then
+                String.dropLeft 1 name
+            else
+                name
 
-        nameContainsOnlyValidChars =
-            name
-                |> String.toList
-                |> List.all validChar
+        path =
+            Parser.parsePathContent json.path
+                |> Result.map
+                    (List.map
+                        (\chunk ->
+                            case chunk of
+                                Variable name argumentType ->
+                                    Variable
+                                        (formatName name)
+                                        (typeFromRequirement name
+                                            |> Maybe.withDefault argumentType
+                                        )
+
+                                other ->
+                                    other
+                        )
+                    )
+
+        method =
+            case String.toUpper json.method of
+                "ANY" ->
+                    Ok Any
+
+                "GET" ->
+                    Ok Get
+
+                "POST" ->
+                    Ok Post
+
+                "PUT" ->
+                    Ok Put
+
+                "DELETE" ->
+                    Ok Delete
+
+                method ->
+                    Err ("Unknown method: " ++ method)
     in
-        nameDoesntStartWithUnderscore && nameContainsOnlyValidChars
+        Result.map2
+            (\path method ->
+                { path = path
+                , method = method
+                }
+            )
+            path
+            method
 
 
 convertToElm : String -> Dict String Routing -> String
@@ -103,4 +171,44 @@ convertToElm urlPrefix routing =
 
 routingToElm : String -> ( String, Routing ) -> Function
 routingToElm urlPrefix ( routeName, routing ) =
-    Function routeName [] "String" (Expr ("\"" ++ urlPrefix ++ routing.path ++ "\""))
+    let
+        record =
+            routing.path
+                |> List.filterMap
+                    (\chunk ->
+                        case chunk of
+                            Variable name Int ->
+                                Just ( "Int", name )
+
+                            Variable name String ->
+                                Just ( "String", name )
+
+                            _ ->
+                                Nothing
+                    )
+
+        arguments =
+            case record of
+                [] ->
+                    []
+
+                record ->
+                    [ Record record ]
+
+        url =
+            (Constant urlPrefix :: routing.path)
+                |> List.map
+                    (\chunk ->
+                        case chunk of
+                            Constant path ->
+                                "\"" ++ path ++ "\""
+
+                            Variable name Int ->
+                                "(toString " ++ name ++ ")"
+
+                            Variable name String ->
+                                name
+                    )
+                |> String.join " ++ "
+    in
+        Function routeName arguments "String" (Expr url)

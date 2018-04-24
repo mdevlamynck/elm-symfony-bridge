@@ -7,13 +7,13 @@ module Translation.Parser exposing (parseTranslationContent)
 -}
 
 import Char
-import Result
 import List.Extra as List
 import List.Unique
 import Parser exposing (..)
 import Parser.LanguageKit exposing (..)
-import Translation.Data exposing (..)
+import Result
 import StringUtil exposing (indent)
+import Translation.Data exposing (..)
 import Unindent exposing (unindent)
 
 
