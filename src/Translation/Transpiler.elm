@@ -196,15 +196,7 @@ hasCountVariable translationContent =
     case translationContent of
         SingleMessage chunks ->
             chunks
-                |> List.any
-                    (\chunk ->
-                        case chunk of
-                            VariableCount ->
-                                True
-
-                            _ ->
-                                False
-                    )
+                |> List.any ((==) VariableCount)
 
         PluralizedMessage _ ->
             True
@@ -219,24 +211,41 @@ translationContentToElm translationContent =
             Expr (combineChunks chunks)
 
         PluralizedMessage alternatives ->
-            Ifs
-                (alternatives
-                    |> List.map
-                        (\alt ->
-                            ( Expr (appliesToConditionToElm alt.appliesTo), Expr (combineChunks alt.chunks) )
-                        )
-                )
+            Ifs (alternativesToElm alternatives)
 
 
-{-| -}
-appliesToConditionToElm : AppliesTo -> String
-appliesToConditionToElm appliesTo =
+alternativesToElm : List Alternative -> List ( Expr, Expr )
+alternativesToElm alternatives =
+    let
+        indexedConditions =
+            [ Expr ("count == 0 || count == 1"), Expr ("count >= 2") ]
+    in
+        alternatives
+            |> List.foldl
+                alternativeToElm
+                ( indexedConditions, [] )
+            |> Tuple.second
+
+
+alternativeToElm : Alternative -> ( List Expr, List ( Expr, Expr ) ) -> ( List Expr, List ( Expr, Expr ) )
+alternativeToElm { appliesTo, chunks } ( indexedCondition, content ) =
     case appliesTo of
         Intervals intervals ->
-            combineIntervals intervals
+            ( indexedCondition
+            , content ++ [ ( Expr (combineIntervals intervals), Expr (combineChunks chunks) ) ]
+            )
 
         Indexed ->
-            "False"
+            case indexedCondition of
+                head :: tail ->
+                    ( tail
+                    , content ++ [ ( head, Expr (combineChunks chunks) ) ]
+                    )
+
+                [] ->
+                    ( []
+                    , content ++ [ ( Expr "False", Expr (combineChunks chunks) ) ]
+                    )
 
 
 {-| Turns a list of Intervals into an elm expression usable in a if

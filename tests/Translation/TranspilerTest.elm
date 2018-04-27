@@ -212,6 +212,43 @@ suite =
                                 }
                     in
                         Expect.equal expected (transpileToElm input)
+            , test "Works with pluralized translations containing indexed variant" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    apples : Int -> String
+                                    apples count =
+                                        if count == 0 then
+                                            \"\"\"There are no apples\"\"\"
+                                        else if count == 0 || count == 1 then
+                                            \"\"\"There is one apple\"\"\"
+                                        else if count == 5 then
+                                            \"\"\"There are five apples\"\"\"
+                                        else
+                                            \"\"\"There are \"\"\" ++ (toString count) ++ \"\"\" apples\"\"\"
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileToElm input)
             ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
