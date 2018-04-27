@@ -39,7 +39,8 @@ transpileToElm =
 {-| Represents the content of a JSON translation file
 -}
 type alias JsonTranslationDomain =
-    { domain : String
+    { lang : String
+    , domain : String
     , translations : Dict String String
     }
 
@@ -47,7 +48,8 @@ type alias JsonTranslationDomain =
 {-| A parsed translation file
 -}
 type alias TranslationDomain =
-    { domain : String
+    { lang : String
+    , domain : String
     , translations : List Translation
     }
 
@@ -70,27 +72,37 @@ readJsonContent =
         )
         >> Result.andThen
             (Dict.get "translations"
-                >> Maybe.andThen (Dict.get "fr")
-                >> Maybe.andThen (Dict.toList >> List.head)
-                >> Maybe.map
-                    (\( domain, translations ) ->
-                        JsonTranslationDomain domain translations
+                >> Maybe.andThen dictFirst
+                >> Maybe.andThen
+                    (\( lang, translations ) ->
+                        translations
+                            |> dictFirst
+                            |> Maybe.map
+                                (\( domain, translations ) ->
+                                    JsonTranslationDomain lang domain translations
+                                )
                     )
                 >> Result.fromMaybe "No translations found in this JSON"
             )
 
 
+dictFirst : Dict comparable value -> Maybe ( comparable, value )
+dictFirst =
+    Dict.toList >> List.head
+
+
 {-| Parses the translations into use usable type
 -}
 parseTranslationDomain : JsonTranslationDomain -> Result String TranslationDomain
-parseTranslationDomain { domain, translations } =
+parseTranslationDomain { lang, domain, translations } =
     translations
         |> Dict.toList
         |> List.map parseTranslation
         |> Result.combine
         |> Result.map
             (\translations ->
-                { domain = String.toSentenceCase domain
+                { lang = lang
+                , domain = String.toSentenceCase domain
                 , translations = translations
                 }
             )
@@ -99,9 +111,9 @@ parseTranslationDomain { domain, translations } =
 {-| Turns a TranslationDomain into its elm representation
 -}
 convertToElm : TranslationDomain -> File
-convertToElm { domain, translations } =
+convertToElm { lang, domain, translations } =
     { name = "Trans/" ++ domain ++ ".elm"
-    , content = renderElmModule <| Module ("Trans." ++ domain) (List.map translationToElm translations)
+    , content = renderElmModule <| Module ("Trans." ++ domain) (List.map (translationToElm lang) translations)
     }
 
 
@@ -165,8 +177,8 @@ extractVariables translationContent =
 
 {-| Turns a translation into an elm function
 -}
-translationToElm : Translation -> Function
-translationToElm translation =
+translationToElm : String -> Translation -> Function
+translationToElm lang translation =
     let
         arguments =
             count ++ record
@@ -186,7 +198,7 @@ translationToElm translation =
             else
                 [ Record recordArgs ]
     in
-        Function translation.name arguments "String" (translationContentToElm translation.content)
+        Function translation.name arguments "String" (translationContentToElm lang translation.content)
 
 
 {-| Does a TranslationContent contains a `count` variable
@@ -204,22 +216,22 @@ hasCountVariable translationContent =
 
 {-| Turns a TranslationContent into the body of an elm function
 -}
-translationContentToElm : TranslationContent -> Expr
-translationContentToElm translationContent =
+translationContentToElm : String -> TranslationContent -> Expr
+translationContentToElm lang translationContent =
     case translationContent of
         SingleMessage chunks ->
             Expr (combineChunks chunks)
 
         PluralizedMessage alternatives ->
-            Ifs (alternativesToElm alternatives)
+            Ifs (alternativesToElm lang alternatives)
 
 
-alternativesToElm : List Alternative -> List ( Expr, Expr )
-alternativesToElm alternatives =
+alternativesToElm : String -> List Alternative -> List ( Expr, Expr )
+alternativesToElm lang alternatives =
     alternatives
         |> List.foldl
             alternativeToElm
-            ( indexedConditions "fr", [] )
+            ( indexedConditions lang, [] )
         |> Tuple.second
 
 

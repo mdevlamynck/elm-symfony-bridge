@@ -212,7 +212,7 @@ suite =
                                 }
                     in
                         Expect.equal expected (transpileToElm input)
-            , test "Works with pluralized translations containing indexed variant" <|
+            , test "Works with pluralized translations containing indexed variant in french" <|
                 \_ ->
                     let
                         input =
@@ -220,6 +220,43 @@ suite =
                             {
                                 "translations": {
                                     "fr": {
+                                        "messages": {
+                                            "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    apples : Int -> String
+                                    apples count =
+                                        if count == 0 then
+                                            \"\"\"Il n'y a pas de pomme\"\"\"
+                                        else if count == 0 || count == 1 then
+                                            \"\"\"Il y a une pomme\"\"\"
+                                        else if count == 5 then
+                                            \"\"\"Il y a cinq pommes\"\"\"
+                                        else
+                                            \"\"\"Il y a \"\"\" ++ (toString count) ++ \"\"\" pommes\"\"\"
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileToElm input)
+            , test "Works with pluralized translations containing indexed variant in english" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "en": {
                                         "messages": {
                                             "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
                                         }
@@ -239,7 +276,7 @@ suite =
                                     apples count =
                                         if count == 0 then
                                             \"\"\"There are no apples\"\"\"
-                                        else if count == 0 || count == 1 then
+                                        else if count == 1 then
                                             \"\"\"There is one apple\"\"\"
                                         else if count == 5 then
                                             \"\"\"There are five apples\"\"\"
