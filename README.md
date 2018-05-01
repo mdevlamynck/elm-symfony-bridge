@@ -77,13 +77,13 @@ You'll find the following commands useful when hacking on this project:
 
 ```bash
 # build the package
-npm build
+npm run build
 
 # run the tests
 elm test
 
 # Using a local build in a project using webpack
-npm build & npm pack
+npm install & npm run build & npm pack
 cd path/to/project/using/webpack
 npm install path/to/package.tgz
 ```

@@ -1,6 +1,6 @@
 {
   "name": "elm-symfony-bridge",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "author": "Matthias Devlamynck <matthias@chaplean.coop>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
