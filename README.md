@@ -1,5 +1,8 @@
 # elm-symfony-bridge
 
+[![Build Status](https://travis-ci.org/mdevlamynck/elm-symfony-bridge.svg?branch=master)](https://travis-ci.org/mdevlamynck/elm-symfony-bridge)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mdevlamynck/elm-symfony-bridge/issues)
+
 Webpack plugin exposing to elm symfony's translations and routing.
 
 ## Status
