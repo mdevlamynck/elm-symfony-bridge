@@ -1,20 +1,86 @@
 # elm-symfony-bridge
 
-Generates elm code exposing symfony's translations and routing.
+Webpack plugin exposing to elm symfony's translations and routing.
 
-## WIP
+## Status
 
-This project is in an early state and not stable. Expect things to change.
+This project is usable and mostly feature complete but still a bit rough around the edges.
 
-* Translations don't handle all allowed symfony's syntax yet.
-* Routing is WIP and not usable yet.
+If you encounter invalid generated elm code or wrong behaviour please fill a bug report.
+
+Help to enhance the webpack code is welcomed, especially around error handling.
+
+## Installation
+
+Install the plugin with:
+
+```bash
+npm install elm-symfony-bridge --save
+```
+
+The usage example bellow also uses:
+```bash
+npm install @symfony/webpack-encore --save
+npm install elm-webpack-loader --save
+```
+
+## Usage
+
+Setup example with symfony's webpack encore:
+
+```js
+const Encore = require('@symfony/webpack-encore');
+const ElmSymfonyBridgePlugin = require('elm-symfony-bridge');
+
+Encore
+    .setOutputPath('web/static')
+    .setPublicPath('/static')
+    .addEntry('app', './assets/app.js')
+    .addLoader({
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        use: {
+            loader: 'elm-webpack-loader',
+            options: {
+                pathToMake: 'node_modules/.bin/elm-make',
+                warn: true,
+                debug: !Encore.isProduction()
+            }
+        }
+    })
+    .addPlugin(new ElmSymfonyBridgePlugin({
+        dev: !Encore.isProduction(),    // Required: use symfony's env=dev or env=prod
+        elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to '/assets/elm'
+        urlPrefix: '/app_dev.php',      // Optional: when dev is true which prefix to use when generating urls, defaults to '/app_dev.php'
+        lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
+    }))
+    .configureFilenames({
+        js: '[name].[chunkhash].js',
+        css: '[name].[chunkhash].css',
+        images: 'images/[name].[ext]',
+        fonts: 'fonts/[name].[ext]',
+    })
+    .enableVersioning()
+    .enableSourceMaps(!Encore.isProduction())
+    .cleanupOutputBeforeBuild()
+;
+
+module.exports = Encore.getWebpackConfig();
+```
 
 ## Hacking
 
 You'll find the following commands useful when hacking on this project:
 
 ```bash
-npm run build # build the package
-npm run test # run the tests
-npm pack # build the package, you can then install it on a local project with npm install path/to/package.tgz
+# build the package
+npm build
+
+# run the tests
+elm test
+
+# Using a local build in a project using webpack
+npm build & npm pack
+cd path/to/project/using/webpack
+npm install path/to/package.tgz
 ```

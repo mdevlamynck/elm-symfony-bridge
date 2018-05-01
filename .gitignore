@@ -4,3 +4,4 @@ doc.json
 node_modules
 dist
 .idea
+elm-symfony-bridge-*.tgz
