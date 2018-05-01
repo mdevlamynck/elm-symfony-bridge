@@ -36,4 +36,5 @@ install:
   - travis_retry elm package install --yes
 
 script:
-- elm-test --verbose
+  - npm build
+  - elm-test --verbose
