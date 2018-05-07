@@ -14,6 +14,7 @@ type Path
 
 type Method
     = Any
+    | Head
     | Get
     | Post
     | Put

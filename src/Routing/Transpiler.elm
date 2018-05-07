@@ -134,6 +134,9 @@ routingFromJson json =
                 "ANY" ->
                     Ok Any
 
+                "HEAD" ->
+                    Ok Head
+
                 "GET" ->
                     Ok Get
 
