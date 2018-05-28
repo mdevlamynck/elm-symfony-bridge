@@ -42,11 +42,13 @@ type Arg
 {-| An elm expression
 
 Can either be a Ifs (a if / else if / else block) with the expressions for the test condition and the body
+or can be a Case with the variable to match and a list of value to match with and body pairs
 or can be an Expr with the expression.
 
 -}
 type Expr
     = Ifs (List ( Expr, Expr ))
+    | Case String (List ( String, String ))
     | Expr String
 
 
@@ -124,9 +126,6 @@ renderElmParam arg =
 renderElmExpr : Expr -> String
 renderElmExpr expr =
     case expr of
-        Expr body ->
-            body
-
         Ifs alternatives ->
             case alternatives of
                 [ ( Expr cond, Expr expr ) ] ->
@@ -143,6 +142,16 @@ renderElmExpr expr =
 
                 _ ->
                     ""
+
+        Case matched variants ->
+            ("case " ++ matched ++ " of\n")
+                ++ indent
+                    ((List.map renderElmCaseVariant variants ++ [ renderElmCaseWildcardVariant ])
+                        |> String.join "\n"
+                    )
+
+        Expr body ->
+            body
 
 
 {-| Recursive function rendering the else if and else parts of an Ifs
@@ -167,3 +176,15 @@ renderElseIf alternatives =
 
         _ ->
             ""
+
+
+renderElmCaseVariant : ( String, String ) -> String
+renderElmCaseVariant ( match, body ) =
+    ("\"" ++ match ++ "\" ->\n")
+        ++ indent (body ++ "\n")
+
+
+renderElmCaseWildcardVariant : String
+renderElmCaseWildcardVariant =
+    ("_ ->\n")
+        ++ indent "Debug.log (\"Keyname not found: \" ++ keyname) \"\""

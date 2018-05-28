@@ -25,11 +25,13 @@ type alias Translation =
 
 Can either be a single message or in a pluralized translation a list of
 alternatives messages with the conditions to choose one over the others.
+It can also be determined by a keyname.
 
 -}
 type TranslationContent
     = SingleMessage (List Chunk)
     | PluralizedMessage (List Alternative)
+    | Keyname (List ( String, String ))
 
 
 {-| A plurilized translation message is constitued of several alternatives, represented by this type

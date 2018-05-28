@@ -9,6 +9,7 @@ and turn them into an elm file.
 
 import Char
 import Dict exposing (Dict)
+import Dict.Extra as Dict
 import Elm exposing (..)
 import Json.Decode as Decode exposing (decodeString, oneOf, list, dict, string)
 import List.Unique
@@ -103,9 +104,42 @@ parseTranslationDomain { lang, domain, translations } =
             (\translations ->
                 { lang = lang
                 , domain = String.toSentenceCase domain
-                , translations = translations
+                , translations = translations ++ keynameTranslations translations
                 }
             )
+
+
+keynameTranslations : List Translation -> List Translation
+keynameTranslations translations =
+    translations
+        |> Dict.filterGroupBy groupByKeyname
+        |> Dict.toList
+        |> List.map createAKeynameTranslation
+
+
+groupByKeyname : Translation -> Maybe String
+groupByKeyname { name, variables, content } =
+    let
+        base =
+            String.leftOfBack "_keyname_" name
+
+        keyname =
+            String.rightOfBack "_keyname_" name
+
+        isKeynameCorrect =
+            keyname /= "" && (keyname |> not << String.contains ".")
+    in
+        if isKeynameCorrect && List.isEmpty variables then
+            Just (base ++ "_keyname")
+        else
+            Nothing
+
+
+createAKeynameTranslation : ( String, List Translation ) -> Translation
+createAKeynameTranslation ( base, translations ) =
+    Translation base
+        []
+        (Keyname <| List.map (\t -> ( String.rightOfBack "_keyname_" t.name, t.name )) translations)
 
 
 {-| Turns a TranslationDomain into its elm representation
@@ -161,6 +195,9 @@ extractVariables translationContent =
                 PluralizedMessage alternatives ->
                     alternatives
                         |> List.concatMap .chunks
+
+                Keyname _ ->
+                    []
     in
         chunks
             |> List.filterMap
@@ -181,11 +218,17 @@ translationToElm : String -> Translation -> Function
 translationToElm lang translation =
     let
         arguments =
-            count ++ record
+            count ++ keyname ++ record
 
         count =
             if hasCountVariable translation.content then
                 [ Primitive "Int" "count" ]
+            else
+                []
+
+        keyname =
+            if hasKeynameVariable translation.content then
+                [ Primitive "String" "keyname" ]
             else
                 []
 
@@ -213,6 +256,21 @@ hasCountVariable translationContent =
         PluralizedMessage _ ->
             True
 
+        Keyname _ ->
+            False
+
+
+{-| Does a TranslationContent contains a `keyname` variable
+-}
+hasKeynameVariable : TranslationContent -> Bool
+hasKeynameVariable translationContent =
+    case translationContent of
+        Keyname _ ->
+            True
+
+        _ ->
+            False
+
 
 {-| Turns a TranslationContent into the body of an elm function
 -}
@@ -224,6 +282,9 @@ translationContentToElm lang translationContent =
 
         PluralizedMessage alternatives ->
             Ifs (alternativesToElm lang alternatives)
+
+        Keyname variants ->
+            Case "keyname" variants
 
 
 alternativesToElm : String -> List Alternative -> List ( Expr, Expr )

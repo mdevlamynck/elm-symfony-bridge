@@ -286,6 +286,55 @@ suite =
                                 }
                     in
                         Expect.equal expected (transpileToElm input)
+            , test "Allow getting a translation from a keyname (only for translation containing key 'keyname')" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "honorific_title.keyname.miss": "Miss",
+                                            "honorific_title.keyname.mister": "Mister"
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    honorific_title_keyname_miss : String
+                                    honorific_title_keyname_miss =
+                                        \"\"\"Miss\"\"\"
+
+
+                                    honorific_title_keyname_mister : String
+                                    honorific_title_keyname_mister =
+                                        \"\"\"Mister\"\"\"
+
+
+                                    honorific_title_keyname : String -> String
+                                    honorific_title_keyname keyname =
+                                        case keyname of
+                                            "miss" ->
+                                                honorific_title_keyname_miss
+
+                                            "mister" ->
+                                                honorific_title_keyname_mister
+
+                                            _ ->
+                                                Debug.log ("Keyname not found: " ++ keyname) ""
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileToElm input)
             ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|

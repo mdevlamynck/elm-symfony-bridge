@@ -14,7 +14,6 @@ import Json.Decode exposing (Decoder, decodeString, string, dict, oneOf, map)
 import Json.Decode.Pipeline exposing (decode, required)
 import Result.Extra as Result
 import Routing.Data exposing (Routing, Method(..), Path(..), ArgumentType(..))
-import Unindent
 import Routing.Parser as Parser
 
 
