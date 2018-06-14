@@ -2,23 +2,12 @@ module Routing.Data exposing (..)
 
 
 type alias Routing =
-    { path : List Path
-    , method : Method
-    }
+    List Path
 
 
 type Path
     = Constant String
     | Variable String ArgumentType
-
-
-type Method
-    = Any
-    | Head
-    | Get
-    | Post
-    | Put
-    | Delete
 
 
 type ArgumentType

@@ -13,7 +13,7 @@ import Elm exposing (..)
 import Json.Decode exposing (Decoder, decodeString, string, dict, oneOf, map)
 import Json.Decode.Pipeline exposing (decode, required)
 import Result.Extra as Result
-import Routing.Data exposing (Routing, Method(..), Path(..), ArgumentType(..))
+import Routing.Data exposing (Routing, Path(..), ArgumentType(..))
 import Routing.Parser as Parser
 
 
@@ -25,7 +25,6 @@ type alias Command =
 
 type alias JsonRouting =
     { path : String
-    , method : String
     , requirements : Dict String String
     }
 
@@ -50,7 +49,6 @@ decodeRouting : Decoder JsonRouting
 decodeRouting =
     decode JsonRouting
         |> required "path" string
-        |> required "method" string
         |> required "requirements"
             (oneOf
                 [ dict string
@@ -110,55 +108,23 @@ routingFromJson json =
             else
                 name
 
-        path =
-            Parser.parsePathContent json.path
-                |> Result.map
-                    (List.map
-                        (\chunk ->
-                            case chunk of
-                                Variable name argumentType ->
-                                    Variable
-                                        (formatName name)
-                                        (typeFromRequirement name
-                                            |> Maybe.withDefault argumentType
-                                        )
-
-                                other ->
-                                    other
-                        )
-                    )
-
-        method =
-            case String.toUpper json.method of
-                "ANY" ->
-                    Ok Any
-
-                "HEAD" ->
-                    Ok Head
-
-                "GET" ->
-                    Ok Get
-
-                "POST" ->
-                    Ok Post
-
-                "PUT" ->
-                    Ok Put
-
-                "DELETE" ->
-                    Ok Delete
-
-                method ->
-                    Err ("Unknown method: " ++ method)
     in
-        Result.map2
-            (\path method ->
-                { path = path
-                , method = method
-                }
-            )
-            path
-            method
+        Parser.parsePathContent json.path
+            |> Result.map
+                (List.map
+                    (\chunk ->
+                        case chunk of
+                            Variable name argumentType ->
+                                Variable
+                                    (formatName name)
+                                    (typeFromRequirement name
+                                        |> Maybe.withDefault argumentType
+                                    )
+
+                            other ->
+                                other
+                    )
+                )
 
 
 convertToElm : String -> Dict String Routing -> String
@@ -175,7 +141,7 @@ routingToElm : String -> ( String, Routing ) -> Function
 routingToElm urlPrefix ( routeName, routing ) =
     let
         record =
-            routing.path
+            routing
                 |> List.filterMap
                     (\chunk ->
                         case chunk of
@@ -198,7 +164,7 @@ routingToElm urlPrefix ( routeName, routing ) =
                     [ Record record ]
 
         url =
-            (Constant urlPrefix :: routing.path)
+            (Constant urlPrefix :: routing)
                 |> List.map
                     (\chunk ->
                         case chunk of
