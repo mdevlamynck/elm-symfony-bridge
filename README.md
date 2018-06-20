@@ -56,6 +56,8 @@ Encore
         elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to '/assets/elm'
         urlPrefix: '/app_dev.php',      // Optional: when dev is true which prefix to use when generating urls, defaults to '/app_dev.php'
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
+        enableRouting: true,            // Optional: enable generating routes, defaults to true
+        enableTranslations: true,       // Optional: enable generating translations, defaults to true
     }))
     .configureFilenames({
         js: '[name].[chunkhash].js',
