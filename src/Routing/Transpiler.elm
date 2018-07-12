@@ -10,10 +10,10 @@ and turn it into an elm file.
 import Char
 import Dict exposing (Dict)
 import Elm exposing (..)
-import Json.Decode exposing (Decoder, decodeString, string, dict, oneOf, map)
+import Json.Decode exposing (Decoder, decodeString, dict, map, oneOf, string)
 import Json.Decode.Pipeline exposing (decode, required)
 import Result.Extra as Result
-import Routing.Data exposing (Routing, Path(..), ArgumentType(..))
+import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
 import Routing.Parser as Parser
 
 
@@ -107,7 +107,6 @@ routingFromJson json =
                 String.dropLeft 1 name
             else
                 name
-
     in
         Parser.parsePathContent json.path
             |> Result.map

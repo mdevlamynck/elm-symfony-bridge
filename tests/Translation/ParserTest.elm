@@ -3,16 +3,26 @@ module Translation.ParserTest exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
-import Unindent exposing (..)
 import Translation.Data exposing (..)
 import Translation.Parser exposing (parseTranslationContent)
+import Unindent exposing (..)
 
 
 suite : Test
 suite =
     describe "Parses a translation" <|
         [ describe "Succeesfull parsing" <|
-            [ test "Works with plain constant translations" <|
+            [ test "Works with empty translations" <|
+                \_ ->
+                    let
+                        input =
+                            ""
+
+                        expected =
+                            Ok (SingleMessage [ Text "" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with plain constant translations" <|
                 \_ ->
                     let
                         input =
@@ -30,6 +40,56 @@ suite =
 
                         expected =
                             Ok (SingleMessage [ VariableCount, Text " notifications non lues" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translations containing variables using reserved keywords as name" <|
+                \_ ->
+                    let
+                        input =
+                            "%if% %then% %else% %case% %of% %let% %in% %type% %module% %where% %import% %exposing% %as% %port%"
+
+                        expected =
+                            Ok (SingleMessage [ Variable "if", Variable "then", Variable "else", Variable "case", Variable "of", Variable "let", Variable "in", Variable "type", Variable "module", Variable "where", Variable "import", Variable "exposing", Variable "as", Variable "port" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translations containing lisp-cased variables" <|
+                \_ ->
+                    let
+                        input =
+                            "%count-notifications% notifications non lues"
+
+                        expected =
+                            Ok (SingleMessage [ Variable "count_notifications", Text " notifications non lues" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translations containing % that are not variables" <|
+                \_ ->
+                    let
+                        input =
+                            "% pris en charge"
+
+                        expected =
+                            Ok (SingleMessage [ Text "% pris en charge" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translations containing % that are not variables alongside legit variables" <|
+                \_ ->
+                    let
+                        input =
+                            "dont TVA (%percent%%)"
+
+                        expected =
+                            Ok (SingleMessage [ Text "dont TVA(", Variable "percent", Text "%)" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translations containing printf variables like %s or %d" <|
+                \_ ->
+                    let
+                        input =
+                            "&quot;%s%d&quot;"
+
+                        expected =
+                            Ok (SingleMessage [ Text "&quot;%s%d&quot;" ])
                     in
                         Expect.equal expected (parseTranslationContent input)
             , test "Works with pluralized translations containing variables" <|
@@ -53,6 +113,35 @@ suite =
                                             ]
                                       }
                                     , { appliesTo = Intervals [ { low = Included 2, high = Inf } ]
+                                      , chunks =
+                                            [ VariableCount
+                                            , Text " notifications non lues"
+                                            ]
+                                      }
+                                    ]
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with pluralized translations in indexed form with negative integers" <|
+                \_ ->
+                    let
+                        input =
+                            "{-0} Pas de notification | {-1} %count% notification non lue | [-2, Inf[ %count% notifications non lues"
+
+                        expected =
+                            Ok <|
+                                PluralizedMessage <|
+                                    [ { appliesTo = Intervals [ { low = Included 0, high = Included 0 } ]
+                                      , chunks =
+                                            [ Text "Pas de notification"
+                                            ]
+                                      }
+                                    , { appliesTo = Intervals [ { low = Included -1, high = Included -1 } ]
+                                      , chunks =
+                                            [ VariableCount
+                                            , Text " notification non lue"
+                                            ]
+                                      }
+                                    , { appliesTo = Intervals [ { low = Included -2, high = Inf } ]
                                       , chunks =
                                             [ VariableCount
                                             , Text " notifications non lues"
@@ -143,6 +232,60 @@ suite =
                                             [ Text "There are "
                                             , VariableCount
                                             , Text " apples"
+                                            ]
+                                      }
+                                    ]
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translation without plural variants but containing interval looking prefixes" <|
+                \_ ->
+                    let
+                        input =
+                            "[Prénom] {NOM}"
+
+                        expected =
+                            Ok (SingleMessage [ Text "[Prénom] {NOM}" ])
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with translation with plural variants but containing interval looking prefixes" <|
+                \_ ->
+                    let
+                        input =
+                            "[Prénom] {NOM}|{Prénom} [NOM]"
+
+                        expected =
+                            Ok <|
+                                PluralizedMessage <|
+                                    [ { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "[Prénom] {NOM}"
+                                            ]
+                                      }
+                                    , { appliesTo = Indexed
+                                      , chunks =
+                                            [ Text "{Prénom} [NOM]"
+                                            ]
+                                      }
+                                    ]
+                    in
+                        Expect.equal expected (parseTranslationContent input)
+            , test "Works with empty pluralized translations in interval form" <|
+                \_ ->
+                    let
+                        input =
+                            "{0} |]-Inf,Inf["
+
+                        expected =
+                            Ok <|
+                                PluralizedMessage <|
+                                    [ { appliesTo = Intervals [ { low = Included 0, high = Included 0 } ]
+                                      , chunks =
+                                            [ Text ""
+                                            ]
+                                      }
+                                    , { appliesTo = Intervals [ { low = Inf, high = Inf } ]
+                                      , chunks =
+                                            [ Text ""
                                             ]
                                       }
                                     ]

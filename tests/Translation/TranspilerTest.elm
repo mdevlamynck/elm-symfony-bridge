@@ -3,8 +3,8 @@ module Translation.TranspilerTest exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
-import Unindent exposing (..)
 import Translation.Transpiler exposing (transpileToElm)
+import Unindent exposing (..)
 
 
 suite : Test
@@ -30,6 +30,60 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileToElm input)
+            , test "Works with a null translation" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {"translation": null}
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+                                    translation : String
+                                    translation =
+                                        \"\"\"\"\"\"
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileToElm input)
+            , test "Works with an empty translation" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {"translation": ""}
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+                                    translation : String
+                                    translation =
+                                        \"\"\"\"\"\"
                                     """
                                 }
                     in

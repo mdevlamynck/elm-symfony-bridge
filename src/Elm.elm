@@ -1,4 +1,4 @@
-module Elm exposing (Module(..), Function(..), Arg(..), Expr(..), renderElmModule)
+module Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
 
 {-| Module defining a simplified AST of elm code along with a render to string function
 
@@ -70,14 +70,14 @@ renderElmFunction : Function -> String
 renderElmFunction (Function name args returnType body) =
     let
         renderedArgs =
-            ((List.map renderElmType args) ++ [ returnType ])
+            (List.map renderElmType args ++ [ returnType ])
                 |> String.join " -> "
 
         annotation =
             name ++ " : " ++ renderedArgs
 
         definition =
-            (name :: (List.map renderElmParam args) ++ [ "=" ])
+            (name :: List.map renderElmParam args ++ [ "=" ])
                 |> String.join " "
     in
         [ annotation, definition, indent (renderElmExpr body) ]
@@ -172,7 +172,7 @@ renderElseIf alternatives =
              ]
                 |> String.join "\n"
             )
-                ++ (renderElseIf tail)
+                ++ renderElseIf tail
 
         _ ->
             ""
@@ -186,5 +186,5 @@ renderElmCaseVariant ( match, body ) =
 
 renderElmCaseWildcardVariant : String
 renderElmCaseWildcardVariant =
-    ("_ ->\n")
+    "_ ->\n"
         ++ indent "Debug.log (\"Keyname not found: \" ++ keyname) \"\""

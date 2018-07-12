@@ -2,9 +2,9 @@ module Routing.TranspilerTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import Routing.Transpiler exposing (transpileToElm)
 import Test exposing (..)
 import Unindent exposing (..)
-import Routing.Transpiler exposing (transpileToElm)
 
 
 suite : Test

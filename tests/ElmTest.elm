@@ -1,10 +1,10 @@
 module ElmTest exposing (..)
 
+import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
 import Unindent exposing (..)
-import Elm exposing (Module(..), Function(..), Arg(..), Expr(..), renderElmModule)
 
 
 suite : Test

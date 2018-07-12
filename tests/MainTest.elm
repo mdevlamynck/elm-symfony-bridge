@@ -2,10 +2,10 @@ module MainTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import Json.Encode as Encode exposing (Value)
+import Main exposing (Msg(..), decodeJsValue, update)
 import Test exposing (..)
 import Unindent exposing (..)
-import Main exposing (Msg(..), update, decodeJsValue)
-import Json.Encode as Encode exposing (Value)
 
 
 suite : Test

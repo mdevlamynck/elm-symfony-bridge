@@ -1,4 +1,4 @@
-port module Main exposing (main, Msg(..), update, decodeJsValue)
+port module Main exposing (Msg(..), decodeJsValue, main, update)
 
 {-| Entry point, receive commands from js, dispatch to elm function and return result to js
 
@@ -29,7 +29,7 @@ main =
                     |> update
                     |> Maybe.map sendToJs
                     |> Maybe.withDefault Cmd.none
-                    |> \cmd -> ( (), cmd )
+                    |> (\cmd -> ( (), cmd ))
         , subscriptions = always <| sendToElm decodeJsValue
         }
 

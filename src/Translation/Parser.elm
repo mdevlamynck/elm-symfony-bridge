@@ -49,9 +49,9 @@ formatError error =
             "Error while parsing "
                 ++ context.description
                 ++ " ("
-                ++ (toString error.col)
+                ++ toString error.col
                 ++ ", "
-                ++ (toString error.row)
+                ++ toString error.row
                 ++ "):"
 
         source =
@@ -61,7 +61,7 @@ formatError error =
                 |> Maybe.withDefault ""
 
         sourceErrorPointer =
-            (String.repeat (error.col - 1) " ") ++ "^"
+            String.repeat (error.col - 1) " " ++ "^"
 
         problem =
             formatProblem <| flattenOneOf error.problem
@@ -77,7 +77,7 @@ formatError error =
           , problem
           , hint
           ]
-            |> List.filter (not << ((==) ""))
+            |> List.filter (not << (==) "")
             |> List.intersperse ""
             |> String.join "\n"
             |> indent
@@ -158,10 +158,10 @@ formatProblem problem =
     in
         case problem of
             BadOneOf list ->
-                "Expected " ++ (formatOne problem) ++ "."
+                "Expected " ++ formatOne problem ++ "."
 
             _ ->
-                "Expected " ++ (formatOne problem) ++ "."
+                "Expected " ++ formatOne problem ++ "."
 
 
 {-| Render when possible a helpfull message to help diagnose the error and provide context.

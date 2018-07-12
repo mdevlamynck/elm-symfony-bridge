@@ -2,7 +2,7 @@ module Routing.Parser exposing (parsePathContent)
 
 import Char
 import Parser exposing (..)
-import Routing.Data exposing (Path(..), ArgumentType(..))
+import Routing.Data exposing (ArgumentType(..), Path(..))
 
 
 parsePathContent : String -> Result String (List Path)

@@ -2,9 +2,9 @@ module StringUtilTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import StringUtil exposing (indent)
 import Test exposing (..)
 import Unindent exposing (unindent)
-import StringUtil exposing (indent)
 
 
 suite : Test

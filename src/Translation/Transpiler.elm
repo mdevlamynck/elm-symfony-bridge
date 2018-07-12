@@ -1,4 +1,4 @@
-module Translation.Transpiler exposing (transpileToElm, File)
+module Translation.Transpiler exposing (File, transpileToElm)
 
 {-| Converts a JSON containing translations from Symfony
 and turn them into an elm file.
@@ -11,7 +11,7 @@ import Char
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import Elm exposing (..)
-import Json.Decode as Decode exposing (decodeString, oneOf, list, dict, string)
+import Json.Decode as Decode exposing (decodeString, dict, list, null, oneOf, string, value)
 import List.Unique
 import Result
 import Result.Extra as Result
@@ -64,8 +64,8 @@ readJsonContent =
             (dict
                 (dict
                     (oneOf
-                        [ list string |> Decode.map (\_ -> Dict.empty)
-                        , dict string
+                        [ dict (oneOf [ string, null "" ])
+                        , list value |> Decode.map (\_ -> Dict.empty)
                         ]
                     )
                 )
@@ -87,17 +87,14 @@ readJsonContent =
             )
 
 
-dictFirst : Dict comparable value -> Maybe ( comparable, value )
-dictFirst =
-    Dict.toList >> List.head
-
-
 {-| Parses the translations into use usable type
 -}
 parseTranslationDomain : JsonTranslationDomain -> Result String TranslationDomain
 parseTranslationDomain { lang, domain, translations } =
     translations
         |> Dict.toList
+        |> List.map normalizeTranslationNames
+        |> deduplicateKeys
         |> List.map parseTranslation
         |> Result.combine
         |> Result.map
@@ -149,6 +146,15 @@ convertToElm { lang, domain, translations } =
     { name = "Trans/" ++ domain ++ ".elm"
     , content = renderElmModule <| Module ("Trans." ++ domain) (List.map (translationToElm lang) translations)
     }
+
+
+normalizeTranslationNames : ( String, String ) -> ( String, String )
+normalizeTranslationNames ( name, translation ) =
+    ( name
+        |> replaceMatches (\c -> not (Char.isUpper c || Char.isLower c)) '_'
+        |> String.toLower
+    , translation
+    )
 
 
 {-| Parses the raw translation into a Translation
@@ -304,35 +310,35 @@ Source: <https://github.com/symfony/translation/blob/master/PluralizationRules.p
 indexedConditions : String -> List Expr
 indexedConditions lang =
     if List.member lang [ "az", "bo", "dz", "id", "ja", "jv", "ka", "km", "kn", "ko", "ms", "th", "tr", "vi", "zh" ] then
-        [ Expr ("True") ]
+        [ Expr "True" ]
     else if List.member lang [ "af", "bn", "bg", "ca", "da", "de", "el", "en", "eo", "es", "et", "eu", "fa", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "he", "hu", "is", "it", "ku", "lb", "ml", "mn", "mr", "nah", "nb", "ne", "nl", "nn", "no", "om", "or", "pa", "pap", "ps", "pt", "so", "sq", "sv", "sw", "ta", "te", "tk", "ur", "zu" ] then
-        [ Expr ("count == 1"), Expr ("True") ]
+        [ Expr "count == 1", Expr "True" ]
     else if List.member lang [ "am", "bh", "fil", "fr", "gun", "hi", "hy", "ln", "mg", "nso", "xbr", "ti", "wa" ] then
-        [ Expr ("count == 0 || count == 1"), Expr ("True") ]
+        [ Expr "count == 0 || count == 1", Expr "True" ]
     else if List.member lang [ "be", "bs", "hr", "ru", "sr", "uk" ] then
-        [ Expr ("count % 10 == 1 && count % 100 /= 11"), Expr ("count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)"), Expr "True" ]
+        [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
     else if List.member lang [ "cs", "sk" ] then
-        [ Expr ("count == 1"), Expr ("count >= 2 && count <= 4"), Expr "True" ]
+        [ Expr "count == 1", Expr "count >= 2 && count <= 4", Expr "True" ]
     else if List.member lang [ "ga" ] then
-        [ Expr ("count == 1"), Expr ("count == 2"), Expr "True" ]
+        [ Expr "count == 1", Expr "count == 2", Expr "True" ]
     else if List.member lang [ "lt" ] then
-        [ Expr ("count % 10 == 1 && count % 100 /= 11"), Expr ("count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)"), Expr "True" ]
+        [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
     else if List.member lang [ "sl" ] then
-        [ Expr ("count % 100 == 1"), Expr ("count % 100 == 2"), Expr ("count % 100 == 3 || count % 100 == 4"), Expr "True" ]
+        [ Expr "count % 100 == 1", Expr "count % 100 == 2", Expr "count % 100 == 3 || count % 100 == 4", Expr "True" ]
     else if List.member lang [ "mk" ] then
-        [ Expr ("count % 10 == 1"), Expr "True" ]
+        [ Expr "count % 10 == 1", Expr "True" ]
     else if List.member lang [ "mt" ] then
-        [ Expr ("count == 1"), Expr ("count == 0 || count % 100 > 1 && count % 100 < 11"), Expr ("count % 100 > 10 && count % 100 < 20"), Expr "True" ]
+        [ Expr "count == 1", Expr "count == 0 || count % 100 > 1 && count % 100 < 11", Expr "count % 100 > 10 && count % 100 < 20", Expr "True" ]
     else if List.member lang [ "lv" ] then
-        [ Expr ("count == 0"), Expr ("count % 10 == 1 && count % 100 /= 11"), Expr "True" ]
+        [ Expr "count == 0", Expr "count % 10 == 1 && count % 100 /= 11", Expr "True" ]
     else if List.member lang [ "pl" ] then
-        [ Expr ("count == 1"), Expr ("count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)"), Expr "True" ]
+        [ Expr "count == 1", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)", Expr "True" ]
     else if List.member lang [ "cy" ] then
-        [ Expr ("count == 1"), Expr ("count == 2"), Expr ("count == 8 || count == 11"), Expr "True" ]
+        [ Expr "count == 1", Expr "count == 2", Expr "count == 8 || count == 11", Expr "True" ]
     else if List.member lang [ "ro" ] then
-        [ Expr ("count == 1"), Expr ("count == 0 || (count % 100 > 0 && count % 100 < 20)"), Expr "True" ]
+        [ Expr "count == 1", Expr "count == 0 || (count % 100 > 0 && count % 100 < 20)", Expr "True" ]
     else if List.member lang [ "ar" ] then
-        [ Expr ("count == 0"), Expr ("count == 1"), Expr ("count == 2"), Expr ("count % 100 >= 3 && count % 100 <= 10"), Expr ("count % 100 >= 11 && count % 100 <= 99"), Expr "True" ]
+        [ Expr "count == 0", Expr "count == 1", Expr "count == 2", Expr "count % 100 >= 3 && count % 100 <= 10", Expr "count % 100 >= 11 && count % 100 <= 99", Expr "True" ]
     else
         [ Expr "True" ]
 
@@ -385,7 +391,7 @@ intervalToCondExpr interval =
             case ( interval.low, interval.high ) of
                 ( Included low, Included high ) ->
                     if low == high then
-                        Just <| "count == " ++ (toString low)
+                        Just <| "count == " ++ toString low
                     else
                         Nothing
 
@@ -398,10 +404,10 @@ intervalToCondExpr interval =
                     Nothing
 
                 Included bound ->
-                    Just <| "count >= " ++ (toString bound)
+                    Just <| "count >= " ++ toString bound
 
                 Excluded bound ->
-                    Just <| "count > " ++ (toString bound)
+                    Just <| "count > " ++ toString bound
 
         highBound =
             case interval.high of
@@ -409,10 +415,10 @@ intervalToCondExpr interval =
                     Nothing
 
                 Included bound ->
-                    Just <| "count <= " ++ (toString bound)
+                    Just <| "count <= " ++ toString bound
 
                 Excluded bound ->
-                    Just <| "count < " ++ (toString bound)
+                    Just <| "count < " ++ toString bound
     in
         case ( isLowEqualToHigh, lowBound, highBound ) of
             ( Just value, _, _ ) ->
@@ -448,10 +454,33 @@ chunkToString chunk =
     in
         case chunk of
             Text text ->
-                "\"\"\"" ++ (escape text) ++ "\"\"\""
+                "\"\"\"" ++ escape text ++ "\"\"\""
 
             Variable variable ->
                 variable
 
             VariableCount ->
                 "(toString count)"
+
+
+replaceMatches : (Char -> Bool) -> Char -> String -> String
+replaceMatches predicate replacement =
+    String.toList
+        >> List.map
+            (\c ->
+                if predicate c then
+                    replacement
+                else
+                    c
+            )
+        >> String.fromList
+
+
+dictFirst : Dict comparable value -> Maybe ( comparable, value )
+dictFirst =
+    Dict.toList >> List.head
+
+
+deduplicateKeys : List ( String, a ) -> List ( String, a )
+deduplicateKeys =
+    Dict.fromList >> Dict.toList
