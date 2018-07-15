@@ -46,10 +46,42 @@ suite =
                 \_ ->
                     let
                         input =
-                            "%if% %then% %else% %case% %of% %let% %in% %type% %module% %where% %import% %exposing% %as% %port%"
+                            " %if% %then% %else% %case% %of% %let% %in% %type% %module% %where% %import% %exposing% %as% %port% "
 
                         expected =
-                            Ok (SingleMessage [ Variable "if", Variable "then", Variable "else", Variable "case", Variable "of", Variable "let", Variable "in", Variable "type", Variable "module", Variable "where", Variable "import", Variable "exposing", Variable "as", Variable "port" ])
+                            Ok
+                                (SingleMessage
+                                    [ Text ""
+                                    , Variable "if_"
+                                    , Text " "
+                                    , Variable "then_"
+                                    , Text " "
+                                    , Variable "else_"
+                                    , Text " "
+                                    , Variable "case_"
+                                    , Text " "
+                                    , Variable "of_"
+                                    , Text " "
+                                    , Variable "let_"
+                                    , Text " "
+                                    , Variable "in_"
+                                    , Text " "
+                                    , Variable "type_"
+                                    , Text " "
+                                    , Variable "module_"
+                                    , Text " "
+                                    , Variable "where_"
+                                    , Text " "
+                                    , Variable "import_"
+                                    , Text " "
+                                    , Variable "exposing_"
+                                    , Text " "
+                                    , Variable "as_"
+                                    , Text " "
+                                    , Variable "port_"
+                                    , Text ""
+                                    ]
+                                )
                     in
                         Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing lisp-cased variables" <|
@@ -79,7 +111,7 @@ suite =
                             "dont TVA (%percent%%)"
 
                         expected =
-                            Ok (SingleMessage [ Text "dont TVA(", Variable "percent", Text "%)" ])
+                            Ok (SingleMessage [ Text "dont TVA (", Variable "percent", Text "%)" ])
                     in
                         Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing printf variables like %s or %d" <|
@@ -108,13 +140,15 @@ suite =
                                       }
                                     , { appliesTo = Intervals [ { low = Included 1, high = Included 1 } ]
                                       , chunks =
-                                            [ VariableCount
+                                            [ Text ""
+                                            , VariableCount
                                             , Text " notification non lue"
                                             ]
                                       }
                                     , { appliesTo = Intervals [ { low = Included 2, high = Inf } ]
                                       , chunks =
-                                            [ VariableCount
+                                            [ Text ""
+                                            , VariableCount
                                             , Text " notifications non lues"
                                             ]
                                       }
@@ -137,13 +171,15 @@ suite =
                                       }
                                     , { appliesTo = Intervals [ { low = Included -1, high = Included -1 } ]
                                       , chunks =
-                                            [ VariableCount
+                                            [ Text ""
+                                            , VariableCount
                                             , Text " notification non lue"
                                             ]
                                       }
                                     , { appliesTo = Intervals [ { low = Included -2, high = Inf } ]
                                       , chunks =
-                                            [ VariableCount
+                                            [ Text ""
+                                            , VariableCount
                                             , Text " notifications non lues"
                                             ]
                                       }
@@ -291,342 +327,5 @@ suite =
                                     ]
                     in
                         Expect.equal expected (parseTranslationContent input)
-            ]
-        , describe "Failed parsing" <|
-            [ describe "Invalid intervals" <|
-                [ test "Invalid interval's low side ]Inf instead of ]-Inf" <|
-                    \_ ->
-                        let
-                            input =
-                                "]Inf, 0[Negative|[0, Inf[Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's low side (2, 1):
-
-                                                ]Inf, 0[Negative|[0, Inf[Positive
-                                                 ^
-
-                                            Expected one of:
-                                                - the symbol "-Inf";
-                                                - a valid integer.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Invalid interval's low side [-Inf" <|
-                    \_ ->
-                        let
-                            input =
-                                "[-Inf, 0[Negative|[0, Inf[Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's low side (2, 1):
-
-                                                [-Inf, 0[Negative|[0, Inf[Positive
-                                                 ^
-
-                                            Expected a valid integer.
-
-                                            Hint if the input is [-Inf:
-                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                                Try ]-Inf instead."
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Invalid interval's low side [Inf" <|
-                    \_ ->
-                        let
-                            input =
-                                "[Inf, 0[Negative|[0, Inf[Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's low side (2, 1):
-
-                                                [Inf, 0[Negative|[0, Inf[Positive
-                                                 ^
-
-                                            Expected a valid integer.
-
-                                            Hint if the input is [-Inf:
-                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                                Try ]-Inf instead."
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Invalid interval's high side Inf]" <|
-                    \_ ->
-                        let
-                            input =
-                                "]-Inf, 0[Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's high side (26, 1):
-
-                                                ]-Inf, 0[Negative|[0, Inf]Positive
-                                                                         ^
-
-                                            Expected the symbol "[".
-
-                                            Hint if the input is Inf]:
-                                                In an interval's high side, Inf] is invalid as Inf is always exclusive.
-                                                Try Inf[ instead."
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing ," <|
-                    \_ ->
-                        let
-                            input =
-                                "]-Inf 0[Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval (7, 1):
-
-                                                ]-Inf 0[Negative|[0, Inf]Positive
-                                                      ^
-
-                                            Expected the symbol ",".
-
-                                            Hint:
-                                                Intervals must contain two values, a low and a high bound.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Too many values" <|
-                    \_ ->
-                        let
-                            input =
-                                "]-Inf, 0, 1[Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's high side (9, 1):
-
-                                                ]-Inf, 0, 1[Negative|[0, Inf]Positive
-                                                        ^
-
-                                            Expected one of:
-                                                - the symbol "]";
-                                                - the symbol "[".
-
-                                            Hint:
-                                                Intervals can only contain two values, a low and a high bound.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing high value" <|
-                    \_ ->
-                        let
-                            input =
-                                "[0]Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval (3, 1):
-
-                                                [0]Negative|[0, Inf]Positive
-                                                  ^
-
-                                            Expected the symbol ",".
-
-                                            Hint:
-                                                Intervals must contain two values, a low and a high bound.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing values inclusive" <|
-                    \_ ->
-                        let
-                            input =
-                                "[]Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's low side (2, 1):
-
-                                                []Negative|[0, Inf]Positive
-                                                 ^
-
-                                            Expected a valid integer.
-
-                                            Hint if the input is [-Inf:
-                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                                Try ]-Inf instead."
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing values exclusive" <|
-                    \_ ->
-                        let
-                            input =
-                                "][Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's low side (2, 1):
-
-                                                ][Negative|[0, Inf]Positive
-                                                 ^
-
-                                            Expected one of:
-                                                - the symbol "-Inf";
-                                                - a valid integer.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing values with ," <|
-                    \_ ->
-                        let
-                            input =
-                                "[,]Negative|[0, Inf]Positive"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing an interval's low side (2, 1):
-
-                                                [,]Negative|[0, Inf]Positive
-                                                 ^
-
-                                            Expected a valid integer.
-
-                                            Hint if the input is [-Inf:
-                                                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                                Try ]-Inf instead."
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                ]
-            , describe "Invalid list of values" <|
-                [ test "Empty list of values" <|
-                    \_ ->
-                        let
-                            input =
-                                "{}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing a list of values (3, 1):
-
-                                                {}Pas de notification|{1}%count% notification non lue|[2, Inf[%count% notifications non lues
-                                                  ^
-
-                                            Expected a non empty list of values.
-
-                                            Hint:
-                                                A list of values must contain at least one value
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Missing ," <|
-                    \_ ->
-                        let
-                            input =
-                                "{0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing a list of values (4, 1):
-
-                                                {0 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                                   ^
-
-                                            Expected one of:
-                                                - the symbol ",";
-                                                - the symbol "}".
-
-                                            Hint:
-                                                The values must be separated by a ",".
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Invalid value in first position" <|
-                    \_ ->
-                        let
-                            input =
-                                "{Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing a list of values (2, 1):
-
-                                                {Inf, 1}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                                 ^
-
-                                            Expected one of:
-                                                - a valid integer;
-                                                - the symbol "}".
-
-                                            Hint:
-                                                Only integer are allowed in a list of values.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                , test "Invalid value" <|
-                    \_ ->
-                        let
-                            input =
-                                "{0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues"
-
-                            expected =
-                                Err <|
-                                    unindent
-                                        """
-                                        Failed to parse a translation.
-                                            Error while parsing a list of values (5, 1):
-
-                                                {0, Inf}Pas de notification|{2}%count% notification non lue|[3, Inf[%count% notifications non lues
-                                                    ^
-
-                                            Expected a valid integer.
-
-                                            Hint:
-                                                Only integer are allowed in a list of values.
-                                        """
-                        in
-                            Expect.equal expected (parseTranslationContent input)
-                ]
             ]
         ]

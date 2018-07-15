@@ -54,6 +54,7 @@ suite =
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
 
+
                                     translation : String
                                     translation =
                                         \"\"\"\"\"\"
@@ -80,6 +81,7 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
 
                                     translation : String
                                     translation =
@@ -150,8 +152,7 @@ suite =
                                     multiline_html_translation : { link : String } -> String
                                     multiline_html_translation { link } =
                                         \"\"\"<a href=\\\"\"\"\" ++ link ++ \"\"\"\\">
-                                        </a>
-                                        \"\"\"
+                                        </a>\"\"\"
                                     """
                                 }
                     in
@@ -409,40 +410,6 @@ suite =
 
                         expected =
                             Err "Given an invalid JSON: Unexpected string in JSON at position 107"
-                    in
-                        Expect.equal expected (transpileToElm input)
-            , test "Prints invalid message format" <|
-                \_ ->
-                    let
-                        input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "user.account.balance": "[-Inf, 0[Negative|[0, Inf[Positive"
-                                        }
-                                    }
-                                }
-                            }
-                            """
-
-                        expected =
-                            Err <|
-                                unindent
-                                    """
-                                    Failed to parse a translation.
-                                        Error while parsing an interval's low side (2, 1):
-
-                                            [-Inf, 0[Negative|[0, Inf[Positive
-                                             ^
-
-                                        Expected a valid integer.
-
-                                        Hint if the input is [-Inf:
-                                            In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                                            Try ]-Inf instead."
-                                    """
                     in
                         Expect.equal expected (transpileToElm input)
             ]

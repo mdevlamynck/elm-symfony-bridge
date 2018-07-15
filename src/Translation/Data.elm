@@ -64,6 +64,16 @@ type Chunk
     | VariableCount
 
 
+mapText : (String -> String) -> Chunk -> Chunk
+mapText function chunk =
+    case chunk of
+        Text t ->
+            Text (function t)
+
+        other ->
+            other
+
+
 {-| A interval with a minimal value and a maximal value
 
 Used to determine which alternative to use for a given value

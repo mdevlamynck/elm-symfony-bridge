@@ -1,4 +1,4 @@
-module Translation.Parser exposing (parseTranslationContent)
+module Translation.Parser exposing (..)
 
 {-| Parser for a TranslationContent
 
@@ -9,6 +9,7 @@ module Translation.Parser exposing (parseTranslationContent)
 import Char
 import List.Extra as List
 import List.Unique
+import String.Extra as String
 import Parser exposing (..)
 import Parser.LanguageKit exposing (..)
 import Result
@@ -24,312 +25,107 @@ import Unindent exposing (unindent)
 -}
 parseTranslationContent : String -> Result String TranslationContent
 parseTranslationContent input =
-    Parser.run alternativesP input
-        |> Result.mapError formatError
+    Parser.run translation input
+        |> Result.mapError (\_ -> "Failed to parse translation")
 
 
 
--- Error handling
+---- Domain parser
 
 
-{-| Turns an Error into a beautifull error message
--}
-formatError : Error -> String
-formatError error =
-    let
-        mainMessage =
-            "Failed to parse a translation."
-
-        context =
-            error.context
-                |> List.head
-                |> Maybe.withDefault { row = error.row, col = error.col, description = "a translation" }
-
-        errorMessage =
-            "Error while parsing "
-                ++ context.description
-                ++ " ("
-                ++ toString error.col
-                ++ ", "
-                ++ toString error.row
-                ++ "):"
-
-        source =
-            error.source
-                |> String.lines
-                |> List.getAt (error.row - 1)
-                |> Maybe.withDefault ""
-
-        sourceErrorPointer =
-            String.repeat (error.col - 1) " " ++ "^"
-
-        problem =
-            formatProblem <| flattenOneOf error.problem
-
-        hint =
-            formatHint context.description <| flattenOneOf error.problem
-    in
-        [ mainMessage
-        , [ errorMessage
-          , [ source, sourceErrorPointer ]
-                |> String.join "\n"
-                |> indent
-          , problem
-          , hint
-          ]
-            |> List.filter (not << (==) "")
-            |> List.intersperse ""
-            |> String.join "\n"
-            |> indent
+translation : Parser TranslationContent
+translation =
+    oneOf
+        [ pluralizedMessage
+        , singleMessage
         ]
-            |> String.join "\n"
 
 
-{-| Converts nested BadOneOf Problems into a single BadOneOf
--}
-flattenOneOf : Problem -> Problem
-flattenOneOf problem =
-    let
-        flatten problem =
-            case problem of
-                BadOneOf list ->
-                    list
-                        |> List.concatMap flatten
-
-                error ->
-                    [ error ]
-    in
-        case problem of
-            (BadOneOf list) as badOneOf ->
-                BadOneOf
-                    (badOneOf
-                        |> flatten
-                        |> List.Unique.filterDuplicates
-                    )
-
-            error ->
-                error
+pluralizedMessage : Parser TranslationContent
+pluralizedMessage =
+    succeed PluralizedMessage
+        |= sequenceAtLeastTwoElements
+            { item = pluralMessageVariant
+            , separator = '|'
+            , spaces = spaces
+            }
 
 
-{-| Renders a Problem into a user friendly message
-
-Works better with flattened BadOneOf Problems, use with flattenOneOf.
-
--}
-formatProblem : Problem -> String
-formatProblem problem =
-    let
-        formatOne problem =
-            case problem of
-                BadOneOf list ->
-                    "one of:\n"
-                        ++ (list
-                                |> List.map (\p -> "- " ++ formatOne p)
-                                |> String.join ";\n"
-                                |> indent
-                           )
-
-                BadInt ->
-                    "a valid integer"
-
-                BadFloat ->
-                    "a valid float"
-
-                BadRepeat ->
-                    "a valid repeat"
-
-                ExpectingEnd ->
-                    "the end of input"
-
-                ExpectingSymbol symbol ->
-                    "the symbol \"" ++ symbol ++ "\""
-
-                ExpectingKeyword keyword ->
-                    "the keyword \"" ++ keyword ++ "\""
-
-                ExpectingVariable ->
-                    "a variable"
-
-                ExpectingClosing symbol ->
-                    "the closing symbol \"" ++ symbol ++ "\""
-
-                Fail fail ->
-                    fail
-    in
-        case problem of
-            BadOneOf list ->
-                "Expected " ++ formatOne problem ++ "."
-
-            _ ->
-                "Expected " ++ formatOne problem ++ "."
+singleMessage : Parser TranslationContent
+singleMessage =
+    succeed SingleMessage
+        |= messageChunks
 
 
-{-| Render when possible a helpfull message to help diagnose the error and provide context.
--}
-formatHint : String -> Problem -> String
-formatHint description problem =
-    case ( description, problem ) of
-        ( "an interval's low side", BadInt ) ->
-            unindent """
-            Hint if the input is [-Inf:
-                In an interval's low side, [-Inf is invalid as Inf is always exclusive.
-                Try ]-Inf instead."
-            """
-
-        ( "an interval's high side", ExpectingSymbol "[" ) ->
-            unindent """
-            Hint if the input is Inf]:
-                In an interval's high side, Inf] is invalid as Inf is always exclusive.
-                Try Inf[ instead."
-            """
-
-        ( "an interval's high side", BadOneOf [ ExpectingSymbol "]", ExpectingSymbol "[" ] ) ->
-            unindent """
-            Hint:
-                Intervals can only contain two values, a low and a high bound.
-            """
-
-        ( "an interval", ExpectingSymbol "," ) ->
-            unindent """
-            Hint:
-                Intervals must contain two values, a low and a high bound.
-            """
-
-        ( "a list of values", Fail "a non empty list of values" ) ->
-            unindent """
-            Hint:
-                A list of values must contain at least one value
-            """
-
-        ( "a list of values", BadOneOf [ ExpectingSymbol ",", ExpectingSymbol "}" ] ) ->
-            unindent """
-            Hint:
-                The values must be separated by a ",".
-            """
-
-        ( "a list of values", BadOneOf [ BadInt, ExpectingSymbol "}" ] ) ->
-            unindent """
-            Hint:
-                Only integer are allowed in a list of values.
-            """
-
-        ( "a list of values", BadInt ) ->
-            unindent """
-            Hint:
-                Only integer are allowed in a list of values.
-            """
-
-        _ ->
-            ""
+pluralMessageVariant : Parser Alternative
+pluralMessageVariant =
+    succeed Alternative
+        |= appliesTo
+        |= messageChunks
 
 
-
--- Parsers
-
-
-{-| Parses a TranslationContent
--}
-alternativesP : Parser TranslationContent
-alternativesP =
-    let
-        alternativesConstructor alternatives =
-            case alternatives of
-                alternative :: [] ->
-                    SingleMessage alternative.chunks
-
-                alternatives ->
-                    PluralizedMessage alternatives
-    in
-        inContext "a translation" <|
-            succeed alternativesConstructor
-                |= sequence
-                    { start = ""
-                    , end = ""
-                    , separator = "|"
-                    , spaces = spacesP
-                    , item = alternativeP
-                    , trailing = Forbidden
-                    }
-                |. end
-
-
-{-| Parses spaces
--}
-spacesP : Parser ()
-spacesP =
-    ignore zeroOrMore ((==) ' ')
-
-
-{-| Parses a single Alternative
--}
-alternativeP : Parser Alternative
-alternativeP =
-    inContext "a message in a translation" <|
-        succeed Alternative
-            |. spacesP
-            |= oneOf
-                [ appliesToIntervalP
-                , appliesToIndexedP
-                ]
-            |. spacesP
-            |= messageP
-            |. spacesP
+appliesTo : Parser AppliesTo
+appliesTo =
+    oneOf
+        [ appliesToInterval
+        , appliesToIndexed
+        ]
 
 
 {-| Parses an AppliesTo in its interval form
 -}
-appliesToIntervalP : Parser AppliesTo
-appliesToIntervalP =
-    inContext "a block specifying when to apply the message" <|
+appliesToInterval : Parser AppliesTo
+appliesToInterval =
+    commitWhenComplete <|
         oneOf
-            [ intervalP
-            , listValueP
+            [ interval
+            , listValue
             ]
 
 
 {-| Parses an AppliesTo in its indexed form
 -}
-appliesToIndexedP : Parser AppliesTo
-appliesToIndexedP =
+appliesToIndexed : Parser AppliesTo
+appliesToIndexed =
     succeed Indexed
         |. oneOf
-            [ labelP
+            [ label
             , succeed ""
             ]
 
 
 {-| Parses an Interval
 -}
-intervalP : Parser AppliesTo
-intervalP =
+interval : Parser AppliesTo
+interval =
     let
         lowInclusive =
             succeed Included
                 |. symbol "["
-                |. spacesP
-                |= int
+                |. spaces
+                |= integer
 
         lowExclusive =
             succeed identity
                 |. symbol "]"
-                |. spacesP
+                |. spaces
                 |= oneOf
                     [ succeed Inf
                         |. symbol "-Inf"
                     , succeed Excluded
-                        |= int
+                        |= integer
                     ]
 
         highInf =
             succeed Inf
                 |. keyword "Inf"
-                |. spacesP
+                |. spaces
                 |. symbol "["
 
         highValue =
             succeed (|>)
-                |= int
-                |. spacesP
+                |= integer
+                |. spaces
                 |= oneOf
                     [ succeed Included
                         |. symbol "]"
@@ -337,29 +133,26 @@ intervalP =
                         |. symbol "["
                     ]
 
-        lowIntervalP =
-            inContext "an interval's low side" <|
-                oneOf [ lowInclusive, lowExclusive ]
+        lowInterval =
+            oneOf [ lowInclusive, lowExclusive ]
 
-        highIntervalP =
-            inContext "an interval's high side" <|
-                oneOf [ highInf, highValue ]
+        highInterval =
+            oneOf [ highInf, highValue ]
     in
-        inContext "an interval"
-            (succeed Interval
-                |= lowIntervalP
-                |. spacesP
-                |. symbol ","
-                |. spacesP
-                |= highIntervalP
-                |> map (Intervals << List.singleton)
-            )
+        (succeed Interval
+            |= lowInterval
+            |. spaces
+            |. symbol ","
+            |. spaces
+            |= highInterval
+            |> map (Intervals << List.singleton)
+        )
 
 
 {-| Parses a list of Intervals as a list of values
 -}
-listValueP : Parser AppliesTo
-listValueP =
+listValue : Parser AppliesTo
+listValue =
     let
         listValueConstructor =
             List.sort
@@ -371,87 +164,104 @@ listValueP =
                     )
                 >> Intervals
     in
-        inContext "a list of values" <|
-            succeed listValueConstructor
-                |= (sequence
-                        { start = "{"
-                        , end = "}"
-                        , separator = ","
-                        , spaces = spacesP
-                        , item = int
-                        , trailing = Forbidden
-                        }
-                        |> failIf List.isEmpty "a non empty list of values"
-                   )
-
-
-{-| Parses a message
--}
-messageP : Parser (List Chunk)
-messageP =
-    let
-        messageConstructor =
-            List.foldr
-                (\elem acc ->
-                    case ( elem, acc ) of
-                        ( elem, (Text " ") :: [] ) ->
-                            [ elem ]
-
-                        ( Text elem, (Text t) :: tail ) ->
-                            Text (elem ++ t) :: tail
-
-                        ( elem, acc ) ->
-                            elem :: acc
-                )
-                []
-    in
-        inContext "a message" <|
-            succeed messageConstructor
-                |= repeat (AtLeast 1) (oneOf [ variableP, textP ])
-
-
-{-| Parses a single character of a Text Chunk
--}
-textP : Parser Chunk
-textP =
-    inContext "pure text" <|
-        succeed Text
-            |= keep (Exactly 1) ((/=) '|')
-
-
-{-| Parses a variable of a Chunk
--}
-variableP : Parser Chunk
-variableP =
-    let
-        variableConstructor variable =
-            if variable == "count" then
-                VariableCount
-            else
-                Variable variable
-    in
-        inContext "a variable" <|
-            succeed variableConstructor
-                |. symbol "%"
-                |= keep oneOrMore isIdentifierChar
-                |. symbol "%"
+        succeed listValueConstructor
+            |= (sequence
+                    { start = "{"
+                    , end = "}"
+                    , separator = ","
+                    , spaces = spaces
+                    , item = integer
+                    , trailing = Forbidden
+                    }
+                    |> failIf List.isEmpty
+               )
 
 
 {-| Parses label
 -}
-labelP : Parser String
-labelP =
-    inContext "a label" <|
-        delayedCommitMap (\label _ -> label)
-            (keep oneOrMore isLabelChar)
-            (symbol ":")
+label : Parser String
+label =
+    delayedCommitFirst
+        (keep oneOrMore isLabelChar)
+        (symbol ":")
 
 
-{-| Is the given Char allowed to appear in an identifier
+{-| Parses a message
 -}
-isIdentifierChar : Char -> Bool
-isIdentifierChar c =
-    Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_'
+messageChunks : Parser (List Chunk)
+messageChunks =
+    let
+        trim chunks =
+            chunks
+                |> List.indexedMap
+                    (\index chunk ->
+                        if List.length chunks == 1 then
+                            mapText String.trim chunk
+                        else if index == 0 then
+                            mapText String.trimLeft chunk
+                        else if index == List.length chunks - 1 then
+                            mapText String.trimRight chunk
+                        else
+                            chunk
+                    )
+
+        mergeText : Chunk -> List Chunk -> List Chunk
+        mergeText head tail =
+            case ( head, tail ) of
+                ( Text t1, (Text t2) :: rest ) ->
+                    (Text (t1 ++ t2)) :: rest
+
+                ( head, tail ) ->
+                    head :: tail
+
+        rec =
+            oneOf
+                [ succeed [ Text "" ]
+                    |. end
+                , succeed mergeText
+                    |= oneOf
+                        [ variable
+                        , succeed Text
+                            |= keep (Exactly 1) (\_ -> True)
+                        ]
+                    |= (lazy (\_ -> rec))
+                ]
+    in
+        succeed trim
+            |= rec
+
+
+{-| Parses a variable of a Chunk
+-}
+variable : Parser Chunk
+variable =
+    let
+        variableConstructor variable =
+            if variable == "count" then
+                VariableCount
+            else if List.member variable [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ] then
+                Variable (variable ++ "_")
+            else
+                Variable (String.replace "-" "_" variable)
+    in
+        delayedCommitFirst
+            (succeed variableConstructor
+                |. symbol "%"
+                |= keep (AtLeast 2) isVariableChar
+                |. symbol "%"
+            )
+            (succeed ())
+
+
+
+---- Domain utils
+
+
+{-| Is the given Char allowed to appear in a variable
+-}
+isVariableChar : Char -> Bool
+isVariableChar c =
+    Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_' || c == '-'
 
 
 {-| Is the given Char allowed to appear in a label
@@ -461,13 +271,111 @@ isLabelChar c =
     Char.isLower c
 
 
-{-| Makes a parser fail with the given message if the given predicate is True
+
+---- Basic parsers
+
+
+{-| Parses spaces
 -}
-failIf : (a -> Bool) -> String -> Parser a -> Parser a
-failIf predicate message =
+spaces : Parser ()
+spaces =
+    ignore zeroOrMore ((==) ' ')
+
+
+integer : Parser Int
+integer =
+    commitWhenComplete <|
+        oneOf
+            [ int
+            , succeed ((*) -1)
+                |. symbol "-"
+                |= int
+            ]
+
+
+
+---- Utils parsers
+
+
+sequenceAtLeastTwoElements :
+    { item : Parser item
+    , separator : Char
+    , spaces : Parser ()
+    }
+    -> Parser (List item)
+sequenceAtLeastTwoElements ({ item, separator, spaces } as config) =
+    delayedCommitMap (::)
+        (succeed identity
+            |= itemInSequence
+                { item = item
+                , separator = separator
+                }
+            |. ignore (Exactly 1) ((==) '|')
+            |. spaces
+        )
+        (lazy
+            (\_ ->
+                oneOf
+                    [ sequenceAtLeastTwoElements config
+                    , succeed List.singleton
+                        |= item
+                    ]
+            )
+        )
+
+
+itemInSequence :
+    { item : Parser item
+    , separator : Char
+    }
+    -> Parser item
+itemInSequence { item, separator } =
+    keep zeroOrMore ((/=) separator)
+        |> andThen
+            (\content ->
+                case Parser.run item content of
+                    Ok item ->
+                        succeed item
+
+                    Err _ ->
+                        fail ""
+            )
+
+
+repeat : Parser a -> Parser (List a)
+repeat parser =
+    succeed (::)
+        |= parser
+        |= (lazy
+                (\_ ->
+                    oneOf
+                        [ end |> map (\_ -> [])
+                        , repeat parser
+                        , succeed []
+                        ]
+                )
+           )
+
+
+delayedCommitFirst : Parser a -> Parser b -> Parser a
+delayedCommitFirst parserKeep parserIgnore =
+    delayedCommitMap (\keep _ -> keep)
+        parserKeep
+        parserIgnore
+
+
+commitWhenComplete : Parser a -> Parser a
+commitWhenComplete parserKeep =
+    delayedCommitFirst parserKeep (succeed ())
+
+
+{-| Makes a parser fail if the given predicate is True
+-}
+failIf : (a -> Bool) -> Parser a -> Parser a
+failIf predicate =
     Parser.andThen <|
         \value ->
             if predicate value then
-                fail message
+                fail ""
             else
                 succeed value
