@@ -58,6 +58,7 @@ Encore
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
         enableRouting: true,            // Optional: enable generating routes, defaults to true
         enableTranslations: true,       // Optional: enable generating translations, defaults to true
+        outputFolder: 'web',            // Optional: set the folder where content is generated ('web' for symfony < 4 and 'public' for symfony >= 4)
     }))
     .configureFilenames({
         js: '[name].[chunkhash].js',

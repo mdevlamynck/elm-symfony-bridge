@@ -17,6 +17,7 @@ class ElmSymfonyBridgePlugin {
         this.lang = this.ifDefined(options.lang, 'en');
         this.enableRouting = this.ifDefined(options.enableRouting, true);
         this.enableTranslations = this.ifDefined(options.enableTranslations, true);
+		this.outputFolder = this.ifDefined(options.outputFolder, 'web');
 
         this.transpiler = Elm.Main.worker();
         this.hasAlreadyRun = false;
@@ -82,9 +83,9 @@ class ElmSymfonyBridgePlugin {
 
     transpileTranslations(callback) {
 		if (this.enableTranslations) {
-			this.runSymfonyCommand('bazinga:js-translation:dump');
+			this.runSymfonyCommand('bazinga:js-translation:dump ' + this.outputFolder + '/js');
 
-			const files = glob.sync('./web/js/translations/*/' + this.lang + '.json');
+			const files = glob.sync('./' + this.outputFolder + '/js/translations/*/' + this.lang + '.json');
 			let remainingTranslations = files.length;
 
 			const that = this;
