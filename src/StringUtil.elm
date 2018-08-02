@@ -1,13 +1,13 @@
 module StringUtil exposing (indent)
 
-{-| Extra tools on strings
+{-| Extra tools on strings.
 
 @docs indent
 
 -}
 
 
-{-| Add one level of indentation (4 spaces) to the given string
+{-| Add one level of indentation (4 spaces) to the given string.
 
     indent "test\n    testing"
     --> "    test\n        testing"

@@ -1,6 +1,6 @@
 module Unindent exposing (unindent)
 
-{-| Unindents a multiline string to allow you to embed code (like json) in elm
+{-| Unindents a multiline string to allow you to embed code (like json) in elm.
 
 @docs unindent
 
@@ -9,9 +9,9 @@ module Unindent exposing (unindent)
 import List.Extra as List
 
 
-{-| Unindents a multiline string to allow you to embed code (like json) in elm
+{-| Unindents a multiline string to allow you to embed code (like json) in elm.
 
-It removes indentation on every lines up to the firste character of the first line.
+It removes indentation on every lines up to the first character of the first line.
 Leading and trailing empty lines are removed.
 
     let
@@ -22,6 +22,7 @@ Leading and trailing empty lines are removed.
                 "embedded": "in your elm code"
             }
             """
+
         jsonWithoutUnindent =
             "{\n    \"some\": \"json value\",\n    \"embedded\": \"in your elm code\"\n}"
     in

@@ -1,6 +1,6 @@
 port module Main exposing (Msg(..), decodeJsValue, main, update)
 
-{-| Entry point, receive commands from js, dispatch to elm function and return result to js
+{-| Entry point, receive commands from js, dispatch to elm function and return result to js.
 
 @docs main, Msg, update, decodeJsValue
 
@@ -17,7 +17,7 @@ import Routing.Transpiler as Routing
 import Translation.Transpiler as Translation exposing (File)
 
 
-{-| Entry point
+{-| Entry point.
 -}
 main : Program Never () Msg
 main =
@@ -34,17 +34,17 @@ main =
         }
 
 
-{-| Allows receiving json values from js
+{-| Allows receiving json values from js.
 -}
 port sendToElm : (Value -> msg) -> Sub msg
 
 
-{-| Allows sending json values to js
+{-| Allows sending json values to js.
 -}
 port sendToJs : Value -> Cmd msg
 
 
-{-| Handled commands
+{-| Handled commands.
 -}
 type Msg
     = NoOp
@@ -52,7 +52,7 @@ type Msg
     | TranspileTranslation File
 
 
-{-| Run received commands
+{-| Run received commands.
 -}
 update : Msg -> Maybe Value
 update message =
@@ -75,7 +75,7 @@ update message =
                 |> Just
 
 
-{-| Decode json commands
+{-| Decode json commands.
 -}
 decodeJsValue : Value -> Msg
 decodeJsValue =
@@ -107,7 +107,7 @@ decodeJsValue =
         >> Maybe.withDefault NoOp
 
 
-{-| Encode transpile routing results
+{-| Encode transpiled routing results.
 -}
 encodeRoutingResult : Result String String -> Value
 encodeRoutingResult result =
@@ -121,7 +121,7 @@ encodeRoutingResult result =
         ]
 
 
-{-| Encode transpile translation results
+{-| Encode transpiled translation results.
 -}
 encodeTranslationResult : Result String File -> Value
 encodeTranslationResult result =
@@ -143,6 +143,8 @@ encodeTranslationResult result =
         ]
 
 
+{-| Add filename to error message if any.
+-}
 formatResult : String -> Result String a -> Result String a
 formatResult fileName result =
     result
