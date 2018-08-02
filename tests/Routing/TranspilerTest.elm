@@ -58,7 +58,7 @@ suite =
                             }
 
                         expected =
-                            Err """Expecting an object with a field named `requirements` at _.app_front_home but instead got: {}"""
+                            Err """Expecting an object with a field named `path` at _.app_front_home but instead got: {}"""
                     in
                         Expect.equal expected (transpileToElm input)
             ]
