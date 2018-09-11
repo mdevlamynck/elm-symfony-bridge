@@ -18,11 +18,11 @@ pathP =
             List.foldr
                 (\elem acc ->
                     case ( elem, acc ) of
-                        ( Constant elem, (Constant t) :: tail ) ->
-                            Constant (elem ++ t) :: tail
+                        ( Constant headElem, (Constant t) :: tail ) ->
+                            Constant (headElem ++ t) :: tail
 
-                        ( elem, acc ) ->
-                            elem :: acc
+                        ( elem_, acc_ ) ->
+                            elem_ :: acc_
                 )
                 []
     in

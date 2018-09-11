@@ -11,7 +11,6 @@ import List.Extra as List
 import List.Unique
 import Parser exposing (..)
 import Result
-import String.Extra as String
 import StringUtil exposing (indent)
 import Translation.Data exposing (..)
 import Unindent exposing (unindent)
@@ -213,8 +212,8 @@ messageChunks =
                 ( Text t1, (Text t2) :: rest ) ->
                     Text (t1 ++ t2) :: rest
 
-                ( head, tail ) ->
-                    head :: tail
+                ( head_, tail_ ) ->
+                    head_ :: tail_
 
         rec =
             oneOf
@@ -238,8 +237,8 @@ messageChunks =
 variable : Parser Chunk
 variable =
     let
-        variableConstructor variable =
-            if variable == "count" then
+        variableConstructor varName =
+            if varName == "count" then
                 VariableCount
 
             else if List.member variable [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ] then
@@ -307,22 +306,22 @@ sequenceAtLeastTwoElements :
     , spaces : Parser ()
     }
     -> Parser (List item)
-sequenceAtLeastTwoElements ({ item, separator, spaces } as config) =
+sequenceAtLeastTwoElements config =
     delayedCommitMap (::)
         (succeed identity
             |= itemInSequence
-                { item = item
-                , separator = separator
+                { item = config.item
+                , separator = config.separator
                 }
             |. ignore (Exactly 1) ((==) '|')
-            |. spaces
+            |. config.spaces
         )
         (lazy
             (\_ ->
                 oneOf
                     [ sequenceAtLeastTwoElements config
                     , succeed List.singleton
-                        |= item
+                        |= config.item
                     ]
             )
         )
@@ -338,8 +337,8 @@ itemInSequence { item, separator } =
         |> andThen
             (\content ->
                 case Parser.run item content of
-                    Ok item ->
-                        succeed item
+                    Ok parsedItem ->
+                        succeed parsedItem
 
                     Err _ ->
                         fail ""

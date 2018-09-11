@@ -1,4 +1,4 @@
-module ElmTest exposing (..)
+module ElmTest exposing (suite)
 
 import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
 import Expect exposing (Expectation)
@@ -34,7 +34,7 @@ suite =
                                 "Enregistrer"
                             """
                 in
-                    Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders functions with arguments correctly" <|
             \_ ->
                 let
@@ -58,7 +58,7 @@ suite =
                                 "Ok"
                             """
                 in
-                    Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders if blocks correctly" <|
             \_ ->
                 let
@@ -90,7 +90,7 @@ suite =
                                     "Positive"
                             """
                 in
-                    Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule input)
         , test "No if when there is only one variant" <|
             \_ ->
                 let
@@ -115,5 +115,5 @@ suite =
                                 "Negative"
                             """
                 in
-                    Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule input)
         ]

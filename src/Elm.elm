@@ -131,12 +131,12 @@ renderElmExpr expr =
     case expr of
         Ifs alternatives ->
             case alternatives of
-                [ ( Expr cond, Expr expr ) ] ->
-                    expr
+                [ ( Expr cond, Expr subExpr ) ] ->
+                    subExpr
 
-                ( Expr cond, Expr expr ) :: tail ->
+                ( Expr cond, Expr headExpr ) :: tail ->
                     ([ "if " ++ cond ++ " then"
-                     , indent expr
+                     , indent headExpr
                      , ""
                      ]
                         |> String.join "\n"

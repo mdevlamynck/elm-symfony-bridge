@@ -1,4 +1,4 @@
-module Translation.ParserTest exposing (..)
+module Translation.ParserTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -21,7 +21,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Text "" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with plain constant translations" <|
                 \_ ->
                     let
@@ -31,7 +31,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Text "Ok" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing variables" <|
                 \_ ->
                     let
@@ -41,7 +41,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ VariableCount, Text " notifications non lues" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing variables using reserved keywords as name" <|
                 \_ ->
                     let
@@ -83,7 +83,7 @@ suite =
                                     ]
                                 )
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing lisp-cased variables" <|
                 \_ ->
                     let
@@ -93,7 +93,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Variable "count_notifications", Text " notifications non lues" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing % that are not variables" <|
                 \_ ->
                     let
@@ -103,7 +103,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Text "% pris en charge" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing % that are not variables alongside legit variables" <|
                 \_ ->
                     let
@@ -113,7 +113,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Text "dont TVA (", Variable "percent", Text "%)" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translations containing printf variables like %s or %d" <|
                 \_ ->
                     let
@@ -123,7 +123,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Text "&quot;%s%d&quot;" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with pluralized translations containing variables" <|
                 \_ ->
                     let
@@ -154,7 +154,7 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with pluralized translations in indexed form with negative integers" <|
                 \_ ->
                     let
@@ -185,7 +185,7 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with pluralized translations in interval and indexed forms" <|
                 \_ ->
                     let
@@ -214,7 +214,7 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Labels in indexed form plurals are optional" <|
                 \_ ->
                     let
@@ -243,7 +243,7 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with pluralized translations in interval and indexed forms with labels" <|
                 \_ ->
                     let
@@ -272,7 +272,7 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translation without plural variants but containing interval looking prefixes" <|
                 \_ ->
                     let
@@ -282,7 +282,7 @@ suite =
                         expected =
                             Ok (SingleMessage [ Text "[Prénom] {NOM}" ])
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with translation with plural variants but containing interval looking prefixes" <|
                 \_ ->
                     let
@@ -304,7 +304,7 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             , test "Works with empty pluralized translations in interval form" <|
                 \_ ->
                     let
@@ -326,6 +326,6 @@ suite =
                                       }
                                     ]
                     in
-                        Expect.equal expected (parseTranslationContent input)
+                    Expect.equal expected (parseTranslationContent input)
             ]
         ]

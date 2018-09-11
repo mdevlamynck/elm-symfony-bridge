@@ -1,4 +1,4 @@
-module UnindentTest exposing (..)
+module UnindentTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -26,7 +26,7 @@ suite =
     "button.validate.save": "Enregistrer"
 }"""
                 in
-                    Expect.equal expected (unindent input)
+                Expect.equal expected (unindent input)
         , test "Handles first line without line return" <|
             \_ ->
                 let
@@ -43,7 +43,7 @@ suite =
                             "button.validate.save": "Enregistrer"
                         }"""
                 in
-                    Expect.equal expected (unindent input)
+                Expect.equal expected (unindent input)
         , test "Handles last line without line return" <|
             \_ ->
                 let
@@ -60,7 +60,7 @@ suite =
     "button.validate.save": "Enregistrer"
 }"""
                 in
-                    Expect.equal expected (unindent input)
+                Expect.equal expected (unindent input)
         , test "NoOp on empty string" <|
             \_ -> Expect.equal "" (unindent "")
         ]

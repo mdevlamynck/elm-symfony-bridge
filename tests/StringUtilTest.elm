@@ -1,4 +1,4 @@
-module StringUtilTest exposing (..)
+module StringUtilTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -18,4 +18,4 @@ suite =
                 expected =
                     "    test\n        test\n    test\n"
             in
-                Expect.equal expected (indent input)
+            Expect.equal expected (indent input)

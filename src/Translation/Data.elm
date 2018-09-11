@@ -1,4 +1,7 @@
-module Translation.Data exposing (Translation, TranslationContent(..), Alternative, Chunk(..), Interval, IntervalBound(..))
+module Translation.Data exposing
+    ( Translation, TranslationContent(..), Alternative, Chunk(..), Interval, IntervalBound(..)
+    , AppliesTo(..), mapText
+    )
 
 {-| Types common to several modules
 

@@ -1,4 +1,4 @@
-module MainTest exposing (..)
+module MainTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -28,7 +28,7 @@ suite =
                         expected =
                             TranspileTranslation { name = "fileName", content = "{}" }
                     in
-                        Expect.equal expected (decodeJsValue input)
+                    Expect.equal expected (decodeJsValue input)
             ]
         , describe "Commands" <|
             [ describe "NoOp" <|
@@ -79,7 +79,7 @@ suite =
                                           )
                                         ]
                         in
-                            Expect.equal expected (update input)
+                        Expect.equal expected (update input)
                 , test "Works with valid command that should fail" <|
                     \_ ->
                         let
@@ -108,7 +108,7 @@ suite =
                                         , ( "error", Encode.string "Error fileName: Given an invalid JSON: Unexpected string in JSON at position 107" )
                                         ]
                         in
-                            Expect.equal expected (update input)
+                        Expect.equal expected (update input)
                 ]
             ]
         ]
