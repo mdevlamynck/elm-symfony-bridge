@@ -1,4 +1,4 @@
-module Routing.Data exposing (..)
+module Routing.Data exposing (ArgumentType(..), Path(..), Routing)
 
 
 type alias Routing =

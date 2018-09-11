@@ -20,6 +20,7 @@ indent lines =
             (\l ->
                 if String.length l > 0 then
                     "    " ++ l
+
                 else
                     ""
             )

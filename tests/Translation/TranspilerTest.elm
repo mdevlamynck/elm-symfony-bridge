@@ -1,4 +1,4 @@
-module Translation.TranspilerTest exposing (..)
+module Translation.TranspilerTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -33,7 +33,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with a null translation" <|
                 \_ ->
                     let
@@ -61,7 +61,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with an empty translation" <|
                 \_ ->
                     let
@@ -89,7 +89,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with plain constant translations" <|
                 \_ ->
                     let
@@ -125,7 +125,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with plain translations containing double quotes, line returns and anti slashes" <|
                 \_ ->
                     let
@@ -156,7 +156,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with weird translation names" <|
                 \_ ->
                     let
@@ -186,7 +186,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with translations containing variables" <|
                 \_ ->
                     let
@@ -213,7 +213,7 @@ suite =
 
                                     user_notifications : Int -> String
                                     user_notifications count =
-                                        (toString count) ++ \"\"\" notifications non lues\"\"\"
+                                        (String.fromInt count) ++ \"\"\" notifications non lues\"\"\"
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
@@ -222,7 +222,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing variables" <|
                 \_ ->
                     let
@@ -260,13 +260,13 @@ suite =
                                         if count == 0 then
                                             user ++ \"\"\", pas de notification\"\"\"
                                         else if count == 1 then
-                                            user ++ \"\"\", \"\"\" ++ (toString count) ++ \"\"\" notification non lue\"\"\"
+                                            user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notification non lue\"\"\"
                                         else
-                                            user ++ \"\"\", \"\"\" ++ (toString count) ++ \"\"\" notifications non lues\"\"\"
+                                            user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notifications non lues\"\"\"
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing indexed variant in french" <|
                 \_ ->
                     let
@@ -299,11 +299,11 @@ suite =
                                         else if count == 5 then
                                             \"\"\"Il y a cinq pommes\"\"\"
                                         else
-                                            \"\"\"Il y a \"\"\" ++ (toString count) ++ \"\"\" pommes\"\"\"
+                                            \"\"\"Il y a \"\"\" ++ (String.fromInt count) ++ \"\"\" pommes\"\"\"
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing indexed variant in english" <|
                 \_ ->
                     let
@@ -336,11 +336,11 @@ suite =
                                         else if count == 5 then
                                             \"\"\"There are five apples\"\"\"
                                         else
-                                            \"\"\"There are \"\"\" ++ (toString count) ++ \"\"\" apples\"\"\"
+                                            \"\"\"There are \"\"\" ++ (String.fromInt count) ++ \"\"\" apples\"\"\"
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Allow getting a translation from a keyname (only for translation containing key 'keyname')" <|
                 \_ ->
                     let
@@ -389,7 +389,7 @@ suite =
                                     """
                                 }
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
@@ -411,6 +411,6 @@ suite =
                         expected =
                             Err "Given an invalid JSON: Unexpected string in JSON at position 107"
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             ]
         ]

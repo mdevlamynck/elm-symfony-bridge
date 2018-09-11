@@ -48,6 +48,6 @@ unindent text =
                 |> List.takeWhile ((==) ' ')
                 |> List.length
     in
-        textTrimmedFromEmptyLines
-            |> List.map (String.dropLeft nbCharToDrop)
-            |> String.join "\n"
+    textTrimmedFromEmptyLines
+        |> List.map (String.dropLeft nbCharToDrop)
+        |> String.join "\n"

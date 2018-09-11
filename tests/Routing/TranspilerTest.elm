@@ -1,4 +1,4 @@
-module Routing.TranspilerTest exposing (..)
+module Routing.TranspilerTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -23,7 +23,7 @@ suite =
                         expected =
                             Err "Given an invalid JSON: Unexpected end of JSON input"
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Missing path" <|
                 \_ ->
                     let
@@ -42,7 +42,7 @@ suite =
                         expected =
                             Err """Expecting an object with a field named `path` at _.app_front_home but instead got: {"requirements":"NO CUSTOM"}"""
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             , test "Missing requirements" <|
                 \_ ->
                     let
@@ -60,7 +60,7 @@ suite =
                         expected =
                             Err """Expecting an object with a field named `path` at _.app_front_home but instead got: {}"""
                     in
-                        Expect.equal expected (transpileToElm input)
+                    Expect.equal expected (transpileToElm input)
             ]
         , describe "Valid Json"
             [ describe "Invalid routing"
@@ -86,7 +86,7 @@ suite =
                             expected =
                                 Err "Failed to parse routing path"
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 ]
             , describe "Valid routing"
                 [ test "Prepends the urlPrefix" <|
@@ -116,7 +116,7 @@ suite =
                                         "/app_dev.php" ++ "/home"
                                     """
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 , test "Ignores routes starting with an underscore" <|
                     \_ ->
                         let
@@ -148,7 +148,7 @@ suite =
                                         "" ++ "/home"
                                     """
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 , test "Ignores extra fields in the json" <|
                     \_ ->
                         let
@@ -177,7 +177,7 @@ suite =
                                         "" ++ "/home"
                                     """
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 , test "Rewrite invalid routes name" <|
                     \_ ->
                         let
@@ -205,7 +205,7 @@ suite =
                                         "" ++ "/home"
                                     """
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 , test "Handles the simple case" <|
                     \_ ->
                         let
@@ -233,7 +233,7 @@ suite =
                                         "" ++ "/home"
                                     """
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 , test "Handles variables of type int and starting with underscores" <|
                     \_ ->
                         let
@@ -261,10 +261,10 @@ suite =
 
                                     app_rest_user_find_friend : { id : Int, username : String } -> String
                                     app_rest_user_find_friend { id, username } =
-                                        "" ++ "/user/" ++ (toString id) ++ "/find-friend/" ++ username
+                                        "" ++ "/user/" ++ (String.fromInt id) ++ "/find-friend/" ++ username
                                     """
                         in
-                            Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
                 ]
             ]
         ]

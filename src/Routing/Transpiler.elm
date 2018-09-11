@@ -10,8 +10,8 @@ and turn it into an elm file.
 import Char
 import Dict exposing (Dict)
 import Elm exposing (..)
-import Json.Decode exposing (Decoder, decodeString, dict, map, oneOf, string)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode exposing (Decoder, decodeString, dict, map, oneOf, string, succeed)
+import Json.Decode.Pipeline exposing (required)
 import Result.Extra as Result
 import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
 import Routing.Parser as Parser
@@ -47,7 +47,7 @@ readJsonContent content =
 
 decodeRouting : Decoder JsonRouting
 decodeRouting =
-    decode JsonRouting
+    succeed JsonRouting
         |> required "path" string
         |> required "requirements"
             (oneOf
@@ -82,6 +82,7 @@ formatName name =
             (\c ->
                 if Char.isLower c || Char.isDigit c then
                     c
+
                 else
                     '_'
             )
@@ -98,6 +99,7 @@ routingFromJson json =
                     (\requirement ->
                         if requirement == "\\d+" then
                             Int
+
                         else
                             String
                     )
@@ -105,25 +107,26 @@ routingFromJson json =
         formatName name =
             if String.startsWith "_" name then
                 String.dropLeft 1 name
+
             else
                 name
     in
-        Parser.parsePathContent json.path
-            |> Result.map
-                (List.map
-                    (\chunk ->
-                        case chunk of
-                            Variable name argumentType ->
-                                Variable
-                                    (formatName name)
-                                    (typeFromRequirement name
-                                        |> Maybe.withDefault argumentType
-                                    )
+    Parser.parsePathContent json.path
+        |> Result.map
+            (List.map
+                (\chunk ->
+                    case chunk of
+                        Variable name argumentType ->
+                            Variable
+                                (formatName name)
+                                (typeFromRequirement name
+                                    |> Maybe.withDefault argumentType
+                                )
 
-                            other ->
-                                other
-                    )
+                        other ->
+                            other
                 )
+            )
 
 
 convertToElm : String -> Dict String Routing -> String
@@ -171,11 +174,11 @@ routingToElm urlPrefix ( routeName, routing ) =
                                 "\"" ++ path ++ "\""
 
                             Variable name Int ->
-                                "(toString " ++ name ++ ")"
+                                "(String.fromInt " ++ name ++ ")"
 
                             Variable name String ->
                                 name
                     )
                 |> String.join " ++ "
     in
-        Function routeName arguments "String" (Expr url)
+    Function routeName arguments "String" (Expr url)

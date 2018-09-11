@@ -26,8 +26,8 @@ pathP =
                 )
                 []
     in
-        succeed messageConstructor
-            |= repeat (AtLeast 1) pathChunkP
+    succeed messageConstructor
+        |= repeat (AtLeast 1) pathChunkP
 
 
 pathChunkP : Parser Path

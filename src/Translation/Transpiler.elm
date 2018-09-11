@@ -1,4 +1,4 @@
-module Translation.Transpiler exposing (File, transpileToElm)
+module Translation.Transpiler exposing (transpileToElm, File)
 
 {-| Converts a JSON containing translations from Symfony
 and turn them into an elm file.
@@ -126,10 +126,11 @@ groupByKeyname { name, variables, content } =
         isKeynameCorrect =
             keyname /= "" && (keyname |> not << String.contains ".")
     in
-        if isKeynameCorrect && List.isEmpty variables then
-            Just (base ++ "_keyname")
-        else
-            Nothing
+    if isKeynameCorrect && List.isEmpty variables then
+        Just (base ++ "_keyname")
+
+    else
+        Nothing
 
 
 createAKeynameTranslation : ( String, List Translation ) -> Translation
@@ -179,13 +180,14 @@ formatName name =
         convertChar c =
             if Char.isLower c || Char.isUpper c || Char.isDigit c then
                 Char.toLower c
+
             else
                 '_'
     in
-        name
-            |> String.toList
-            |> List.map convertChar
-            |> String.fromList
+    name
+        |> String.toList
+        |> List.map convertChar
+        |> String.fromList
 
 
 {-| Extracts the list of variables used in the TranslationContent
@@ -205,17 +207,17 @@ extractVariables translationContent =
                 Keyname _ ->
                     []
     in
-        chunks
-            |> List.filterMap
-                (\e ->
-                    case e of
-                        Variable v ->
-                            Just v
+    chunks
+        |> List.filterMap
+            (\e ->
+                case e of
+                    Variable v ->
+                        Just v
 
-                        _ ->
-                            Nothing
-                )
-            |> List.Unique.filterDuplicates
+                    _ ->
+                        Nothing
+            )
+        |> List.Unique.filterDuplicates
 
 
 {-| Turns a translation into an elm function
@@ -229,12 +231,14 @@ translationToElm lang translation =
         count =
             if hasCountVariable translation.content then
                 [ Primitive "Int" "count" ]
+
             else
                 []
 
         keyname =
             if hasKeynameVariable translation.content then
                 [ Primitive "String" "keyname" ]
+
             else
                 []
 
@@ -244,10 +248,11 @@ translationToElm lang translation =
         record =
             if recordArgs == [] then
                 []
+
             else
                 [ Record recordArgs ]
     in
-        Function translation.name arguments "String" (translationContentToElm lang translation.content)
+    Function translation.name arguments "String" (translationContentToElm lang translation.content)
 
 
 {-| Does a TranslationContent contains a `count` variable
@@ -311,34 +316,49 @@ indexedConditions : String -> List Expr
 indexedConditions lang =
     if List.member lang [ "az", "bo", "dz", "id", "ja", "jv", "ka", "km", "kn", "ko", "ms", "th", "tr", "vi", "zh" ] then
         [ Expr "True" ]
+
     else if List.member lang [ "af", "bn", "bg", "ca", "da", "de", "el", "en", "eo", "es", "et", "eu", "fa", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "he", "hu", "is", "it", "ku", "lb", "ml", "mn", "mr", "nah", "nb", "ne", "nl", "nn", "no", "om", "or", "pa", "pap", "ps", "pt", "so", "sq", "sv", "sw", "ta", "te", "tk", "ur", "zu" ] then
         [ Expr "count == 1", Expr "True" ]
+
     else if List.member lang [ "am", "bh", "fil", "fr", "gun", "hi", "hy", "ln", "mg", "nso", "xbr", "ti", "wa" ] then
         [ Expr "count == 0 || count == 1", Expr "True" ]
+
     else if List.member lang [ "be", "bs", "hr", "ru", "sr", "uk" ] then
         [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
+
     else if List.member lang [ "cs", "sk" ] then
         [ Expr "count == 1", Expr "count >= 2 && count <= 4", Expr "True" ]
+
     else if List.member lang [ "ga" ] then
         [ Expr "count == 1", Expr "count == 2", Expr "True" ]
+
     else if List.member lang [ "lt" ] then
         [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
+
     else if List.member lang [ "sl" ] then
         [ Expr "count % 100 == 1", Expr "count % 100 == 2", Expr "count % 100 == 3 || count % 100 == 4", Expr "True" ]
+
     else if List.member lang [ "mk" ] then
         [ Expr "count % 10 == 1", Expr "True" ]
+
     else if List.member lang [ "mt" ] then
         [ Expr "count == 1", Expr "count == 0 || count % 100 > 1 && count % 100 < 11", Expr "count % 100 > 10 && count % 100 < 20", Expr "True" ]
+
     else if List.member lang [ "lv" ] then
         [ Expr "count == 0", Expr "count % 10 == 1 && count % 100 /= 11", Expr "True" ]
+
     else if List.member lang [ "pl" ] then
         [ Expr "count == 1", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)", Expr "True" ]
+
     else if List.member lang [ "cy" ] then
         [ Expr "count == 1", Expr "count == 2", Expr "count == 8 || count == 11", Expr "True" ]
+
     else if List.member lang [ "ro" ] then
         [ Expr "count == 1", Expr "count == 0 || (count % 100 > 0 && count % 100 < 20)", Expr "True" ]
+
     else if List.member lang [ "ar" ] then
         [ Expr "count == 0", Expr "count == 1", Expr "count == 2", Expr "count % 100 >= 3 && count % 100 <= 10", Expr "count % 100 >= 11 && count % 100 <= 99", Expr "True" ]
+
     else
         [ Expr "True" ]
 
@@ -379,7 +399,7 @@ combineIntervals intervals =
                         |> List.map intervalToCondExpr
                         |> String.join ") || ("
             in
-                "(" ++ conditions ++ ")"
+            "(" ++ conditions ++ ")"
 
 
 {-| Turns a Interval into an elm expression usable in a if
@@ -391,7 +411,8 @@ intervalToCondExpr interval =
             case ( interval.low, interval.high ) of
                 ( Included low, Included high ) ->
                     if low == high then
-                        Just <| "count == " ++ toString low
+                        Just <| "count == " ++ String.fromInt low
+
                     else
                         Nothing
 
@@ -404,10 +425,10 @@ intervalToCondExpr interval =
                     Nothing
 
                 Included bound ->
-                    Just <| "count >= " ++ toString bound
+                    Just <| "count >= " ++ String.fromInt bound
 
                 Excluded bound ->
-                    Just <| "count > " ++ toString bound
+                    Just <| "count > " ++ String.fromInt bound
 
         highBound =
             case interval.high of
@@ -415,26 +436,26 @@ intervalToCondExpr interval =
                     Nothing
 
                 Included bound ->
-                    Just <| "count <= " ++ toString bound
+                    Just <| "count <= " ++ String.fromInt bound
 
                 Excluded bound ->
-                    Just <| "count < " ++ toString bound
+                    Just <| "count < " ++ String.fromInt bound
     in
-        case ( isLowEqualToHigh, lowBound, highBound ) of
-            ( Just value, _, _ ) ->
-                value
+    case ( isLowEqualToHigh, lowBound, highBound ) of
+        ( Just value, _, _ ) ->
+            value
 
-            ( _, Just low, Just high ) ->
-                low ++ " && " ++ high
+        ( _, Just low, Just high ) ->
+            low ++ " && " ++ high
 
-            ( _, Just low, Nothing ) ->
-                low
+        ( _, Just low, Nothing ) ->
+            low
 
-            ( _, Nothing, Just high ) ->
-                high
+        ( _, Nothing, Just high ) ->
+            high
 
-            _ ->
-                "True"
+        _ ->
+            "True"
 
 
 {-| Turns a list of Chunks into an elm expression usable in the body of a function
@@ -452,15 +473,15 @@ chunkToString chunk =
         escape =
             String.replace "\"" "\\\""
     in
-        case chunk of
-            Text text ->
-                "\"\"\"" ++ escape text ++ "\"\"\""
+    case chunk of
+        Text text ->
+            "\"\"\"" ++ escape text ++ "\"\"\""
 
-            Variable variable ->
-                variable
+        Variable variable ->
+            variable
 
-            VariableCount ->
-                "(toString count)"
+        VariableCount ->
+            "(String.fromInt count)"
 
 
 replaceMatches : (Char -> Bool) -> Char -> String -> String
@@ -470,6 +491,7 @@ replaceMatches predicate replacement =
             (\c ->
                 if predicate c then
                     replacement
+
                 else
                     c
             )

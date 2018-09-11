@@ -1,4 +1,4 @@
-module Translation.Parser exposing (..)
+module Translation.Parser exposing (parseTranslationContent)
 
 {-| Parser for a TranslationContent
 
@@ -9,13 +9,13 @@ module Translation.Parser exposing (..)
 import Char
 import List.Extra as List
 import List.Unique
-import String.Extra as String
 import Parser exposing (..)
-import Parser.LanguageKit exposing (..)
 import Result
+import String.Extra as String
 import StringUtil exposing (indent)
 import Translation.Data exposing (..)
 import Unindent exposing (unindent)
+
 
 
 -- Public
@@ -139,14 +139,13 @@ interval =
         highInterval =
             oneOf [ highInf, highValue ]
     in
-        (succeed Interval
-            |= lowInterval
-            |. spaces
-            |. symbol ","
-            |. spaces
-            |= highInterval
-            |> map (Intervals << List.singleton)
-        )
+    succeed Interval
+        |= lowInterval
+        |. spaces
+        |. symbol ","
+        |. spaces
+        |= highInterval
+        |> map (Intervals << List.singleton)
 
 
 {-| Parses a list of Intervals as a list of values
@@ -164,17 +163,17 @@ listValue =
                     )
                 >> Intervals
     in
-        succeed listValueConstructor
-            |= (sequence
-                    { start = "{"
-                    , end = "}"
-                    , separator = ","
-                    , spaces = spaces
-                    , item = integer
-                    , trailing = Forbidden
-                    }
-                    |> failIf List.isEmpty
-               )
+    succeed listValueConstructor
+        |= (sequence
+                { start = "{"
+                , end = "}"
+                , separator = ","
+                , spaces = spaces
+                , item = integer
+                , trailing = Forbidden
+                }
+                |> failIf List.isEmpty
+           )
 
 
 {-| Parses label
@@ -197,10 +196,13 @@ messageChunks =
                     (\index chunk ->
                         if List.length chunks == 1 then
                             mapText String.trim chunk
+
                         else if index == 0 then
                             mapText String.trimLeft chunk
+
                         else if index == List.length chunks - 1 then
                             mapText String.trimRight chunk
+
                         else
                             chunk
                     )
@@ -209,7 +211,7 @@ messageChunks =
         mergeText head tail =
             case ( head, tail ) of
                 ( Text t1, (Text t2) :: rest ) ->
-                    (Text (t1 ++ t2)) :: rest
+                    Text (t1 ++ t2) :: rest
 
                 ( head, tail ) ->
                     head :: tail
@@ -224,11 +226,11 @@ messageChunks =
                         , succeed Text
                             |= keep (Exactly 1) (\_ -> True)
                         ]
-                    |= (lazy (\_ -> rec))
+                    |= lazy (\_ -> rec)
                 ]
     in
-        succeed trim
-            |= rec
+    succeed trim
+        |= rec
 
 
 {-| Parses a variable of a Chunk
@@ -239,18 +241,20 @@ variable =
         variableConstructor variable =
             if variable == "count" then
                 VariableCount
+
             else if List.member variable [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ] then
                 Variable (variable ++ "_")
+
             else
                 Variable (String.replace "-" "_" variable)
     in
-        delayedCommitFirst
-            (succeed variableConstructor
-                |. symbol "%"
-                |= keep (AtLeast 2) isVariableChar
-                |. symbol "%"
-            )
-            (succeed ())
+    delayedCommitFirst
+        (succeed variableConstructor
+            |. symbol "%"
+            |= keep (AtLeast 2) isVariableChar
+            |. symbol "%"
+        )
+        (succeed ())
 
 
 
@@ -346,15 +350,14 @@ repeat : Parser a -> Parser (List a)
 repeat parser =
     succeed (::)
         |= parser
-        |= (lazy
-                (\_ ->
-                    oneOf
-                        [ end |> map (\_ -> [])
-                        , repeat parser
-                        , succeed []
-                        ]
-                )
-           )
+        |= lazy
+            (\_ ->
+                oneOf
+                    [ end |> map (\_ -> [])
+                    , repeat parser
+                    , succeed []
+                    ]
+            )
 
 
 delayedCommitFirst : Parser a -> Parser b -> Parser a
@@ -377,5 +380,6 @@ failIf predicate =
         \value ->
             if predicate value then
                 fail ""
+
             else
                 succeed value

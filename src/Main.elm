@@ -1,4 +1,4 @@
-port module Main exposing (Msg(..), decodeJsValue, main, update)
+port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 {-| Entry point, receive commands from js, dispatch to elm function and return result to js.
 
@@ -9,7 +9,7 @@ port module Main exposing (Msg(..), decodeJsValue, main, update)
 import Dict
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
-import Platform exposing (Program, program)
+import Platform exposing (Program, worker)
 import Platform.Cmd exposing (Cmd)
 import Platform.Sub exposing (Sub)
 import Result.Extra as Result
@@ -21,8 +21,8 @@ import Translation.Transpiler as Translation exposing (File)
 -}
 main : Program Never () Msg
 main =
-    program
-        { init = ( (), Cmd.none )
+    worker
+        { init = \_ -> ( (), Cmd.none )
         , update =
             \msg _ ->
                 msg
@@ -94,15 +94,15 @@ decodeJsValue =
                     urlPrefix =
                         Dict.get "urlPrefix" commandArgs
                 in
-                    case ( command, fileName, content, urlPrefix ) of
-                        ( "routing", Nothing, Just content, Just urlPrefix ) ->
-                            Just <| TranspileRouting { content = content, urlPrefix = urlPrefix }
+                case ( command, fileName, content, urlPrefix ) of
+                    ( "routing", Nothing, Just content, Just urlPrefix ) ->
+                        Just <| TranspileRouting { content = content, urlPrefix = urlPrefix }
 
-                        ( "translation", Just fileName, Just content, Nothing ) ->
-                            Just <| TranspileTranslation { name = fileName, content = content }
+                    ( "translation", Just fileName, Just content, Nothing ) ->
+                        Just <| TranspileTranslation { name = fileName, content = content }
 
-                        _ ->
-                            Nothing
+                    _ ->
+                        Nothing
             )
         >> Maybe.withDefault NoOp
 
