@@ -2,6 +2,7 @@ module Routing.Parser exposing (parsePathContent)
 
 import Char
 import Parser exposing (..)
+import Parser.Extra exposing (stringsOrContainedP)
 import Routing.Data exposing (ArgumentType(..), Path(..))
 
 
@@ -13,43 +14,22 @@ parsePathContent input =
 
 pathP : Parser (List Path)
 pathP =
-    let
-        messageConstructor =
-            List.foldr
-                (\elem acc ->
-                    case ( elem, acc ) of
-                        ( Constant headElem, (Constant t) :: tail ) ->
-                            Constant (headElem ++ t) :: tail
-
-                        ( elem_, acc_ ) ->
-                            elem_ :: acc_
-                )
-                []
-    in
-    succeed messageConstructor
-        |= repeat (AtLeast 1) pathChunkP
+    stringsOrContainedP variableP
+        { parsedTagger = \name -> Variable name String
+        , stringTagger = Constant
+        }
 
 
-pathChunkP : Parser Path
-pathChunkP =
-    oneOf
-        [ variableP
-        , constantP
-        ]
-
-
-variableP : Parser Path
+variableP : Parser String
 variableP =
-    succeed (\name -> Variable name String)
+    succeed identity
         |. symbol "{"
-        |= keep oneOrMore isIdentifierChar
+        |= (getChompedString <|
+                succeed ()
+                    |. chompIf isIdentifierChar
+                    |. chompWhile isIdentifierChar
+           )
         |. symbol "}"
-
-
-constantP : Parser Path
-constantP =
-    succeed Constant
-        |= keep (Exactly 1) (\c -> c /= '{' && c /= '}')
 
 
 isIdentifierChar : Char -> Bool

@@ -10,7 +10,7 @@ and turn it into an elm file.
 import Char
 import Dict exposing (Dict)
 import Elm exposing (..)
-import Json.Decode exposing (Decoder, decodeString, dict, map, oneOf, string, succeed)
+import Json.Decode exposing (Decoder, decodeString, dict, errorToString, map, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (required)
 import Result.Extra as Result
 import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
@@ -43,6 +43,7 @@ readJsonContent : String -> Result String (Dict String JsonRouting)
 readJsonContent content =
     content
         |> decodeString (dict decodeRouting)
+        |> Result.mapError errorToString
 
 
 decodeRouting : Decoder JsonRouting
@@ -58,8 +59,8 @@ decodeRouting =
 
 
 parseRouting : Dict String JsonRouting -> Result String (Dict String Routing)
-parseRouting routing =
-    routing
+parseRouting routings =
+    routings
         |> Dict.toList
         |> List.map
             (\( key, value ) ->
@@ -104,7 +105,7 @@ routingFromJson json =
                             String
                     )
 
-        formatName name =
+        removeLeadingUnderscore name =
             if String.startsWith "_" name then
                 String.dropLeft 1 name
 
@@ -118,7 +119,7 @@ routingFromJson json =
                     case chunk of
                         Variable name argumentType ->
                             Variable
-                                (formatName name)
+                                (removeLeadingUnderscore name)
                                 (typeFromRequirement name
                                     |> Maybe.withDefault argumentType
                                 )
@@ -162,8 +163,8 @@ routingToElm urlPrefix ( routeName, routing ) =
                 [] ->
                     []
 
-                record ->
-                    [ Record record ]
+                record_ ->
+                    [ Record record_ ]
 
         url =
             (Constant urlPrefix :: routing)
