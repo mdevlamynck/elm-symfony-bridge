@@ -1,4 +1,7 @@
-module Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
+module Elm exposing
+    ( Module(..), Function(..), Arg(..), Expr(..)
+    , renderElmModule
+    )
 
 {-| Module defining a simplified AST of elm code along with a render to string function.
 
@@ -60,8 +63,8 @@ renderElmModule (Module name body) =
         renderedBody =
             List.map renderElmFunction body
     in
-        (("module " ++ name ++ " exposing (..)") :: renderedBody)
-            |> String.join "\n\n\n"
+    (("module " ++ name ++ " exposing (..)") :: renderedBody)
+        |> String.join "\n\n\n"
 
 
 {-| Renders a function to string.
@@ -80,8 +83,8 @@ renderElmFunction (Function name args returnType body) =
             (name :: List.map renderElmParam args ++ [ "=" ])
                 |> String.join " "
     in
-        [ annotation, definition, indent (renderElmExpr body) ]
-            |> String.join "\n"
+    [ annotation, definition, indent (renderElmExpr body) ]
+        |> String.join "\n"
 
 
 {-| Renders a type to string.
@@ -101,7 +104,7 @@ renderElmType arg =
                         )
                         >> String.join ", "
             in
-                "{ " ++ renderTypes types ++ " }"
+            "{ " ++ renderTypes types ++ " }"
 
 
 {-| Renders a parameter name to string, intended to be used when rendering a functions arguments.
@@ -113,12 +116,7 @@ renderElmParam arg =
             param
 
         Record types ->
-            let
-                renderParams =
-                    List.map Tuple.second
-                        >> String.join ", "
-            in
-                "{ " ++ renderParams types ++ " }"
+            "params_"
 
 
 {-| Renders an expression to string.
