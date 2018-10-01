@@ -33,7 +33,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with a null translation" <|
                 \_ ->
                     let
@@ -61,7 +61,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with an empty translation" <|
                 \_ ->
                     let
@@ -89,7 +89,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with plain constant translations" <|
                 \_ ->
                     let
@@ -125,7 +125,43 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
+            , test "Works with translation name containing numbers" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "page.error.503": "Error 503",
+                                            "form.step2.save": "Enregistrer"
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    form_step2_save : String
+                                    form_step2_save =
+                                        \"\"\"Enregistrer\"\"\"
+
+
+                                    page_error_503 : String
+                                    page_error_503 =
+                                        \"\"\"Error 503\"\"\"
+                                    """
+                                }
+                    in
+                        Expect.equal expected (transpileToElm input)
             , test "Works with plain translations containing double quotes, line returns and anti slashes" <|
                 \_ ->
                     let
@@ -156,7 +192,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with weird translation names" <|
                 \_ ->
                     let
@@ -186,7 +222,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with translations containing variables" <|
                 \_ ->
                     let
@@ -222,7 +258,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing variables" <|
                 \_ ->
                     let
@@ -266,7 +302,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing indexed variant in french" <|
                 \_ ->
                     let
@@ -303,7 +339,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Works with pluralized translations containing indexed variant in english" <|
                 \_ ->
                     let
@@ -340,7 +376,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             , test "Allow getting a translation from a keyname (only for translation containing key 'keyname')" <|
                 \_ ->
                     let
@@ -389,7 +425,7 @@ suite =
                                     """
                                 }
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
@@ -411,6 +447,6 @@ suite =
                         expected =
                             Err "Given an invalid JSON: Unexpected string in JSON at position 107"
                     in
-                    Expect.equal expected (transpileToElm input)
+                        Expect.equal expected (transpileToElm input)
             ]
         ]
