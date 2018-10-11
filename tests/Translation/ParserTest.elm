@@ -12,7 +12,10 @@ suite : Test
 suite =
     describe "Parses a translation" <|
         [ describe "Succeesfull parsing" <|
-            [ test "Works with empty translations" <|
+            [ fuzz string "Should work on any string" <|
+                \input ->
+                    Expect.ok (parseTranslationContent input)
+            , test "Works with empty translations" <|
                 \_ ->
                     let
                         input =

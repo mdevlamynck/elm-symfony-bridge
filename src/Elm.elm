@@ -116,12 +116,7 @@ renderElmParam arg =
             param
 
         Record types ->
-            let
-                renderParams =
-                    List.map Tuple.second
-                        >> String.join ", "
-            in
-            "{ " ++ renderParams types ++ " }"
+            "params_"
 
 
 {-| Renders an expression to string.

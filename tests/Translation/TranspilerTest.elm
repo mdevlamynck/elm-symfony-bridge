@@ -126,6 +126,42 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
+            , test "Works with translation name containing numbers" <|
+                \_ ->
+                    let
+                        input =
+                            unindent """
+                            {
+                                "translations": {
+                                    "fr": {
+                                        "messages": {
+                                            "page.error.503": "Error 503",
+                                            "form.step2.save": "Enregistrer"
+                                        }
+                                    }
+                                }
+                            }
+                            """
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    form_step2_save : String
+                                    form_step2_save =
+                                        \"\"\"Enregistrer\"\"\"
+
+
+                                    page_error_503 : String
+                                    page_error_503 =
+                                        \"\"\"Error 503\"\"\"
+                                    """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
             , test "Works with plain translations containing double quotes, line returns and anti slashes" <|
                 \_ ->
                     let
@@ -150,8 +186,8 @@ suite =
 
 
                                     multiline_html_translation : { link : String } -> String
-                                    multiline_html_translation { link } =
-                                        \"\"\"<a href=\\\"\"\"\" ++ link ++ \"\"\"\\">
+                                    multiline_html_translation params_ =
+                                        \"\"\"<a href=\\\"\"\"\" ++ params_.link ++ \"\"\"\\">
                                         </a>\"\"\"
                                     """
                                 }
@@ -217,8 +253,8 @@ suite =
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
-                                    user_welcome { firstname, lastname } =
-                                        \"\"\"Bonjour \"\"\" ++ firstname ++ \"\"\" \"\"\" ++ lastname ++ \"\"\" et bienvenu !\"\"\"
+                                    user_welcome params_ =
+                                        \"\"\"Bonjour \"\"\" ++ params_.firstname ++ \"\"\" \"\"\" ++ params_.lastname ++ \"\"\" et bienvenu !\"\"\"
                                     """
                                 }
                     in
@@ -256,13 +292,13 @@ suite =
 
 
                                     user_notifications : Int -> { user : String } -> String
-                                    user_notifications count { user } =
+                                    user_notifications count params_ =
                                         if count == 0 then
-                                            user ++ \"\"\", pas de notification\"\"\"
+                                            params_.user ++ \"\"\", pas de notification\"\"\"
                                         else if count == 1 then
-                                            user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notification non lue\"\"\"
+                                            params_.user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notification non lue\"\"\"
                                         else
-                                            user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notifications non lues\"\"\"
+                                            params_.user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notifications non lues\"\"\"
                                     """
                                 }
                     in

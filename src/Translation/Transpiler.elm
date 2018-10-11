@@ -152,7 +152,7 @@ convertToElm { lang, domain, translations } =
 normalizeTranslationNames : ( String, String ) -> ( String, String )
 normalizeTranslationNames ( name, translation ) =
     ( name
-        |> replaceMatches (\c -> not (Char.isUpper c || Char.isLower c)) '_'
+        |> replaceMatches (\c -> not (Char.isUpper c || Char.isLower c || Char.isDigit c)) '_'
         |> String.toLower
     , translation
     )
@@ -478,7 +478,7 @@ chunkToString chunk =
             "\"\"\"" ++ escape text ++ "\"\"\""
 
         Variable variable ->
-            variable
+            "params_." ++ variable
 
         VariableCount ->
             "(String.fromInt count)"

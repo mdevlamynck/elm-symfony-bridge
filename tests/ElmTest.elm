@@ -54,7 +54,7 @@ suite =
 
 
                             user_welcome : Int -> { firstname : String, lastname : String } -> String
-                            user_welcome choice { firstname, lastname } =
+                            user_welcome choice params_ =
                                 "Ok"
                             """
                 in

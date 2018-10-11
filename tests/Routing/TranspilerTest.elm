@@ -260,8 +260,8 @@ suite =
 
 
                                     app_rest_user_find_friend : { id : Int, username : String } -> String
-                                    app_rest_user_find_friend { id, username } =
-                                        "" ++ "/user/" ++ (String.fromInt id) ++ "/find-friend/" ++ username
+                                    app_rest_user_find_friend params_ =
+                                        "" ++ "/user/" ++ (String.fromInt params_.id) ++ "/find-friend/" ++ params_.username
                                     """
                         in
                         Expect.equal expected (transpileToElm input)

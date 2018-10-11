@@ -175,10 +175,10 @@ routingToElm urlPrefix ( routeName, routing ) =
                                 "\"" ++ path ++ "\""
 
                             Variable name Int ->
-                                "(String.fromInt " ++ name ++ ")"
+                                "(String.fromInt params_." ++ name ++ ")"
 
                             Variable name String ->
-                                name
+                                "params_." ++ name
                     )
                 |> String.join " ++ "
     in
