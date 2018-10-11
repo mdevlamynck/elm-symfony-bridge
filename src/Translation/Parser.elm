@@ -10,6 +10,7 @@ import Char
 import List.Extra as List
 import List.Unique
 import Parser exposing (..)
+import Parser.Extra exposing (chomp, oneOf)
 import Result
 import StringUtil exposing (indent)
 import Translation.Data exposing (..)
@@ -75,11 +76,10 @@ appliesTo =
 -}
 appliesToInterval : Parser AppliesTo
 appliesToInterval =
-    commitWhenComplete <|
-        oneOf
-            [ interval
-            , listValue
-            ]
+    oneOf
+        [ interval
+        , listValue
+        ]
 
 
 {-| Parses an AppliesTo in its indexed form
@@ -138,13 +138,12 @@ interval =
         highInterval =
             oneOf [ highInf, highValue ]
     in
-    succeed Interval
+    succeed (\low high -> Interval low high |> List.singleton |> Intervals)
         |= lowInterval
         |. spaces
         |. symbol ","
         |. spaces
         |= highInterval
-        |> map (Intervals << List.singleton)
 
 
 {-| Parses a list of Intervals as a list of values
@@ -179,9 +178,10 @@ listValue =
 -}
 label : Parser String
 label =
-    delayedCommitFirst
-        (keep oneOrMore isLabelChar)
-        (symbol ":")
+    backtrackable <|
+        succeed identity
+            |= (getChompedString <| chompWhile isLabelChar)
+            |. symbol ":"
 
 
 {-| Parses a message
@@ -215,7 +215,7 @@ messageChunks =
                 ( head_, tail_ ) ->
                     head_ :: tail_
 
-        rec =
+        rec _ =
             oneOf
                 [ succeed [ Text "" ]
                     |. end
@@ -223,13 +223,13 @@ messageChunks =
                     |= oneOf
                         [ variable
                         , succeed Text
-                            |= keep (Exactly 1) (\_ -> True)
+                            |= (getChompedString <| chomp 1)
                         ]
-                    |= lazy (\_ -> rec)
+                    |= lazy rec
                 ]
     in
     succeed trim
-        |= rec
+        |= rec ()
 
 
 {-| Parses a variable of a Chunk
@@ -241,19 +241,21 @@ variable =
             if varName == "count" then
                 VariableCount
 
-            else if List.member variable [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ] then
-                Variable (variable ++ "_")
+            else if List.member varName [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ] then
+                Variable (varName ++ "_")
 
             else
-                Variable (String.replace "-" "_" variable)
+                Variable (String.replace "-" "_" varName)
     in
-    delayedCommitFirst
-        (succeed variableConstructor
+    backtrackable <|
+        succeed variableConstructor
             |. symbol "%"
-            |= keep (AtLeast 2) isVariableChar
+            |= getChompedString
+                (succeed ()
+                    |. chompIf isVariableChar
+                    |. chompWhile isVariableChar
+                )
             |. symbol "%"
-        )
-        (succeed ())
 
 
 
@@ -282,18 +284,17 @@ isLabelChar c =
 -}
 spaces : Parser ()
 spaces =
-    ignore zeroOrMore ((==) ' ')
+    chompWhile (\c -> c == ' ')
 
 
 integer : Parser Int
 integer =
-    commitWhenComplete <|
-        oneOf
-            [ int
-            , succeed ((*) -1)
-                |. symbol "-"
-                |= int
-            ]
+    oneOf
+        [ int
+        , succeed ((*) -1)
+            |. symbol "-"
+            |= int
+        ]
 
 
 
@@ -307,16 +308,17 @@ sequenceAtLeastTwoElements :
     }
     -> Parser (List item)
 sequenceAtLeastTwoElements config =
-    delayedCommitMap (::)
-        (succeed identity
-            |= itemInSequence
-                { item = config.item
-                , separator = config.separator
-                }
-            |. ignore (Exactly 1) ((==) '|')
-            |. config.spaces
-        )
-        (lazy
+    succeed (::)
+        |= (backtrackable <|
+                succeed identity
+                    |= itemInSequence
+                        { item = config.item
+                        , separator = config.separator
+                        }
+                    |. chompIf ((==) '|')
+                    |. config.spaces
+           )
+        |= lazy
             (\_ ->
                 oneOf
                     [ sequenceAtLeastTwoElements config
@@ -324,7 +326,6 @@ sequenceAtLeastTwoElements config =
                         |= config.item
                     ]
             )
-        )
 
 
 itemInSequence :
@@ -333,7 +334,8 @@ itemInSequence :
     }
     -> Parser item
 itemInSequence { item, separator } =
-    keep zeroOrMore ((/=) separator)
+    chompWhile ((/=) separator)
+        |> getChompedString
         |> andThen
             (\content ->
                 case Parser.run item content of
@@ -341,7 +343,7 @@ itemInSequence { item, separator } =
                         succeed parsedItem
 
                     Err _ ->
-                        fail ""
+                        problem ""
             )
 
 
@@ -359,18 +361,6 @@ repeat parser =
             )
 
 
-delayedCommitFirst : Parser a -> Parser b -> Parser a
-delayedCommitFirst parserKeep parserIgnore =
-    delayedCommitMap (\keep _ -> keep)
-        parserKeep
-        parserIgnore
-
-
-commitWhenComplete : Parser a -> Parser a
-commitWhenComplete parserKeep =
-    delayedCommitFirst parserKeep (succeed ())
-
-
 {-| Makes a parser fail if the given predicate is True
 -}
 failIf : (a -> Bool) -> Parser a -> Parser a
@@ -378,7 +368,7 @@ failIf predicate =
     Parser.andThen <|
         \value ->
             if predicate value then
-                fail ""
+                problem ""
 
             else
                 succeed value

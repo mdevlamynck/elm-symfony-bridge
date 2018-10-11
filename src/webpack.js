@@ -3,7 +3,7 @@ const fs = require('fs');
 const mkdirp = require('mkdirp');
 const path = require('path');
 const glob = require('glob');
-const Elm = require('./Main.elm');
+const ElmWorker = require('./Main.elm').Elm.Main;
 
 class ElmSymfonyBridgePlugin {
     constructor(options) {
@@ -19,7 +19,7 @@ class ElmSymfonyBridgePlugin {
         this.enableTranslations = this.ifDefined(options.enableTranslations, true);
 		this.outputFolder = this.ifDefined(options.outputFolder, 'web');
 
-        this.transpiler = Elm.Main.worker();
+        this.transpiler = ElmWorker.init();
         this.hasAlreadyRun = false;
     }
 

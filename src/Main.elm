@@ -19,7 +19,7 @@ import Translation.Transpiler as Translation exposing (File)
 
 {-| Entry point.
 -}
-main : Program Never () Msg
+main : Program () () Msg
 main =
     worker
         { init = \_ -> ( (), Cmd.none )
@@ -94,12 +94,14 @@ decodeJsValue =
                     urlPrefix =
                         Dict.get "urlPrefix" commandArgs
                 in
-                case ( command, fileName, content, urlPrefix ) of
-                    ( "routing", Nothing, Just content, Just urlPrefix ) ->
-                        Just <| TranspileRouting { content = content, urlPrefix = urlPrefix }
+                case command of
+                    "routing" ->
+                        Maybe.map2 Routing.Command urlPrefix content
+                            |> Maybe.map TranspileRouting
 
-                    ( "translation", Just fileName, Just content, Nothing ) ->
-                        Just <| TranspileTranslation { name = fileName, content = content }
+                    "translation" ->
+                        Maybe.map2 File fileName content
+                            |> Maybe.map TranspileTranslation
 
                     _ ->
                         Nothing

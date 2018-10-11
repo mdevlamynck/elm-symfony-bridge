@@ -11,7 +11,7 @@ import Char
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import Elm exposing (..)
-import Json.Decode as Decode exposing (decodeString, dict, list, null, oneOf, string, value)
+import Json.Decode as Decode exposing (decodeString, dict, errorToString, list, null, oneOf, string, value)
 import List.Unique
 import Result
 import Result.Extra as Result
@@ -71,6 +71,7 @@ readJsonContent =
                 )
             )
         )
+        >> Result.mapError errorToString
         >> Result.andThen
             (Dict.get "translations"
                 >> Maybe.andThen dictFirst
@@ -79,8 +80,8 @@ readJsonContent =
                         translations
                             |> dictFirst
                             |> Maybe.map
-                                (\( domain, translations ) ->
-                                    JsonTranslationDomain lang domain translations
+                                (\( domain, translations_ ) ->
+                                    JsonTranslationDomain lang domain translations_
                                 )
                     )
                 >> Result.fromMaybe "No translations found in this JSON"
@@ -98,10 +99,10 @@ parseTranslationDomain { lang, domain, translations } =
         |> List.map parseTranslation
         |> Result.combine
         |> Result.map
-            (\translations ->
+            (\translations_ ->
                 { lang = lang
                 , domain = String.toSentenceCase domain
-                , translations = translations ++ keynameTranslations translations
+                , translations = translations_ ++ keynameTranslations translations_
                 }
             )
 
@@ -197,8 +198,8 @@ extractVariables translationContent =
     let
         chunks =
             case translationContent of
-                SingleMessage chunks ->
-                    chunks
+                SingleMessage chunks_ ->
+                    chunks_
 
                 PluralizedMessage alternatives ->
                     alternatives
@@ -392,10 +393,10 @@ combineIntervals intervals =
         head :: [] ->
             intervalToCondExpr head
 
-        intervals ->
+        intervals_ ->
             let
                 conditions =
-                    intervals
+                    intervals_
                         |> List.map intervalToCondExpr
                         |> String.join ") || ("
             in

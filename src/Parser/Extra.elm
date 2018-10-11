@@ -1,4 +1,4 @@
-module Parser.Extra exposing (stringsOrContainedP)
+module Parser.Extra exposing (chomp, oneOf, stringsOrContainedP)
 
 import Parser exposing (..)
 
@@ -14,10 +14,9 @@ stringsOrContainedP parser ({ parsedTagger, stringTagger } as config) =
                 stringTagger s :: parsedTagger a :: list
     in
     oneOf
-        [ backtrackable <|
-            succeed constructor
-                |= withLeadingRawStringP parser
-                |= lazy (\_ -> stringsOrContainedP parser config)
+        [ succeed constructor
+            |= withLeadingRawStringP parser
+            |= lazy (\_ -> stringsOrContainedP parser config)
         , succeed (parsedTagger >> List.singleton)
             |= parser
         ]
@@ -26,10 +25,23 @@ stringsOrContainedP parser ({ parsedTagger, stringTagger } as config) =
 withLeadingRawStringP : Parser a -> Parser ( String, a )
 withLeadingRawStringP parser =
     oneOf
-        [ backtrackable <|
-            succeed (\a -> ( "", a ))
-                |= parser
+        [ succeed (\a -> ( "", a ))
+            |= parser
         , succeed (\headString ( restString, a ) -> ( headString ++ restString, a ))
-            |= getChompedString (chompIf (\_ -> True))
+            |= getChompedString (chomp 1)
             |= lazy (\_ -> withLeadingRawStringP parser)
         ]
+
+
+chomp : Int -> Parser ()
+chomp n =
+    if n <= 1 then
+        chompIf (\_ -> True)
+
+    else
+        chompIf (\_ -> True) |. chomp (n - 1)
+
+
+oneOf : List (Parser a) -> Parser a
+oneOf parsers =
+    Parser.oneOf <| List.map backtrackable parsers
