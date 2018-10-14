@@ -14,3 +14,4 @@ install:
 script:
   - npm run build
   - elm-test --verbose
+  - elm-verify-examples

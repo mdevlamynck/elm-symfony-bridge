@@ -1,5 +1,5 @@
 elm-stuff
-tests/Doc
+tests/VerifyExamples
 doc.json
 node_modules
 dist

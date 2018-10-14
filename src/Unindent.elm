@@ -14,20 +14,20 @@ import List.Extra as List
 It removes indentation on every lines up to the first character of the first line.
 Leading and trailing empty lines are removed.
 
-    let
-        jsonWithUnindent =
-            unindent """
-            {
-                "some": "json value",
-                "embedded": "in your elm code"
-            }
-            """
+    jsonWithUnindent : String
+    jsonWithUnindent =
+        unindent """
+        {
+            "some": "json value",
+            "embedded": "in your elm code"
+        }
+        """
 
-        jsonWithoutUnindent =
-            "{\n    \"some\": \"json value\",\n    \"embedded\": \"in your elm code\"\n}"
-    in
-        jsonWithUnindent == jsonWithoutUnindent
+    jsonWithoutUnindent : String
+    jsonWithoutUnindent =
+        "{\n    \"some\": \"json value\",\n    \"embedded\": \"in your elm code\"\n}"
 
+    jsonWithUnindent == jsonWithoutUnindent
     --> True
 
 -}

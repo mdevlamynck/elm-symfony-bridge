@@ -37,9 +37,12 @@
     "var": "^0.3.2"
   },
   "devDependencies": {
-    "elm": "^0.19.0",
-    "elm-test": "^0.19.0-beta8",
+    "elm": "^0.19.0-bugfix2",
+    "elm-format": "^0.8.1",
+    "elm-test": "^0.19.0-beta10",
+    "elm-verify-examples": "^3.0.1",
     "elm-webpack-loader": "^5.0.0",
+    "elmi-to-json": "^0.19.0",
     "path": "^0.12.7",
     "webpack": "^3.0",
     "webpack-cli": "^2.0.15"
