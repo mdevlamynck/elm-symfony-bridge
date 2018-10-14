@@ -462,8 +462,18 @@ intervalToCondExpr interval =
 {-| Turns a list of Chunks into an elm expression usable in the body of a function
 -}
 combineChunks : List Chunk -> String
-combineChunks =
-    List.map chunkToString >> String.join " ++ "
+combineChunks list =
+    let
+        string =
+            list
+                |> List.map chunkToString
+                |> String.join " ++ "
+    in
+    if string == "" then
+        "\"\""
+
+    else
+        string
 
 
 {-| Turns a Chunk into an elm expression usable in the body of a function

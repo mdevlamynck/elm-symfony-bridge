@@ -1,11 +1,16 @@
 module Translation.ParserTest exposing (suite)
 
 import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, string)
+import Fuzz exposing (Fuzzer, string)
 import Test exposing (..)
 import Translation.Data exposing (..)
 import Translation.Parser exposing (parseTranslationContent)
 import Unindent exposing (..)
+
+
+longString : String
+longString =
+    String.fromList <| List.repeat 1000000 'a'
 
 
 suite : Test
@@ -15,6 +20,9 @@ suite =
             [ fuzz string "Should work on any string" <|
                 \input ->
                     Expect.ok (parseTranslationContent input)
+            , test "Should work on very long string" <|
+                \_ ->
+                    Expect.ok (parseTranslationContent longString)
             , test "Works with empty translations" <|
                 \_ ->
                     let
@@ -22,7 +30,7 @@ suite =
                             ""
 
                         expected =
-                            Ok (SingleMessage [ Text "" ])
+                            Ok (SingleMessage [])
                     in
                     Expect.equal expected (parseTranslationContent input)
             , test "Works with plain constant translations" <|
@@ -54,8 +62,7 @@ suite =
                         expected =
                             Ok
                                 (SingleMessage
-                                    [ Text ""
-                                    , Variable "if_"
+                                    [ Variable "if_"
                                     , Text " "
                                     , Variable "then_"
                                     , Text " "
@@ -82,7 +89,6 @@ suite =
                                     , Variable "as_"
                                     , Text " "
                                     , Variable "port_"
-                                    , Text ""
                                     ]
                                 )
                     in
@@ -143,15 +149,13 @@ suite =
                                       }
                                     , { appliesTo = Intervals [ { low = Included 1, high = Included 1 } ]
                                       , chunks =
-                                            [ Text ""
-                                            , VariableCount
+                                            [ VariableCount
                                             , Text " notification non lue"
                                             ]
                                       }
                                     , { appliesTo = Intervals [ { low = Included 2, high = Inf } ]
                                       , chunks =
-                                            [ Text ""
-                                            , VariableCount
+                                            [ VariableCount
                                             , Text " notifications non lues"
                                             ]
                                       }
@@ -174,15 +178,13 @@ suite =
                                       }
                                     , { appliesTo = Intervals [ { low = Included -1, high = Included -1 } ]
                                       , chunks =
-                                            [ Text ""
-                                            , VariableCount
+                                            [ VariableCount
                                             , Text " notification non lue"
                                             ]
                                       }
                                     , { appliesTo = Intervals [ { low = Included -2, high = Inf } ]
                                       , chunks =
-                                            [ Text ""
-                                            , VariableCount
+                                            [ VariableCount
                                             , Text " notifications non lues"
                                             ]
                                       }
@@ -319,13 +321,11 @@ suite =
                                 PluralizedMessage <|
                                     [ { appliesTo = Intervals [ { low = Included 0, high = Included 0 } ]
                                       , chunks =
-                                            [ Text ""
-                                            ]
+                                            []
                                       }
                                     , { appliesTo = Intervals [ { low = Inf, high = Inf } ]
                                       , chunks =
-                                            [ Text ""
-                                            ]
+                                            []
                                       }
                                     ]
                     in

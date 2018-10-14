@@ -57,7 +57,7 @@ suite =
 
                                     translation : String
                                     translation =
-                                        \"\"\"\"\"\"
+                                        ""
                                     """
                                 }
                     in
@@ -85,7 +85,7 @@ suite =
 
                                     translation : String
                                     translation =
-                                        \"\"\"\"\"\"
+                                        ""
                                     """
                                 }
                     in

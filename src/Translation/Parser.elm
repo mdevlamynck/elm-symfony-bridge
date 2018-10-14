@@ -189,6 +189,14 @@ label =
 messageChunks : Parser (List Chunk)
 messageChunks =
     let
+        merge list string =
+            case list of
+                (Text constant) :: rest ->
+                    Text (constant ++ string) :: rest
+
+                _ ->
+                    Text string :: list
+
         trim chunks =
             chunks
                 |> List.indexedMap
@@ -205,31 +213,27 @@ messageChunks =
                         else
                             chunk
                     )
+                |> List.filter
+                    (\value ->
+                        case value of
+                            Text "" ->
+                                False
 
-        mergeText : Chunk -> List Chunk -> List Chunk
-        mergeText head tail =
-            case ( head, tail ) of
-                ( Text t1, (Text t2) :: rest ) ->
-                    Text (t1 ++ t2) :: rest
-
-                ( head_, tail_ ) ->
-                    head_ :: tail_
-
-        rec _ =
-            oneOf
-                [ succeed [ Text "" ]
-                    |. end
-                , succeed mergeText
-                    |= oneOf
-                        [ variable
-                        , succeed Text
-                            |= (getChompedString <| chomp 1)
-                        ]
-                    |= lazy rec
-                ]
+                            _ ->
+                                True
+                    )
     in
     succeed trim
-        |= rec ()
+        |= loop []
+            (\revList ->
+                oneOf
+                    [ succeed (\parsed -> Loop <| parsed :: revList)
+                        |= variable
+                    , succeed (merge revList >> Loop)
+                        |= getChompedString (chomp 1)
+                    , succeed (Done <| List.reverse revList)
+                    ]
+            )
 
 
 {-| Parses a variable of a Chunk
@@ -345,20 +349,6 @@ itemInSequence { item, separator } =
 
                     Err _ ->
                         problem ""
-            )
-
-
-repeat : Parser a -> Parser (List a)
-repeat parser =
-    succeed (::)
-        |= parser
-        |= lazy
-            (\_ ->
-                oneOf
-                    [ end |> map (\_ -> [])
-                    , repeat parser
-                    , succeed []
-                    ]
             )
 
 
