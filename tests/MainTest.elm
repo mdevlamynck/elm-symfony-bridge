@@ -86,18 +86,7 @@ suite =
                             input =
                                 TranspileTranslation <|
                                     { name = "fileName"
-                                    , content =
-                                        unindent """
-                                            {
-                                                "translations": {
-                                                    "fr": {
-                                                        "messages": {
-                                                            "button.validate.global" "Ok"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            """
+                                    , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
                                     }
 
                             expected =
@@ -105,10 +94,22 @@ suite =
                                     Encode.object
                                         [ ( "succeeded", Encode.bool False )
                                         , ( "type", Encode.string "translation" )
-                                        , ( "error", Encode.string "Error fileName: Given an invalid JSON: Unexpected string in JSON at position 107" )
+                                        , ( "error"
+                                          , Encode.string <|
+                                                unindent
+                                                    """
+                                                    Error fileName: Problem with the given value:
+
+                                                    "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
+                                                    
+                                                    This is not valid JSON! Unexpected string in JSON at position 67
+                                                    """
+                                          )
                                         ]
                         in
-                        Expect.equal expected (update input)
+                        Expect.equal
+                            (Maybe.map (Encode.encode 0) expected)
+                            (Maybe.map (Encode.encode 0) (update input))
                 ]
             ]
         ]

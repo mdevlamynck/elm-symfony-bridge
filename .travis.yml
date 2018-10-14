@@ -13,5 +13,5 @@ install:
 
 script:
   - npm run build
-  - elm-test --verbose
-  - elm-verify-examples
+  - elm-test --verbose --compiler node_modules/.bin/elm
+  - elm-verify-examples --elm-test node_modules/.bin/elm-test --elm-test-args="--verbose --compiler node_modules/.bin/elm"
