@@ -184,7 +184,7 @@ label =
             |. symbol ":"
 
 
-{-| Parses a message
+{-| Parses a message TODO
 -}
 messageChunks : Parser (List Chunk)
 messageChunks =
@@ -252,6 +252,7 @@ variable =
             |. symbol "%"
             |= getChompedString
                 (succeed ()
+                    |. chompIf isVariableChar
                     |. chompIf isVariableChar
                     |. chompWhile isVariableChar
                 )

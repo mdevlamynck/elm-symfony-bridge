@@ -432,20 +432,18 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "button.validate.global" "Ok"
-                                        }
-                                    }
-                                }
-                            }
-                            """
+                            """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
 
                         expected =
-                            Err "Given an invalid JSON: Unexpected string in JSON at position 107"
+                            Err <|
+                                unindent
+                                    """
+                                    Problem with the given value:
+
+                                    "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
+
+                                    This is not valid JSON! Unexpected string in JSON at position 67
+                                    """
                     in
                     Expect.equal expected (transpileToElm input)
             ]
