@@ -1,9 +1,9 @@
-module Translation.Transpiler exposing (transpileToElm, File)
+module Translation.Transpiler exposing (transpileToElm, Command, File)
 
 {-| Converts a JSON containing translations from Symfony
 and turn them into an elm file.
 
-@docs transpileToElm, File
+@docs transpileToElm, Command, File
 
 -}
 
@@ -20,6 +20,13 @@ import Translation.Data exposing (..)
 import Translation.Parser as Parser
 
 
+type alias Command =
+    { name : String
+    , content : String
+    , version : Version
+    }
+
+
 {-| Represents a file
 -}
 type alias File =
@@ -30,11 +37,12 @@ type alias File =
 
 {-| Converts a JSON containing translations to an Elm file
 -}
-transpileToElm : String -> Result String File
-transpileToElm =
-    readJsonContent
-        >> Result.andThen parseTranslationDomain
-        >> Result.map convertToElm
+transpileToElm : Command -> Result String File
+transpileToElm command =
+    command.content
+        |> readJsonContent
+        |> Result.andThen parseTranslationDomain
+        |> Result.map (convertToElm command.version)
 
 
 {-| Represents the content of a JSON translation file
@@ -143,10 +151,13 @@ createAKeynameTranslation ( base, translations ) =
 
 {-| Turns a TranslationDomain into its elm representation
 -}
-convertToElm : TranslationDomain -> File
-convertToElm { lang, domain, translations } =
+convertToElm : Version -> TranslationDomain -> File
+convertToElm version { lang, domain, translations } =
     { name = "Trans/" ++ domain ++ ".elm"
-    , content = renderElmModule <| Module ("Trans." ++ domain) (List.map (translationToElm lang) translations)
+    , content =
+        renderElmModule version <|
+            Module ("Trans." ++ domain)
+                (List.map (translationToElm lang) translations)
     }
 
 

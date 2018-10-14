@@ -54,6 +54,7 @@ Encore
     .addPlugin(new ElmSymfonyBridgePlugin({
         dev: !Encore.isProduction(),    // Required: use symfony's env=dev or env=prod
         elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to '/assets/elm'
+        elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
         urlPrefix: '/app_dev.php',      // Optional: when dev is true which prefix to use when generating urls, defaults to '/app_dev.php'
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
         enableRouting: true,            // Optional: enable generating routes, defaults to true

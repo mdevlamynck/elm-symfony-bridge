@@ -1,5 +1,6 @@
 module Translation.TranspilerTest exposing (suite)
 
+import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
@@ -15,21 +16,31 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": []
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": []
+                                            }
+                                        }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
                                     """
                                 }
                     in
@@ -38,21 +49,31 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {"translation": null}
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {"translation": null}
+                                            }
+                                        }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     translation : String
@@ -66,21 +87,31 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {"translation": ""}
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {"translation": ""}
+                                            }
+                                        }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     translation : String
@@ -94,24 +125,34 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "button.validate.global": "Ok",
-                                            "button.validate.save": "Enregistrer"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "button.validate.global": "Ok",
+                                                    "button.validate.save": "Enregistrer"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     button_validate_global : String
@@ -130,24 +171,34 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "page.error.503": "Error 503",
-                                            "form.step2.save": "Enregistrer"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "page.error.503": "Error 503",
+                                                    "form.step2.save": "Enregistrer"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     form_step2_save : String
@@ -166,23 +217,33 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     multiline_html_translation : { link : String } -> String
@@ -197,23 +258,33 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "This value is not valid.": "Cette valeur n'est pas valide."
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "This value is not valid.": "Cette valeur n'est pas valide."
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     this_value_is_not_valid_ : String
@@ -227,24 +298,34 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "user.notifications": "%count% notifications non lues",
-                                            "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "%count% notifications non lues",
+                                                    "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     user_notifications : Int -> String
@@ -263,24 +344,34 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
-                                            "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
+                                                    "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     user_account_balance : Int -> String
@@ -307,23 +398,33 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     apples : Int -> String
@@ -344,23 +445,33 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "en": {
-                                        "messages": {
-                                            "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "en": {
+                                                "messages": {
+                                                    "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     apples : Int -> String
@@ -381,24 +492,34 @@ suite =
                 \_ ->
                     let
                         input =
-                            unindent """
-                            {
-                                "translations": {
-                                    "fr": {
-                                        "messages": {
-                                            "honorific_title.keyname.miss": "Miss",
-                                            "honorific_title.keyname.mister": "Mister"
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "honorific_title.keyname.miss": "Miss",
+                                                    "honorific_title.keyname.mister": "Mister"
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    """
+                            , version = Elm_0_19
                             }
-                            """
 
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     honorific_title_keyname_miss : String
@@ -432,7 +553,10 @@ suite =
                 \_ ->
                     let
                         input =
-                            """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
+                            { name = ""
+                            , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
+                            , version = Elm_0_19
+                            }
 
                         expected =
                             Err <|

@@ -1,5 +1,6 @@
 module Routing.TranspilerTest exposing (suite)
 
+import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Routing.Transpiler exposing (transpileToElm)
@@ -18,6 +19,7 @@ suite =
                             { urlPrefix = ""
                             , content =
                                 unindent """ """
+                            , version = Elm_0_19
                             }
 
                         expected =
@@ -45,6 +47,7 @@ suite =
                                     }
                                 }
                                 """
+                            , version = Elm_0_19
                             }
 
                         expected =
@@ -73,6 +76,7 @@ suite =
                                     }
                                 }
                                 """
+                            , version = Elm_0_19
                             }
 
                         expected =
@@ -107,6 +111,7 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
@@ -129,12 +134,18 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
                                 Ok <|
                                     unindent """
                                     module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     app_front_home : String
@@ -161,12 +172,18 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
                                 Ok <|
                                     unindent """
                                     module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     app_front_home : String
@@ -190,12 +207,18 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
                                 Ok <|
                                     unindent """
                                     module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     app_front_home : String
@@ -218,12 +241,18 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
                                 Ok <|
                                     unindent """
                                     module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     app_fr_n__h0m3 : String
@@ -246,12 +275,18 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
                                 Ok <|
                                     unindent """
                                     module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     app_front_home : String
@@ -277,12 +312,18 @@ suite =
                                             }
                                         }
                                     """
+                                , version = Elm_0_19
                                 }
 
                             expected =
                                 Ok <|
                                     unindent """
                                     module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
 
 
                                     app_rest_user_find_friend : { id : Int, username : String } -> String

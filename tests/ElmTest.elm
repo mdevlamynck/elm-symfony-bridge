@@ -1,6 +1,6 @@
 module ElmTest exposing (suite)
 
-import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
+import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), Version(..), renderElmModule)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
@@ -24,6 +24,11 @@ suite =
                             module Trans.Messages exposing (..)
 
 
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
                             button_validate_global : String
                             button_validate_global =
                                 "Ok"
@@ -34,7 +39,7 @@ suite =
                                 "Enregistrer"
                             """
                 in
-                Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule Elm_0_19 input)
         , test "Renders functions with arguments correctly" <|
             \_ ->
                 let
@@ -53,12 +58,17 @@ suite =
                             module Trans.Messages exposing (..)
 
 
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
                             user_welcome : Int -> { firstname : String, lastname : String } -> String
                             user_welcome choice params_ =
                                 "Ok"
                             """
                 in
-                Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule Elm_0_19 input)
         , test "Renders if blocks correctly" <|
             \_ ->
                 let
@@ -80,6 +90,11 @@ suite =
                             module Trans.Messages exposing (..)
 
 
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 if choice < 0 then
@@ -90,7 +105,7 @@ suite =
                                     "Positive"
                             """
                 in
-                Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule Elm_0_19 input)
         , test "No if when there is only one variant" <|
             \_ ->
                 let
@@ -110,10 +125,49 @@ suite =
                             module Trans.Messages exposing (..)
 
 
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 "Negative"
                             """
                 in
-                Expect.equal expected (renderElmModule input)
+                Expect.equal expected (renderElmModule Elm_0_19 input)
+        , test "Renders module with fromInt for 0.19" <|
+            \_ ->
+                let
+                    input =
+                        Module "Trans.Messages" []
+
+                    expected =
+                        unindent """
+                            module Trans.Messages exposing (..)
+
+
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+                            """
+                in
+                Expect.equal expected (renderElmModule Elm_0_19 input)
+        , test "Renders module with fromInt for 0.18" <|
+            \_ ->
+                let
+                    input =
+                        Module "Trans.Messages" []
+
+                    expected =
+                        unindent """
+                            module Trans.Messages exposing (..)
+
+
+                            fromInt : Int -> String
+                            fromInt int =
+                                toString int
+                            """
+                in
+                Expect.equal expected (renderElmModule Elm_0_18 input)
         ]

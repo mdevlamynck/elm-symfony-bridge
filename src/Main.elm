@@ -7,6 +7,7 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 -}
 
 import Dict
+import Elm exposing (Version(..))
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
 import Platform exposing (Program, worker)
@@ -49,7 +50,7 @@ port sendToJs : Value -> Cmd msg
 type Msg
     = NoOp
     | TranspileRouting Routing.Command
-    | TranspileTranslation File
+    | TranspileTranslation Translation.Command
 
 
 {-| Run received commands.
@@ -68,7 +69,7 @@ update message =
                 |> Just
 
         TranspileTranslation translation ->
-            translation.content
+            translation
                 |> Translation.transpileToElm
                 |> formatResult translation.name
                 |> encodeTranslationResult
@@ -93,14 +94,29 @@ decodeJsValue =
 
                     urlPrefix =
                         Dict.get "urlPrefix" commandArgs
+
+                    version =
+                        Dict.get "version" commandArgs
+                            |> Maybe.andThen
+                                (\versionString ->
+                                    case versionString of
+                                        "0.18" ->
+                                            Just Elm_0_18
+
+                                        "0.19" ->
+                                            Just Elm_0_19
+
+                                        _ ->
+                                            Nothing
+                                )
                 in
                 case command of
                     "routing" ->
-                        Maybe.map2 Routing.Command urlPrefix content
+                        Maybe.map3 Routing.Command urlPrefix content version
                             |> Maybe.map TranspileRouting
 
                     "translation" ->
-                        Maybe.map2 File fileName content
+                        Maybe.map3 Translation.Command fileName content version
                             |> Maybe.map TranspileTranslation
 
                     _ ->

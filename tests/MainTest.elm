@@ -1,5 +1,6 @@
 module MainTest exposing (suite)
 
+import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Json.Encode as Encode exposing (Value)
@@ -21,12 +22,13 @@ suite =
                                   , Encode.object
                                         [ ( "name", Encode.string "fileName" )
                                         , ( "content", Encode.string "{}" )
+                                        , ( "version", Encode.string "0.19" )
                                         ]
                                   )
                                 ]
 
                         expected =
-                            TranspileTranslation { name = "fileName", content = "{}" }
+                            TranspileTranslation { name = "fileName", content = "{}", version = Elm_0_19 }
                     in
                     Expect.equal expected (decodeJsValue input)
             ]
@@ -55,6 +57,7 @@ suite =
                                                 }
                                             }
                                             """
+                                    , version = Elm_0_19
                                     }
 
                             expected =
@@ -68,6 +71,11 @@ suite =
                                                 , ( "content"
                                                   , Encode.string <| unindent """
                                             module Trans.Messages exposing (..)
+
+
+                                            fromInt : Int -> String
+                                            fromInt int =
+                                                String.fromInt int
 
 
                                             button_validate_global : String
@@ -87,6 +95,7 @@ suite =
                                 TranspileTranslation <|
                                     { name = "fileName"
                                     , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
+                                    , version = Elm_0_19
                                     }
 
                             expected =

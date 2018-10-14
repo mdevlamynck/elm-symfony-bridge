@@ -20,6 +20,7 @@ import Routing.Parser as Parser
 type alias Command =
     { urlPrefix : String
     , content : String
+    , version : Version
     }
 
 
@@ -36,7 +37,7 @@ transpileToElm command =
     command.content
         |> readJsonContent
         |> Result.andThen parseRouting
-        |> Result.map (convertToElm command.urlPrefix)
+        |> Result.map (convertToElm command.version command.urlPrefix)
 
 
 readJsonContent : String -> Result String (Dict String JsonRouting)
@@ -128,14 +129,14 @@ routingFromJson json =
             )
 
 
-convertToElm : String -> Dict String Routing -> String
-convertToElm urlPrefix routing =
+convertToElm : Version -> String -> Dict String Routing -> String
+convertToElm version urlPrefix routing =
     Module "Routing"
         (routing
             |> Dict.toList
             |> List.map (routingToElm urlPrefix)
         )
-        |> renderElmModule
+        |> renderElmModule version
 
 
 routingToElm : String -> ( String, Routing ) -> Function
