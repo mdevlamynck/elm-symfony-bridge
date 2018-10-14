@@ -10,7 +10,7 @@ import Unindent exposing (..)
 
 longString : String
 longString =
-    String.fromList <| List.repeat 1000000 'a'
+    String.fromList <| List.repeat 100000 'a'
 
 
 suite : Test
