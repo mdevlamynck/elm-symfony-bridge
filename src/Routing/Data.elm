@@ -7,7 +7,7 @@ type alias Routing =
 
 type Path
     = Constant String
-    | Variable String ArgumentType
+    | Variable ArgumentType String
 
 
 type ArgumentType

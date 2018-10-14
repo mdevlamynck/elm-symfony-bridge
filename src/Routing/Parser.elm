@@ -2,7 +2,7 @@ module Routing.Parser exposing (parsePathContent)
 
 import Char
 import Parser exposing (..)
-import Parser.Extra exposing (stringsOrContainedP)
+import Parser.Extra exposing (chomp)
 import Routing.Data exposing (ArgumentType(..), Path(..))
 
 
@@ -14,10 +14,24 @@ parsePathContent input =
 
 pathP : Parser (List Path)
 pathP =
-    stringsOrContainedP variableP
-        { parsedTagger = \name -> Variable name String
-        , stringTagger = Constant
-        }
+    let
+        merge list string =
+            case list of
+                (Constant constant) :: rest ->
+                    Constant (constant ++ string) :: rest
+
+                _ ->
+                    Constant string :: list
+    in
+    loop [] <|
+        \revList ->
+            oneOf
+                [ succeed (\parsed -> Loop <| Variable String parsed :: revList)
+                    |= variableP
+                , succeed (merge revList >> Loop)
+                    |= getChompedString (chomp 1)
+                , succeed (Done <| List.reverse revList)
+                ]
 
 
 variableP : Parser String

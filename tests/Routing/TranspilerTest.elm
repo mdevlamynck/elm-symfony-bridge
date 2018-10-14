@@ -21,7 +21,15 @@ suite =
                             }
 
                         expected =
-                            Err "Given an invalid JSON: Unexpected end of JSON input"
+                            Err <|
+                                unindent
+                                    """
+                                    Problem with the given value:
+
+                                    ""
+
+                                    This is not valid JSON! Unexpected end of JSON input
+                                    """
                     in
                     Expect.equal expected (transpileToElm input)
             , test "Missing path" <|
@@ -40,7 +48,17 @@ suite =
                             }
 
                         expected =
-                            Err """Expecting an object with a field named `path` at _.app_front_home but instead got: {"requirements":"NO CUSTOM"}"""
+                            Err <|
+                                unindent
+                                    """
+                                    Problem with the value at json['app_front_home']:
+
+                                        {
+                                            "requirements": "NO CUSTOM"
+                                        }
+
+                                    Expecting an OBJECT with a field named `path`
+                                    """
                     in
                     Expect.equal expected (transpileToElm input)
             , test "Missing requirements" <|
@@ -58,7 +76,15 @@ suite =
                             }
 
                         expected =
-                            Err """Expecting an object with a field named `path` at _.app_front_home but instead got: {}"""
+                            Err <|
+                                unindent
+                                    """
+                                    Problem with the value at json['app_front_home']:
+
+                                        {}
+
+                                    Expecting an OBJECT with a field named `requirements`
+                                    """
                     in
                     Expect.equal expected (transpileToElm input)
             ]

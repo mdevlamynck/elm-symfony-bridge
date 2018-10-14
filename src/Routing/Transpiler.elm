@@ -117,12 +117,10 @@ routingFromJson json =
             (List.map
                 (\chunk ->
                     case chunk of
-                        Variable name argumentType ->
+                        Variable argumentType name ->
                             Variable
+                                (typeFromRequirement name |> Maybe.withDefault argumentType)
                                 (removeLeadingUnderscore name)
-                                (typeFromRequirement name
-                                    |> Maybe.withDefault argumentType
-                                )
 
                         other ->
                             other
@@ -148,10 +146,10 @@ routingToElm urlPrefix ( routeName, routing ) =
                 |> List.filterMap
                     (\chunk ->
                         case chunk of
-                            Variable name Int ->
+                            Variable Int name ->
                                 Just ( "Int", name )
 
-                            Variable name String ->
+                            Variable String name ->
                                 Just ( "String", name )
 
                             _ ->
@@ -174,10 +172,10 @@ routingToElm urlPrefix ( routeName, routing ) =
                             Constant path ->
                                 "\"" ++ path ++ "\""
 
-                            Variable name Int ->
+                            Variable Int name ->
                                 "(String.fromInt params_." ++ name ++ ")"
 
-                            Variable name String ->
+                            Variable String name ->
                                 "params_." ++ name
                     )
                 |> String.join " ++ "
