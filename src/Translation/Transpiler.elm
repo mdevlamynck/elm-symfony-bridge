@@ -503,7 +503,7 @@ chunkToString chunk =
             "params_." ++ variable
 
         VariableCount ->
-            "(String.fromInt count)"
+            "(fromInt count)"
 
 
 replaceMatches : (Char -> Bool) -> Char -> String -> String

@@ -330,7 +330,7 @@ suite =
 
                                     user_notifications : Int -> String
                                     user_notifications count =
-                                        (String.fromInt count) ++ \"\"\" notifications non lues\"\"\"
+                                        (fromInt count) ++ \"\"\" notifications non lues\"\"\"
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
@@ -387,9 +387,9 @@ suite =
                                         if count == 0 then
                                             params_.user ++ \"\"\", pas de notification\"\"\"
                                         else if count == 1 then
-                                            params_.user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notification non lue\"\"\"
+                                            params_.user ++ \"\"\", \"\"\" ++ (fromInt count) ++ \"\"\" notification non lue\"\"\"
                                         else
-                                            params_.user ++ \"\"\", \"\"\" ++ (String.fromInt count) ++ \"\"\" notifications non lues\"\"\"
+                                            params_.user ++ \"\"\", \"\"\" ++ (fromInt count) ++ \"\"\" notifications non lues\"\"\"
                                     """
                                 }
                     in
@@ -436,7 +436,7 @@ suite =
                                         else if count == 5 then
                                             \"\"\"Il y a cinq pommes\"\"\"
                                         else
-                                            \"\"\"Il y a \"\"\" ++ (String.fromInt count) ++ \"\"\" pommes\"\"\"
+                                            \"\"\"Il y a \"\"\" ++ (fromInt count) ++ \"\"\" pommes\"\"\"
                                     """
                                 }
                     in
@@ -483,7 +483,7 @@ suite =
                                         else if count == 5 then
                                             \"\"\"There are five apples\"\"\"
                                         else
-                                            \"\"\"There are \"\"\" ++ (String.fromInt count) ++ \"\"\" apples\"\"\"
+                                            \"\"\"There are \"\"\" ++ (fromInt count) ++ \"\"\" apples\"\"\"
                                     """
                                 }
                     in

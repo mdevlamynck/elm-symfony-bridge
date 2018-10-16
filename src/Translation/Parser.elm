@@ -7,11 +7,13 @@ module Translation.Parser exposing (parseTranslationContent)
 -}
 
 import Char
+import Hex
 import List.Extra as List
 import List.Unique
 import Parser exposing (..)
 import Parser.Extra exposing (chomp, oneOf)
 import Result
+import Result.Extra as Result
 import StringUtil exposing (indent)
 import Translation.Data exposing (..)
 import Unindent exposing (unindent)
@@ -251,8 +253,8 @@ variable =
             else
                 Variable (String.replace "-" "_" varName)
     in
-    backtrackable <|
-        succeed variableConstructor
+    backtrackable
+        (succeed variableConstructor
             |. symbol "%"
             |= getChompedString
                 (succeed ()
@@ -261,6 +263,27 @@ variable =
                     |. chompWhile isVariableChar
                 )
             |. symbol "%"
+            |> andThen
+                (\var ->
+                    case var of
+                        Variable varName ->
+                            let
+                                frontVarName =
+                                    varName
+                                        |> String.left 2
+                                        |> String.filter (\c -> Char.isUpper c || Char.isDigit c)
+                                        |> String.toLower
+                            in
+                            if String.length frontVarName == 2 && Result.isOk (Hex.fromString frontVarName) then
+                                problem "percent encoded (a.k.a. url encoded) value, not a variable"
+
+                            else
+                                succeed var
+
+                        _ ->
+                            succeed var
+                )
+        )
 
 
 

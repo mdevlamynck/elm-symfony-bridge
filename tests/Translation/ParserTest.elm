@@ -16,7 +16,7 @@ longString =
 suite : Test
 suite =
     describe "Parses a translation" <|
-        [ describe "Succeesfull parsing" <|
+        [ describe "Successfull parsing" <|
             [ fuzz string "Should work on any string" <|
                 \input ->
                     Expect.ok (parseTranslationContent input)
@@ -89,6 +89,22 @@ suite =
                                     , Variable "as_"
                                     , Text " "
                                     , Variable "port_"
+                                    ]
+                                )
+                    in
+                    Expect.equal expected (parseTranslationContent input)
+            , test "Do not treat percent encoded (a.k.a. url encoded) values as variables" <|
+                \_ ->
+                    let
+                        input =
+                            "%case%%20%C3%A9%case%"
+
+                        expected =
+                            Ok
+                                (SingleMessage
+                                    [ Variable "case_"
+                                    , Text "%20%C3%A9"
+                                    , Variable "case_"
                                     ]
                                 )
                     in

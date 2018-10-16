@@ -8,12 +8,12 @@ import Routing.Data exposing (ArgumentType(..), Path(..))
 
 parsePathContent : String -> Result String (List Path)
 parsePathContent input =
-    Parser.run pathP input
+    Parser.run path input
         |> Result.mapError (\_ -> "Failed to parse routing path")
 
 
-pathP : Parser (List Path)
-pathP =
+path : Parser (List Path)
+path =
     let
         merge list string =
             case list of
@@ -27,15 +27,15 @@ pathP =
         \revList ->
             oneOf
                 [ succeed (\parsed -> Loop <| Variable String parsed :: revList)
-                    |= variableP
+                    |= variable
                 , succeed (merge revList >> Loop)
                     |= getChompedString (chomp 1)
                 , succeed (Done <| List.reverse revList)
                 ]
 
 
-variableP : Parser String
-variableP =
+variable : Parser String
+variable =
     succeed identity
         |. symbol "{"
         |= (getChompedString <|
