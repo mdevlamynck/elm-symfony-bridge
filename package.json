@@ -44,7 +44,7 @@
     "elm-webpack-loader": "^5.0.0",
     "elmi-to-json": "^0.19.0",
     "path": "^0.12.7",
-    "webpack": "^3.0",
-    "webpack-cli": "^2.0.15"
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
   }
 }
