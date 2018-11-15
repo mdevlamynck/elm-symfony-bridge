@@ -5,9 +5,9 @@ module.exports = {
   entry: './src/webpack.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-	filename: 'elm-symfony-bridge.js',
-	library: 'elm-symfony-bridge',
-	libraryTarget: 'umd'
+    filename: 'elm-symfony-bridge.js',
+    library: 'elm-symfony-bridge',
+    libraryTarget: 'umd'
   },
   target: 'node',
   module: {
@@ -17,8 +17,8 @@ module.exports = {
       use: {
         loader: 'elm-webpack-loader',
         options: {
-			optimize: true
-		}
+          optimize: true
+        }
       }
     }]
   }

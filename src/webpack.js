@@ -12,13 +12,13 @@ class ElmSymfonyBridgePlugin {
         }
 
         this.dev = options.dev === true;
-        this.urlPrefix = this.ifDefined(options.urlPrefix, '/app_dev.php');
+        this.urlPrefix = this.ifDefined(options.urlPrefix, '/index.php');
         this.elmRoot = this.ifDefined(options.elmRoot, './assets/elm');
         this.elmVersion = this.ifDefined(options.elmVersion, '0.19');
         this.lang = this.ifDefined(options.lang, 'en');
         this.enableRouting = this.ifDefined(options.enableRouting, true);
         this.enableTranslations = this.ifDefined(options.enableTranslations, true);
-        this.outputFolder = this.ifDefined(options.outputFolder, 'web');
+        this.outputFolder = this.ifDefined(options.outputFolder, 'public');
 
         this.transpiler = ElmWorker.init();
         this.hasAlreadyRun = false;
