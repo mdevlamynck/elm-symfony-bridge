@@ -80,20 +80,20 @@ update message =
 -}
 decodeJsValue : Value -> Msg
 decodeJsValue =
-    Decode.decodeValue (Decode.dict (Decode.dict Decode.string))
+    Decode.decodeValue ((Decode.dict << Decode.dict) Decode.string)
         >> Result.toMaybe
         >> Maybe.andThen (Dict.toList >> List.head)
         >> Maybe.andThen
             (\( command, commandArgs ) ->
                 let
+                    urlPrefix =
+                        Dict.get "urlPrefix" commandArgs
+
                     fileName =
                         Dict.get "name" commandArgs
 
                     content =
                         Dict.get "content" commandArgs
-
-                    urlPrefix =
-                        Dict.get "urlPrefix" commandArgs
 
                     version =
                         Dict.get "version" commandArgs
@@ -132,10 +132,12 @@ encodeRoutingResult result =
     Encode.object
         [ ( "succeeded", Encode.bool <| Result.isOk result )
         , ( "type", Encode.string "routing" )
-        , result
-            |> Result.map (\content -> ( "content", Encode.string content ))
-            |> Result.mapError (\err -> ( "error", Encode.string err ))
-            |> Result.merge
+        , case result of
+            Ok content ->
+                ( "content", Encode.string content )
+
+            Err err ->
+                ( "error", Encode.string err )
         ]
 
 
@@ -146,18 +148,17 @@ encodeTranslationResult result =
     Encode.object
         [ ( "succeeded", Encode.bool <| Result.isOk result )
         , ( "type", Encode.string "translation" )
-        , result
-            |> Result.map
-                (\file ->
-                    ( "file"
-                    , Encode.object
-                        [ ( "name", Encode.string file.name )
-                        , ( "content", Encode.string file.content )
-                        ]
-                    )
+        , case result of
+            Ok file ->
+                ( "file"
+                , Encode.object
+                    [ ( "name", Encode.string file.name )
+                    , ( "content", Encode.string file.content )
+                    ]
                 )
-            |> Result.mapError (\err -> ( "error", Encode.string err ))
-            |> Result.merge
+
+            Err err ->
+                ( "error", Encode.string err )
         ]
 
 

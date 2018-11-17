@@ -136,6 +136,45 @@ suite =
                             """
                 in
                 Expect.equal expected (renderElmModule Elm_0_19 input)
+        , test "Renders case … of expressions correctly" <|
+            \_ ->
+                let
+                    input =
+                        Module "Trans.Messages"
+                            [ Function "user_account_balance"
+                                [ Primitive "Int" "choice" ]
+                                "String"
+                                (Case "choice"
+                                    [ ( "0", "\"zero\"" )
+                                    , ( "1", "\"one\"" )
+                                    ]
+                                )
+                            ]
+
+                    expected =
+                        unindent """
+                            module Trans.Messages exposing (..)
+
+
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
+                            user_account_balance : Int -> String
+                            user_account_balance choice =
+                                case choice of
+                                    "0" ->
+                                        "zero"
+
+                                    "1" ->
+                                        "one"
+
+                                    _ ->
+                                        ""
+                            """
+                in
+                Expect.equal expected (renderElmModule Elm_0_19 input)
         , test "Renders module with fromInt for 0.19" <|
             \_ ->
                 let

@@ -1,6 +1,6 @@
 module Translation.Parser exposing (parseTranslationContent)
 
-{-| Parser for a TranslationContent
+{-| Parser for a TranslationContent.
 
 @docs parseTranslationContent
 
@@ -23,7 +23,7 @@ import Unindent exposing (unindent)
 -- Public
 
 
-{-| Runs the TranslationContent parser on the given string
+{-| Runs the TranslationContent parser on the given string.
 -}
 parseTranslationContent : String -> Result String TranslationContent
 parseTranslationContent input =
@@ -35,6 +35,8 @@ parseTranslationContent input =
 ---- Domain parser
 
 
+{-| Parses a translation.
+-}
 translation : Parser TranslationContent
 translation =
     oneOf
@@ -43,6 +45,8 @@ translation =
         ]
 
 
+{-| Parses a translation containing several plural variants.
+-}
 pluralizedMessage : Parser TranslationContent
 pluralizedMessage =
     succeed PluralizedMessage
@@ -53,12 +57,16 @@ pluralizedMessage =
             }
 
 
+{-| Parses a translation containing a single not pluralized message.
+-}
 singleMessage : Parser TranslationContent
 singleMessage =
     succeed SingleMessage
         |= messageChunks
 
 
+{-| Parses a single plural variant.
+-}
 pluralMessageVariant : Parser Alternative
 pluralMessageVariant =
     succeed Alternative
@@ -66,36 +74,22 @@ pluralMessageVariant =
         |= messageChunks
 
 
+{-| Parses an AppliesTo in its interval form.
+-}
 appliesTo : Parser AppliesTo
 appliesTo =
     oneOf
-        [ appliesToInterval
-        , appliesToIndexed
-        ]
-
-
-{-| Parses an AppliesTo in its interval form
--}
-appliesToInterval : Parser AppliesTo
-appliesToInterval =
-    oneOf
         [ interval
         , listValue
+        , succeed Indexed
+            |. oneOf
+                [ label
+                , succeed ""
+                ]
         ]
 
 
-{-| Parses an AppliesTo in its indexed form
--}
-appliesToIndexed : Parser AppliesTo
-appliesToIndexed =
-    succeed Indexed
-        |. oneOf
-            [ label
-            , succeed ""
-            ]
-
-
-{-| Parses an Interval
+{-| Parses an Interval.
 -}
 interval : Parser AppliesTo
 interval =
@@ -148,7 +142,7 @@ interval =
         |= highInterval
 
 
-{-| Parses a list of Intervals as a list of values
+{-| Parses a list of Intervals as a list of values.
 -}
 listValue : Parser AppliesTo
 listValue =
@@ -176,7 +170,7 @@ listValue =
            )
 
 
-{-| Parses label
+{-| Parses label.
 -}
 label : Parser String
 label =
@@ -186,7 +180,7 @@ label =
             |. symbol ":"
 
 
-{-| Parses a message TODO
+{-| Parses a translation content.
 -}
 messageChunks : Parser (List Chunk)
 messageChunks =
@@ -238,7 +232,7 @@ messageChunks =
             )
 
 
-{-| Parses a variable of a Chunk
+{-| Parses a variable of a Chunk.
 -}
 variable : Parser Chunk
 variable =
@@ -290,14 +284,14 @@ variable =
 ---- Domain utils
 
 
-{-| Is the given Char allowed to appear in a variable
+{-| Is the given Char allowed to appear in a variable.
 -}
 isVariableChar : Char -> Bool
 isVariableChar c =
     Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_' || c == '-'
 
 
-{-| Is the given Char allowed to appear in a label
+{-| Is the given Char allowed to appear in a label.
 -}
 isLabelChar : Char -> Bool
 isLabelChar c =
@@ -308,13 +302,15 @@ isLabelChar c =
 ---- Basic parsers
 
 
-{-| Parses spaces
+{-| Parses spaces.
 -}
 spaces : Parser ()
 spaces =
     chompWhile (\c -> c == ' ')
 
 
+{-| Parses both positive and negative integers.
+-}
 integer : Parser Int
 integer =
     oneOf
@@ -329,6 +325,8 @@ integer =
 ---- Utils parsers
 
 
+{-| Parser for a list of elements containing at least two elements.
+-}
 sequenceAtLeastTwoElements :
     { item : Parser item
     , separator : Char
@@ -343,7 +341,7 @@ sequenceAtLeastTwoElements config =
                         { item = config.item
                         , separator = config.separator
                         }
-                    |. chompIf ((==) '|')
+                    |. chompIf ((==) config.separator)
                     |. config.spaces
            )
         |= lazy
@@ -356,6 +354,8 @@ sequenceAtLeastTwoElements config =
             )
 
 
+{-| Parses one element that is part of `sequenceAtLeastTwoElements`.
+-}
 itemInSequence :
     { item : Parser item
     , separator : Char
@@ -375,7 +375,7 @@ itemInSequence { item, separator } =
             )
 
 
-{-| Makes a parser fail if the given predicate is True
+{-| Makes a parser fail if the given predicate is True.
 -}
 failIf : (a -> Bool) -> Parser a -> Parser a
 failIf predicate =

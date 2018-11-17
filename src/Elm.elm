@@ -1,6 +1,7 @@
 module Elm exposing
     ( Module(..), Function(..), Arg(..), Expr(..)
     , Version(..), renderElmModule
+    , normalizeFunctionName
     )
 
 {-| Module defining a simplified AST of elm code along with a render to string function.
@@ -14,6 +15,11 @@ module Elm exposing
 # Rendering
 
 @docs Version, renderElmModule
+
+
+# Utils
+
+@docs normalizeFunctionName
 
 -}
 
@@ -68,7 +74,7 @@ renderElmModule : Version -> Module -> String
 renderElmModule version (Module name body) =
     let
         renderedBody =
-            List.map renderElmFunction (toString version :: body)
+            List.map renderElmFunction (toStringHelper version :: body)
     in
     (("module " ++ name ++ " exposing (..)") :: renderedBody)
         |> String.join "\n\n\n"
@@ -76,8 +82,8 @@ renderElmModule version (Module name body) =
 
 {-| AST of an helper function to abstract differences between elm versions on handling int to string conversions.
 -}
-toString : Version -> Function
-toString version =
+toStringHelper : Version -> Function
+toStringHelper version =
     Function "fromInt" [ Primitive "Int" "int" ] "String" <|
         case version of
             Elm_0_18 ->
@@ -127,7 +133,7 @@ renderElmType arg =
             "{ " ++ renderTypes types ++ " }"
 
 
-{-| Renders a parameter name to string, intended to be used when rendering a functions arguments.
+{-| Renders a parameter name to string, intended to be used when rendering a function's arguments.
 -}
 renderElmParam : Arg -> String
 renderElmParam arg =
@@ -146,6 +152,7 @@ renderElmExpr expr =
     case expr of
         Ifs alternatives ->
             case alternatives of
+                -- Don't render condition when there is only one branch
                 [ ( Expr cond, Expr subExpr ) ] ->
                     subExpr
 
@@ -212,4 +219,28 @@ Used to render the behaviour of keyname not found when doing a translation.
 renderElmCaseWildcardVariant : String
 renderElmCaseWildcardVariant =
     "_ ->\n"
-        ++ indent "Debug.log (\"Keyname not found: \" ++ keyname) \"\""
+        ++ indent "\"\""
+
+
+{-| Replaces foribidden characters in an elm function name with `_`.
+-}
+normalizeFunctionName : String -> String
+normalizeFunctionName =
+    replaceMatches (\c -> not (Char.isUpper c || Char.isLower c || Char.isDigit c)) '_'
+        >> String.toLower
+
+
+{-| Replaces characters matching predicate with the given character.
+-}
+replaceMatches : (Char -> Bool) -> Char -> String -> String
+replaceMatches predicate replacement =
+    String.toList
+        >> List.map
+            (\c ->
+                if predicate c then
+                    replacement
+
+                else
+                    c
+            )
+        >> String.fromList

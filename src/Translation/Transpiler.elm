@@ -1,7 +1,6 @@
 module Translation.Transpiler exposing (transpileToElm, Command, File)
 
-{-| Converts a JSON containing translations from Symfony
-and turn them into an elm file.
+{-| Converts a JSON containing translations from Symfony and turn them into an elm file.
 
 @docs transpileToElm, Command, File
 
@@ -11,7 +10,7 @@ import Char
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import Elm exposing (..)
-import Json.Decode as Decode exposing (decodeString, dict, errorToString, list, null, oneOf, string, value)
+import Json.Decode as Decode exposing (decodeString, dict, errorToString, list, null, oneOf, string, succeed, value)
 import List.Unique
 import Result
 import Result.Extra as Result
@@ -20,6 +19,8 @@ import Translation.Data exposing (..)
 import Translation.Parser as Parser
 
 
+{-| Parameters to the transpile command.
+-}
 type alias Command =
     { name : String
     , content : String
@@ -27,7 +28,7 @@ type alias Command =
     }
 
 
-{-| Represents a file
+{-| Represents a file.
 -}
 type alias File =
     { name : String
@@ -35,7 +36,7 @@ type alias File =
     }
 
 
-{-| Converts a JSON containing translations to an Elm file
+{-| Converts a JSON containing translations to an Elm file.
 -}
 transpileToElm : Command -> Result String File
 transpileToElm command =
@@ -45,7 +46,7 @@ transpileToElm command =
         |> Result.map (convertToElm command.version)
 
 
-{-| Represents the content of a JSON translation file
+{-| Represents the content of a JSON translation file.
 -}
 type alias JsonTranslationDomain =
     { lang : String
@@ -54,7 +55,7 @@ type alias JsonTranslationDomain =
     }
 
 
-{-| A parsed translation file
+{-| A parsed translation file.
 -}
 type alias TranslationDomain =
     { lang : String
@@ -63,21 +64,16 @@ type alias TranslationDomain =
     }
 
 
-{-| Extracts from the given JSON the domain and the translations
+{-| Extracts from the given JSON the domain and the translations.
 -}
 readJsonContent : String -> Result String JsonTranslationDomain
 readJsonContent =
     decodeString
-        (dict
-            (dict
-                (dict
-                    (oneOf
-                        [ dict (oneOf [ string, null "" ])
-                        , list value |> Decode.map (\_ -> Dict.empty)
-                        ]
-                    )
-                )
-            )
+        ((dict << dict << dict << oneOf)
+            [ dict (oneOf [ string, null "" ])
+            , -- Empty translations are allowed
+              succeed Dict.empty
+            ]
         )
         >> Result.mapError errorToString
         >> Result.andThen
@@ -96,13 +92,13 @@ readJsonContent =
             )
 
 
-{-| Parses the translations into use usable type
+{-| Parses the translations into use usable type.
 -}
 parseTranslationDomain : JsonTranslationDomain -> Result String TranslationDomain
 parseTranslationDomain { lang, domain, translations } =
     translations
         |> Dict.toList
-        |> List.map normalizeTranslationNames
+        |> List.map (\( name, translation ) -> ( normalizeFunctionName name, translation ))
         |> deduplicateKeys
         |> List.map parseTranslation
         |> Result.combine
@@ -115,41 +111,55 @@ parseTranslationDomain { lang, domain, translations } =
             )
 
 
+{-| Creates all extra keyname translation functions.
+-}
 keynameTranslations : List Translation -> List Translation
 keynameTranslations translations =
     translations
-        |> Dict.filterGroupBy groupByKeyname
+        |> groupByKeyname
         |> Dict.toList
         |> List.map createAKeynameTranslation
 
 
-groupByKeyname : Translation -> Maybe String
-groupByKeyname { name, variables, content } =
-    let
-        base =
-            String.leftOfBack "_keyname_" name
+{-| Groups together functions with a common same name from the beginning up to `_keyname_`.
+Filters out functions not containing `_keyname_` in their name.
+-}
+groupByKeyname : List Translation -> Dict String (List Translation)
+groupByKeyname =
+    Dict.filterGroupBy <|
+        \{ name, variables } ->
+            let
+                base =
+                    String.leftOfBack "_keyname_" name
 
-        keyname =
-            String.rightOfBack "_keyname_" name
+                keyname =
+                    String.rightOfBack "_keyname_" name
 
-        isKeynameCorrect =
-            keyname /= "" && (keyname |> not << String.contains ".")
-    in
-    if isKeynameCorrect && List.isEmpty variables then
-        Just (base ++ "_keyname")
+                isKeynameCorrect =
+                    keyname /= "" && (keyname |> not << String.contains ".")
+            in
+            if isKeynameCorrect && List.isEmpty variables then
+                Just (base ++ "_keyname")
 
-    else
-        Nothing
+            else
+                Nothing
 
 
+{-| Creates a translation function delegating to existing translation,
+choosing the correct on based on a keyname parameter.
+-}
 createAKeynameTranslation : ( String, List Translation ) -> Translation
-createAKeynameTranslation ( base, translations ) =
-    Translation base
+createAKeynameTranslation ( baseName, translations ) =
+    Translation baseName
         []
-        (Keyname <| List.map (\t -> ( String.rightOfBack "_keyname_" t.name, t.name )) translations)
+        (Keyname <|
+            List.map
+                (\{ name } -> ( String.rightOfBack "_keyname_" name, name ))
+                translations
+        )
 
 
-{-| Turns a TranslationDomain into its elm representation
+{-| Turns a TranslationDomain into its elm representation.
 -}
 convertToElm : Version -> TranslationDomain -> File
 convertToElm version { lang, domain, translations } =
@@ -161,16 +171,7 @@ convertToElm version { lang, domain, translations } =
     }
 
 
-normalizeTranslationNames : ( String, String ) -> ( String, String )
-normalizeTranslationNames ( name, translation ) =
-    ( name
-        |> replaceMatches (\c -> not (Char.isUpper c || Char.isLower c || Char.isDigit c)) '_'
-        |> String.toLower
-    , translation
-    )
-
-
-{-| Parses the raw translation into a Translation
+{-| Parses the raw translation into a Translation.
 -}
 parseTranslation : ( String, String ) -> Result String Translation
 parseTranslation ( name, message ) =
@@ -184,7 +185,7 @@ parseTranslation ( name, message ) =
             )
 
 
-{-| Format the name of a translation to match elm rules on function name
+{-| Formats the name of a translation to match elm rules on function name.
 -}
 formatName : String -> String
 formatName name =
@@ -202,7 +203,7 @@ formatName name =
         |> String.fromList
 
 
-{-| Extracts the list of variables used in the TranslationContent
+{-| Extracts the list of variables used in the TranslationContent.
 -}
 extractVariables : TranslationContent -> List String
 extractVariables translationContent =
@@ -232,7 +233,7 @@ extractVariables translationContent =
         |> List.Unique.filterDuplicates
 
 
-{-| Turns a translation into an elm function
+{-| Turns a translation into an elm function.
 -}
 translationToElm : String -> Translation -> Function
 translationToElm lang translation =
@@ -267,7 +268,7 @@ translationToElm lang translation =
     Function translation.name arguments "String" (translationContentToElm lang translation.content)
 
 
-{-| Does a TranslationContent contains a `count` variable
+{-| Does a TranslationContent contains a `count` variable?
 -}
 hasCountVariable : TranslationContent -> Bool
 hasCountVariable translationContent =
@@ -283,7 +284,7 @@ hasCountVariable translationContent =
             False
 
 
-{-| Does a TranslationContent contains a `keyname` variable
+{-| Does a TranslationContent contains a `keyname` variable?
 -}
 hasKeynameVariable : TranslationContent -> Bool
 hasKeynameVariable translationContent =
@@ -295,7 +296,7 @@ hasKeynameVariable translationContent =
             False
 
 
-{-| Turns a TranslationContent into the body of an elm function
+{-| Turns a TranslationContent into the body of an elm function.
 -}
 translationContentToElm : String -> TranslationContent -> Expr
 translationContentToElm lang translationContent =
@@ -304,19 +305,14 @@ translationContentToElm lang translationContent =
             Expr (combineChunks chunks)
 
         PluralizedMessage alternatives ->
-            Ifs (alternativesToElm lang alternatives)
+            Ifs
+                (alternatives
+                    |> List.foldl alternativeToElm ( indexedConditions lang, [] )
+                    |> Tuple.second
+                )
 
         Keyname variants ->
             Case "keyname" variants
-
-
-alternativesToElm : String -> List Alternative -> List ( Expr, Expr )
-alternativesToElm lang alternatives =
-    alternatives
-        |> List.foldl
-            alternativeToElm
-            ( indexedConditions lang, [] )
-        |> Tuple.second
 
 
 {-| Indexed variant application conditions depending on the lang.
@@ -375,6 +371,8 @@ indexedConditions lang =
         [ Expr "True" ]
 
 
+{-| Turns a pluralization variant into an elm expression.
+-}
 alternativeToElm : Alternative -> ( List Expr, List ( Expr, Expr ) ) -> ( List Expr, List ( Expr, Expr ) )
 alternativeToElm { appliesTo, chunks } ( indexedCondition, content ) =
     case appliesTo of
@@ -396,7 +394,7 @@ alternativeToElm { appliesTo, chunks } ( indexedCondition, content ) =
                     )
 
 
-{-| Turns a list of Intervals into an elm expression usable in a if
+{-| Turns a list of Intervals into an elm expression usable in a if.
 -}
 combineIntervals : List Interval -> String
 combineIntervals intervals =
@@ -414,7 +412,7 @@ combineIntervals intervals =
             "(" ++ conditions ++ ")"
 
 
-{-| Turns a Interval into an elm expression usable in a if
+{-| Turns a Interval into an elm expression usable in a if.
 -}
 intervalToCondExpr : Interval -> String
 intervalToCondExpr interval =
@@ -470,7 +468,7 @@ intervalToCondExpr interval =
             "True"
 
 
-{-| Turns a list of Chunks into an elm expression usable in the body of a function
+{-| Turns a list of Chunks into an elm expression usable in the body of a function.
 -}
 combineChunks : List Chunk -> String
 combineChunks list =
@@ -487,7 +485,7 @@ combineChunks list =
         string
 
 
-{-| Turns a Chunk into an elm expression usable in the body of a function
+{-| Turns a Chunk into an elm expression usable in the body of a function.
 -}
 chunkToString : Chunk -> String
 chunkToString chunk =
@@ -506,25 +504,15 @@ chunkToString chunk =
             "(fromInt count)"
 
 
-replaceMatches : (Char -> Bool) -> Char -> String -> String
-replaceMatches predicate replacement =
-    String.toList
-        >> List.map
-            (\c ->
-                if predicate c then
-                    replacement
-
-                else
-                    c
-            )
-        >> String.fromList
-
-
+{-| Returns the first element.
+-}
 dictFirst : Dict comparable value -> Maybe ( comparable, value )
 dictFirst =
     Dict.toList >> List.head
 
 
+{-| Removes duplicate keys.
+-}
 deduplicateKeys : List ( String, a ) -> List ( String, a )
 deduplicateKeys =
     Dict.fromList >> Dict.toList

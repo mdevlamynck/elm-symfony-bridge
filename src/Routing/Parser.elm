@@ -1,18 +1,32 @@
-module Routing.Parser exposing (parsePathContent)
+module Routing.Parser exposing (parseRoutingContent)
+
+{-| Parser for a Routing.
+
+@docs parseRoutingContent
+
+-}
 
 import Char
 import Parser exposing (..)
 import Parser.Extra exposing (chomp)
-import Routing.Data exposing (ArgumentType(..), Path(..))
+import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
 
 
-parsePathContent : String -> Result String (List Path)
-parsePathContent input =
+{-| Runs the Routing parser on the given string.
+-}
+parseRoutingContent : String -> Result String Routing
+parseRoutingContent input =
     Parser.run path input
         |> Result.mapError (\_ -> "Failed to parse routing path")
 
 
-path : Parser (List Path)
+{-| Parses a Routing.
+
+Parses one variable at a time or one character of text at a time.
+Then contatenates together neighboring text to simplify output.
+
+-}
+path : Parser Routing
 path =
     let
         merge list string =
@@ -34,18 +48,22 @@ path =
                 ]
 
 
+{-| Parses a variable like '{id}'. At least one character in the variable name.
+-}
 variable : Parser String
 variable =
     succeed identity
         |. symbol "{"
         |= (getChompedString <|
                 succeed ()
-                    |. chompIf isIdentifierChar
-                    |. chompWhile isIdentifierChar
+                    |. chompIf isVariableChar
+                    |. chompWhile isVariableChar
            )
         |. symbol "}"
 
 
-isIdentifierChar : Char -> Bool
-isIdentifierChar c =
+{-| Is the character allowed to appear in a variable.
+-}
+isVariableChar : Char -> Bool
+isVariableChar c =
     Char.isLower c || Char.isUpper c || Char.isDigit c || c == '_'

@@ -58,7 +58,7 @@ Encore
         dev: !Encore.isProduction(),    // Required: use symfony's env=dev or env=prod
         elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to '/assets/elm'
         elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
-        urlPrefix: '/index.php',        // Optional: when dev is true which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses 'index.php', symfony < 4 'app_dev.php')
+        urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses 'index.php', symfony < 4 'app_dev.php')
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
         enableRouting: true,            // Optional: enable generating routes, defaults to true
         enableTranslations: true,       // Optional: enable generating translations, defaults to true
@@ -162,6 +162,13 @@ form:
 notifications:
     new_messages: "You have one new message.|You have %count% new messages."
     new_messages_from: "You have one new message from %friend_username%.|You have %count% new messages from %friend_username%."
+
+user_status:
+    keyname:
+        connected: "Connected"
+        away: "Away"
+        do_not_disturb: "Do not disturb"
+        disconnected: "Disconnected"
 ```
 
 You can use them in elm like this:
@@ -204,13 +211,27 @@ newMessagesView : Int -> String -> Html msg
 newMessagesView nbNewMessages friendName =
     div []
         [ text (Trans.notifications_new_messages nbNewMessages { friend_username = friendName }) ]
+
+
+-- Keyname translation
+userStatusView :  Maybe User -> Html msg
+userStatusView user =
+    case user of
+        Just { status } -> 
+            div []
+                [ text (Trans.user_status_keyname status) ]
+        Nothing -> 
+            div []
+                [ text Trans.user_status_keyname_disconnected ]
 ```
 
 As you can see, for each translation a function is created, named after the translation path in the yaml. So `form.signup.username` becomes `form_signup_username`. Only letters, numbers and `_` will appear in the function name, any other character will be replaced with a `_`.
 
 Variables are also supported. A variable name must be enclosed in `%` to distinguish it from the rest of the text. You will have to provide a `String` value for each variable in a record. There is a special case for the variable `%count%`. If it is present, you will have to pass an `Int` as the first argument of the translation function instead of passing it in a record.
 
-Finally, it supports variants to handle plural rules. The special variable `%count%` is used to choose the correct variant. See the [symfony documentation on pluralization](https://symfony.com/doc/current/components/translation/usage.html#pluralization) for more details on pluralization.
+It also supports variants to handle plural rules. The special variable `%count%` is used to choose the correct variant. See the [symfony documentation on pluralization](https://symfony.com/doc/current/components/translation/usage.html#pluralization) for more details on pluralization.
+
+Finally if there is a `keyname` in the translation path, an extra function is created accepting a keyname variable to choose the translation. This is for convenience and should be used with care, if the keyname does not match any translation the function returns an empty string.
 
 ## Versioning
 
