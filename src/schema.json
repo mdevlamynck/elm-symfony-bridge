@@ -1,0 +1,47 @@
+{
+  "required": ["dev"],
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "dev": {
+      "type": "boolean",
+      "description": "use symfony's env=dev or env=prod"
+    },
+    "outputFolder": {
+      "type": "string",
+      "description": "set the folder where content is generated",
+      "default": "public"
+    },
+    "elmRoot": {
+      "type": "string",
+      "description": "root folder of your elm code",
+      "default": "./assets/elm"
+    },
+    "elmVersion": {
+      "type": "string",
+      "enum": ["0.19", "0.18"],
+      "description": "elm version the generated code should be compatible with",
+      "default": "0.19"
+    },
+    "enableRouting": {
+      "type": "boolean",
+      "description": "enable generating routes",
+      "default": true
+    },
+    "lang": {
+      "type": "string",
+      "description": "lang to use when exporting translations",
+      "default": "en"
+    },
+    "enableTranslations": {
+      "type": "boolean",
+      "description": "enable generating translations",
+      "default": true
+    },
+    "urlPrefix": {
+      "type": "string",
+      "description": "when dev is true, which prefix to use when generating urls",
+      "default": "/index.php"
+    }
+  }
+}

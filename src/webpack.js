@@ -3,22 +3,14 @@ const fs = require('fs');
 const mkdirp = require('mkdirp');
 const path = require('path');
 const glob = require('glob');
+const validateOptions = require('schema-utils');
+const schema = require('./schema.json');
 const ElmWorker = require('./Main.elm').Elm.Main;
 
 class ElmSymfonyBridgePlugin {
     constructor(options) {
-        if (typeof options.dev === 'undefined') {
-            throw new Error('You must configure the dev option, it must be true when building for the dev env and false when building for the prod env');
-        }
-
-        this.dev = options.dev === true;
-        this.urlPrefix = this.ifDefined(options.urlPrefix, '/index.php');
-        this.elmRoot = this.ifDefined(options.elmRoot, './assets/elm');
-        this.elmVersion = this.ifDefined(options.elmVersion, '0.19');
-        this.lang = this.ifDefined(options.lang, 'en');
-        this.enableRouting = this.ifDefined(options.enableRouting, true);
-        this.enableTranslations = this.ifDefined(options.enableTranslations, true);
-        this.outputFolder = this.ifDefined(options.outputFolder, 'public');
+        validateOptions(schema, options, 'elm-symfony-bridge');
+        this.options = options;
 
         this.transpiler = ElmWorker.init();
         this.hasAlreadyRun = false;
@@ -57,13 +49,13 @@ class ElmSymfonyBridgePlugin {
     }
 
     transpileRouting (callback) {
-        if (this.enableRouting) {
+        if (this.options.enableRouting) {
             const content = this.runSymfonyCommand('debug:router --format=json');
 
             const that = this;
             const elmSubscribtion = function (data) {
                 that.onSuccess("routing", data, function() {
-                    that.writeIfChanged(that.elmRoot + '/Routing.elm', data.content);
+                    that.writeIfChanged(that.options.elmRoot + '/Routing.elm', data.content);
                 });
 
                 that.transpiler.ports.sendToJs.unsubscribe(elmSubscribtion);
@@ -73,9 +65,9 @@ class ElmSymfonyBridgePlugin {
             this.transpiler.ports.sendToJs.subscribe(elmSubscribtion);
             this.transpiler.ports.sendToElm.send({
                 routing: {
-                    urlPrefix: this.dev ? this.urlPrefix : '',
+                    urlPrefix: this.options.dev ? this.options.urlPrefix : '',
                     content: content,
-                    version: this.elmVersion
+                    version: this.options.elmVersion
                 }
             });
         } else {
@@ -84,17 +76,17 @@ class ElmSymfonyBridgePlugin {
     }
 
     transpileTranslations(callback) {
-        if (this.enableTranslations) {
-            this.runSymfonyCommand('bazinga:js-translation:dump ' + this.outputFolder + '/js');
+        if (this.options.enableTranslations) {
+            this.runSymfonyCommand('bazinga:js-translation:dump ' + this.options.outputFolder + '/js');
 
-            const files = glob.sync('./' + this.outputFolder + '/js/translations/*/' + this.lang + '.json');
+            const files = glob.sync('./' + this.options.outputFolder + '/js/translations/*/' + this.options.lang + '.json');
             let remainingTranslations = files.length;
 
             const that = this;
             const elmSubscribtion = function (data) {
                 that.onSuccess("translation", data, function() {
-                    that.makeDir(that.elmRoot + '/Trans');
-                    that.writeIfChanged(that.elmRoot + '/' + data.file.name, data.file.content);
+                    that.makeDir(that.options.elmRoot + '/Trans');
+                    that.writeIfChanged(that.options.elmRoot + '/' + data.file.name, data.file.content);
                 });
 
                 remainingTranslations--;
@@ -111,7 +103,7 @@ class ElmSymfonyBridgePlugin {
                     translation: {
                         name: file,
                         content: content,
-                        version: this.elmVersion
+                        version: this.options.elmVersion
                     }
                 });
             });
@@ -153,10 +145,6 @@ class ElmSymfonyBridgePlugin {
         }
     }
 
-    ifDefined(value, defaultValue) {
-        return (typeof value !== 'undefined' && value !== null) ? value : defaultValue;
-    }
-
     onSuccess(type, data, callback) {
         if (data.type === type && data.succeeded === true) {
             callback();
@@ -168,7 +156,10 @@ class ElmSymfonyBridgePlugin {
     }
 
     runSymfonyCommand(command) {
-        return execSync('./bin/console ' + command + ' --env=' + (this.dev ? 'dev' : 'prod'), {encoding: 'utf8'});
+        return execSync(
+            './bin/console ' + command + ' --env=' + (this.options.dev ? 'dev' : 'prod'),
+            {encoding: 'utf8'}
+        );
     }
 }
 

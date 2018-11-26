@@ -1,4 +1,4 @@
 {
-	"root": "../src",
-	"tests": ["StringUtil", "Unindent"]
+    "root": "../src",
+    "tests": ["StringUtil", "Unindent"]
 }
