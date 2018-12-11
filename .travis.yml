@@ -2,6 +2,12 @@ language: elm
 elm:
     - "0.19.0"
 
+branches:
+    only:
+        - staging
+        - trying
+        - master
+
 script:
   - npm run build
   - elm-format --validate .
