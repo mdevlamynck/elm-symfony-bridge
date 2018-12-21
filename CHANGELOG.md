@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+Bug fixes:
+  * Translations json parser is now more lenient by allowing non strings messages. Integer, float, and boolean are converted to string, null, array and object are replaced with an empty string.
+
 ## 1.0.0
 
 New features:
