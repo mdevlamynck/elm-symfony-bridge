@@ -225,6 +225,64 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
+            , test "Invalid translations are ignored and don't make the parser fail" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "array": [42, 3.14, null],
+                                                    "object": { "invalid": "invalid", "number": 42 },
+                                                    "null": null,
+                                                    "valid": "valid"
+                                                }
+                                            }
+                                        }
+                                    }
+                                    """
+                            , version = Elm_0_19
+                            }
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
+
+
+                                    array : String
+                                    array =
+                                        ""
+
+
+                                    null : String
+                                    null =
+                                        ""
+
+
+                                    object : String
+                                    object =
+                                        ""
+
+
+                                    valid : String
+                                    valid =
+                                        \"\"\"valid\"\"\"
+                                    """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
             , test "Works with translation name containing numbers" <|
                 \_ ->
                     let
