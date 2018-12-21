@@ -167,6 +167,64 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
+            , test "Works with translations containing a non string message" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "boolean_false": false,
+                                                    "boolean_true": true,
+                                                    "float": 3.14,
+                                                    "integer": 42
+                                                }
+                                            }
+                                        }
+                                    }
+                                    """
+                            , version = Elm_0_19
+                            }
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
+
+
+                                    boolean_false : String
+                                    boolean_false =
+                                        \"\"\"false\"\"\"
+
+
+                                    boolean_true : String
+                                    boolean_true =
+                                        \"\"\"true\"\"\"
+
+
+                                    float : String
+                                    float =
+                                        \"\"\"3.14\"\"\"
+
+
+                                    integer : String
+                                    integer =
+                                        \"\"\"42\"\"\"
+                                    """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
             , test "Works with translation name containing numbers" <|
                 \_ ->
                     let
