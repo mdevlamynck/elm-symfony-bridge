@@ -10,6 +10,6 @@ branches:
 
 script:
   - npm run build
-  - elm-format --validate .
-  - elm-test --verbose
-  - elm-verify-examples --elm-test-args="--verbose"
+  - npm run ci-format
+  - npm run ci-test
+  - npm run ci-test-examples

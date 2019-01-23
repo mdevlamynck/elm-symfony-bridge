@@ -23,8 +23,11 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "./node_modules/.bin/webpack",
-    "test": "./node_modules/.bin/elm-test"
+    "build": "webpack",
+    "test": "elm-test",
+    "ci-format": "elm-format --validate .",
+    "ci-test": "elm-test --verbose",
+    "ci-test-examples": "elm-verify-examples --elm-test-args=\"--verbose\""
   },
   "repository": {
     "type": "git",
@@ -37,17 +40,17 @@
     "node": ">=6.11.5"
   },
   "dependencies": {
-    "glob": "^7.1.2"
+    "glob": "^7.1.3"
   },
   "devDependencies": {
-    "elm": "^0.19.0-bugfix2",
+    "elm": "^0.19.0-bugfix6",
     "elm-format": "^0.8.1",
-    "elm-test": "^0.19.0-beta10",
+    "elm-test": "^0.19.0-rev4",
     "elm-verify-examples": "^3.0.1",
     "elm-webpack-loader": "^5.0.0",
-    "elmi-to-json": "^0.19.0",
+    "elmi-to-json": "^0.19.1",
     "path": "^0.12.7",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2"
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1"
   }
 }
