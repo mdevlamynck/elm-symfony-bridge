@@ -18,7 +18,7 @@ class ElmSymfonyBridgePlugin {
 
     apply(compiler) {
         // Run symfony dumps commands at the beginning of every compilation
-        compiler.plugin('before-compile', (compilationParameters, callback) => {
+        var beforeCompile = (compilationParameters, callback) => {
             if (this.hasAlreadyRun) {
                 callback();
                 return;
@@ -30,22 +30,35 @@ class ElmSymfonyBridgePlugin {
             this.transpileRouting(function () {
                 that.transpileTranslations(callback);
             });
-        });
+        };
 
         // Trigger recompilation via watching symfony files
         // Only needed to be enabled after the first compilation
-        compiler.plugin('after-compile', (compilation, callback) => {
+        var afterCompile = (compilation, callback) => {
             this.hasAlreadyRun = false;
 
             let dirs = compilation.contextDependencies;
 
-            this.arrayAddIfNotPresent(dirs, 'src');
-            this.arrayAddIfNotPresent(dirs, 'app');
+            if (typeof dirs !== 'undefined') {
+                this.arrayAddIfNotPresent(dirs, 'src');
+                this.arrayAddIfNotPresent(dirs, 'app');
 
-            compilation.contextDependencies = dirs;
+                compilation.contextDependencies = dirs;
+            }
 
             callback();
-        });
+        };
+
+        // Webpack 4.x
+        if (typeof compiler.hooks !== 'undefined') {
+            compiler.hooks.beforeCompile.tapAsync('ElmSymfonyBridgePlugin', beforeCompile);
+            compiler.hooks.beforeCompile.tapAsync('ElmSymfonyBridgePlugin', afterCompile);
+        }
+        // Webpack 3.x
+        else {
+            compiler.plugin('before-compile', beforeCompile);
+            compiler.plugin('after-compile', afterCompile);
+        }
     }
 
     transpileRouting (callback) {
@@ -140,7 +153,13 @@ class ElmSymfonyBridgePlugin {
     }
 
     arrayAddIfNotPresent(array, value) {
-        if (!array.includes(value)) {
+        // Webpack 4.x
+        if (typeof array.add !== 'undefined') {
+            // This is actually a Set in webpack 4 so we don't need check the presence of `value` in `array`.
+            array.add(value);
+        }
+        // Webpack 3.x
+        else if (!array.includes(value)) {
             array.push(value);
         }
     }
