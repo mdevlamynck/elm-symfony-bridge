@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+Bug fixes:
+  * Add support for webpack 4.x. We now support both webpack 3.x and 4.x.
+
 ## 1.0.1
 
 Bug fixes:
