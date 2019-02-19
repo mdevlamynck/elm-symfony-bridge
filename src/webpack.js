@@ -52,7 +52,7 @@ class ElmSymfonyBridgePlugin {
         // Webpack 4.x
         if (typeof compiler.hooks !== 'undefined') {
             compiler.hooks.beforeCompile.tapAsync('ElmSymfonyBridgePlugin', beforeCompile);
-            compiler.hooks.beforeCompile.tapAsync('ElmSymfonyBridgePlugin', afterCompile);
+            compiler.hooks.afterCompile.tapAsync('ElmSymfonyBridgePlugin', afterCompile);
         }
         // Webpack 3.x
         else {
