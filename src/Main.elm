@@ -28,8 +28,7 @@ main =
             \msg _ ->
                 msg
                     |> update
-                    |> Maybe.map sendToJs
-                    |> Maybe.withDefault Cmd.none
+                    |> sendToJs
                     |> (\cmd -> ( (), cmd ))
         , subscriptions = always <| sendToElm decodeJsValue
         }
@@ -55,25 +54,26 @@ type Msg
 
 {-| Run received commands.
 -}
-update : Msg -> Maybe Value
+update : Msg -> Value
 update message =
     case message of
         NoOp ->
-            Nothing
+            Encode.object
+                [ ( "succeeded", Encode.bool False )
+                , ( "error", Encode.string "Invalid command" )
+                ]
 
         TranspileRouting routing ->
             routing
                 |> Routing.transpileToElm
                 |> formatResult "Routing"
                 |> encodeRoutingResult
-                |> Just
 
         TranspileTranslation translation ->
             translation
                 |> Translation.transpileToElm
                 |> formatResult translation.name
                 |> encodeTranslationResult
-                |> Just
 
 
 {-| Decode json commands.
