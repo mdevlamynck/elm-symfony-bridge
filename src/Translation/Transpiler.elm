@@ -163,7 +163,7 @@ groupByKeyname =
 
 
 {-| Creates a translation function delegating to existing translation,
-choosing the correct on based on a keyname parameter.
+choosing the correct one based on a keyname parameter.
 -}
 createAKeynameTranslation : ( String, List Translation ) -> Translation
 createAKeynameTranslation ( baseName, translations ) =
@@ -195,29 +195,11 @@ parseTranslation ( name, message ) =
     Parser.parseTranslationContent message
         |> Result.map
             (\translationContent ->
-                { name = formatName name
+                { name = name
                 , variables = extractVariables translationContent
                 , content = translationContent
                 }
             )
-
-
-{-| Formats the name of a translation to match elm rules on function name.
--}
-formatName : String -> String
-formatName name =
-    let
-        convertChar c =
-            if Char.isLower c || Char.isUpper c || Char.isDigit c then
-                Char.toLower c
-
-            else
-                '_'
-    in
-    name
-        |> String.toList
-        |> List.map convertChar
-        |> String.fromList
 
 
 {-| Extracts the list of variables used in the TranslationContent.

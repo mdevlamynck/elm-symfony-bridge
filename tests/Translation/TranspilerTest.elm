@@ -410,6 +410,52 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
+            , test "Invalid function names are prefixed to avoid compilation errors" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "messages": {
+                                                    "__name__label__": "__name__label__",
+                                                    "9things": "9things"
+                                                }
+                                            }
+                                        }
+                                    }
+                                    """
+                            , version = Elm_0_19
+                            }
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                    module Trans.Messages exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
+
+
+                                    f_9things : String
+                                    f_9things =
+                                        \"\"\"9things\"\"\"
+
+
+                                    f__name__label__ : String
+                                    f__name__label__ =
+                                        \"\"\"__name__label__\"\"\"
+                                    """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
             , test "Works with translations containing variables" <|
                 \_ ->
                     let

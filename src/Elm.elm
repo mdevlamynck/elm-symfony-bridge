@@ -222,12 +222,30 @@ renderElmCaseWildcardVariant =
         ++ indent "\"\""
 
 
-{-| Replaces foribidden characters in an elm function name with `_`.
+{-| Formats a string to match elm rules on function name.
 -}
 normalizeFunctionName : String -> String
 normalizeFunctionName =
-    replaceMatches (\c -> not (Char.isUpper c || Char.isLower c || Char.isDigit c)) '_'
-        >> String.toLower
+    String.toLower
+        >> replaceMatches (\c -> not (Char.isLower c || Char.isDigit c)) '_'
+        >> (\name ->
+                let
+                    needsPrefix =
+                        name
+                            |> String.toList
+                            |> List.head
+                            |> Maybe.map Char.isDigit
+                            |> Maybe.withDefault True
+                in
+                if needsPrefix then
+                    "f_" ++ name
+
+                else if String.startsWith "_" name then
+                    "f" ++ name
+
+                else
+                    name
+           )
 
 
 {-| Replaces characters matching predicate with the given character.

@@ -154,7 +154,7 @@ suite =
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
-                , test "Ignores routes starting with an underscore" <|
+                , test "Invalid function names are prefixed to avoid compilation errors" <|
                     \_ ->
                         let
                             input =
@@ -162,6 +162,10 @@ suite =
                                 , content =
                                     unindent """
                                         {
+                                            "9things": {
+                                                "path": "/home",
+                                                "requirements": "NO CUSTOM"
+                                            },
                                             "_ignored_route": {
                                                 "path": "/home",
                                                 "requirements": "NO CUSTOM"
@@ -188,6 +192,16 @@ suite =
 
                                     app_front_home : String
                                     app_front_home =
+                                        "" ++ "/home"
+
+
+                                    f_9things : String
+                                    f_9things =
+                                        "" ++ "/home"
+
+
+                                    f_ignored_route : String
+                                    f_ignored_route =
                                         "" ++ "/home"
                                     """
                         in

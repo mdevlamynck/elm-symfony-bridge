@@ -79,11 +79,7 @@ parseRouting routings =
                     |> Result.map (\routing -> ( normalizeFunctionName key, routing ))
             )
         |> Result.combine
-        |> Result.map
-            (Dict.fromList
-                -- routes with a leading `_` are ignored
-                >> Dict.filter (\key value -> not (String.startsWith "_" key))
-            )
+        |> Result.map Dict.fromList
 
 
 {-| Turns one json route into our internal representation.
