@@ -12,13 +12,13 @@ class ElmSymfonyBridgePlugin {
         validateOptions(schema, options, 'elm-symfony-bridge');
 
         this.options = options;
-		this.setDefaultValueIfAbsent('outputFolder', 'public');
-		this.setDefaultValueIfAbsent('elmRoot', './assets/elm');
-		this.setDefaultValueIfAbsent('elmVersion', '0.19');
-		this.setDefaultValueIfAbsent('enableRouting', true);
-		this.setDefaultValueIfAbsent('lang', 'en');
-		this.setDefaultValueIfAbsent('enableTranslations', true);
-		this.setDefaultValueIfAbsent('urlPrefix', '/index.php');
+		this.setDefaultValueIfAbsent(options, 'outputFolder', 'public');
+		this.setDefaultValueIfAbsent(options, 'elmRoot', './assets/elm');
+		this.setDefaultValueIfAbsent(options, 'elmVersion', '0.19');
+		this.setDefaultValueIfAbsent(options, 'enableRouting', true);
+		this.setDefaultValueIfAbsent(options, 'lang', 'en');
+		this.setDefaultValueIfAbsent(options, 'enableTranslations', true);
+		this.setDefaultValueIfAbsent(options, 'urlPrefix', '/index.php');
 
         this.transpiler = ElmWorker.init();
         this.hasAlreadyRun = false;
@@ -134,7 +134,10 @@ class ElmSymfonyBridgePlugin {
     }
 
 	setDefaultValueIfAbsent(options, key, value) {
-		options[key] = options[key] ? value;
+		var actualValue = options[key];
+		if (actualValue === null || typeof actualValue === 'undefined') {
+			options[key] = value;
+		}
 	}
 
     makeDir(dir) {
