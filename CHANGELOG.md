@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+Bug fixes:
+  * Set default values for undefined options (required by more recent versions of schema-utils).
+  * Avoid invalid function names in generated code.
+
 ## 1.0.3
 
 Bug fixes:
