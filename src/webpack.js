@@ -10,7 +10,15 @@ const ElmWorker = require('./Main.elm').Elm.Main;
 class ElmSymfonyBridgePlugin {
     constructor(options) {
         validateOptions(schema, options, 'elm-symfony-bridge');
+
         this.options = options;
+		this.setDefaultValueIfAbsent('outputFolder', 'public');
+		this.setDefaultValueIfAbsent('elmRoot', './assets/elm');
+		this.setDefaultValueIfAbsent('elmVersion', '0.19');
+		this.setDefaultValueIfAbsent('enableRouting', true);
+		this.setDefaultValueIfAbsent('lang', 'en');
+		this.setDefaultValueIfAbsent('enableTranslations', true);
+		this.setDefaultValueIfAbsent('urlPrefix', '/index.php');
 
         this.transpiler = ElmWorker.init();
         this.hasAlreadyRun = false;
@@ -124,6 +132,10 @@ class ElmSymfonyBridgePlugin {
             callback();
         }
     }
+
+	setDefaultValueIfAbsent(options, key, value) {
+		options[key] = options[key] ? value;
+	}
 
     makeDir(dir) {
         try {
