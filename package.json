@@ -1,9 +1,9 @@
 {
   "name": "elm-symfony-bridge",
   "version": "1.0.4",
-  "author": "Matthias Devlamynck <matthias@chaplean.coop>",
+  "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
-  "homepage": "https://github.com/chaplean/elm-symfony-bridge#readme",
+  "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
   "description": "Webpack plugin exposing symfony's translations and routing to elm.",
   "keywords": [
     "elm",
@@ -31,10 +31,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chaplean/elm-symfony-bridge.git"
+    "url": "git+https://github.com/mdevlamynck/elm-symfony-bridge.git"
   },
   "bugs": {
-    "url": "https://github.com/chaplean/elm-symfony-bridge/issues"
+    "url": "https://github.com/mdevlamynck/elm-symfony-bridge/issues"
   },
   "engines": {
     "node": ">=6.11.5"
