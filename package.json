@@ -27,7 +27,7 @@
     "test": "elm-test",
     "ci-format": "elm-format --validate .",
     "ci-test": "elm-test --verbose",
-    "ci-test-examples": "elm-verify-examples --elm-test-args=\"--verbose\""
+    "ci-test-examples": "elm-verify-examples -r --elm-test-args=--verbose"
   },
   "repository": {
     "type": "git",

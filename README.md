@@ -270,10 +270,10 @@ You'll find the following commands useful when hacking on this project:
 npm run build
 
 # run the tests
-elm test
+elm-test
 
 # run the doc tests
-elm-verify-examples
+elm-verify-examples -r
 
 # Using a local build in a project using webpack
 npm install & npm run build & npm pack # build a package.tgz
