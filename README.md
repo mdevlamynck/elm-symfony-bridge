@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/mdevlamynck/elm-symfony-bridge.svg?branch=master)](https://travis-ci.org/mdevlamynck/elm-symfony-bridge)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mdevlamynck/elm-symfony-bridge/issues)
 
-Webpack plugin exposing symfony's translations and routing to elm.
+Webpack and Parcel plugin exposing symfony's translations and routing to elm.
 
 ## Table of content
 
@@ -17,7 +17,9 @@ Webpack plugin exposing symfony's translations and routing to elm.
 
 ## Installation
 
-You can install the plugin with [npm](https://www.npmjs.com/get-npm):
+### Webpack
+
+You can install the webpack plugin with [npm](https://www.npmjs.com/get-npm):
 
 ```bash
 npm install elm-symfony-bridge --save-dev
@@ -30,7 +32,19 @@ npm install @symfony/webpack-encore --save-dev
 npm install elm-webpack-loader --save-dev
 ```
 
+### Parcel
+
+You can install the parcel plugin with [npm](https://www.npmjs.com/get-npm):
+
+```bash
+npm install parcel-plugin-elm-symfony-bridge --save-dev
+```
+
+And your all done!
+
 ## Configuration
+
+### Webpack
 
 Setup example with symfony's webpack encore:
 
@@ -49,7 +63,7 @@ Encore
             loader: 'elm-webpack-loader',
             options: {
                 pathToMake: 'node_modules/.bin/elm-make',
-                debug: !Encore.isProduction()
+                debug: !Encore.isProduction(),
                 optimize: Encore.isProduction()
             }
         }
@@ -64,7 +78,7 @@ Encore
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
 
         enableTranslations: true,       // Optional: enable generating translations, defaults to true
-        urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses 'index.php', symfony < 4 'app_dev.php')
+        urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses '/index.php', symfony < 4 '/app_dev.php')
     }))
     .configureFilenames({
         js: '[name].[chunkhash].js',
@@ -78,6 +92,23 @@ Encore
 ;
 
 module.exports = Encore.getWebpackConfig();
+```
+
+### Parcel
+
+This plugin follows parcel's zero-config philosophy and will automatically configure itself. For reference here are the rules used to infer the config:
+
+```
+dev: is parcel building in dev or prod mode ?
+outputFolder: './public' for symfony 4, './web' for symfony 3
+elmRoot: uses the src root defined in elm.json / elm-package.json
+elmVersion: is there a elm.json (0.19) or a elm-package.json (0.18)?
+
+enableRouting: always true
+lang: uses the default lang configured in symfony
+
+enableTranslations: true if the willdurand/js-translation-bundle package is installed
+urlPrefix: '/index.php' for symfony 4, '/app_dev.php' for symfony 3
 ```
 
 ## Usage
@@ -256,6 +287,12 @@ As a reminder, all contributors are expected to follow our [Code of Conduct](COD
 
 ## Hacking
 
+The sources are organized in 3 main folders:
+
+* `/` the root contains the elm code: src for the sources and tests for the elm tests.
+* `/webpack` contains all the specifics for the webpack plugin.
+* `/parcel` contains all the specifics for the parcel plugin.
+
 This project uses the following tools for developpement:
 
 * [npm](https://www.npmjs.com/)
@@ -276,9 +313,14 @@ elm-test
 elm-verify-examples -r
 
 # Using a local build in a project using webpack
-npm install & npm run build & npm pack # build a package.tgz
-cd path/to/project/using/webpack       # go in the root directory of your project
-npm install path/to/package.tgz        # install the locally built package
+cd webpack && npm install && npm run build && npm pack # build a package.tgz
+cd path/to/project/using/webpack                       # go in the root directory of your project
+npm install path/to/package.tgz                        # install the locally built package
+
+# Using a local build in a project using parcel
+cd parcel && npm install && npm run build && npm pack # build a package.tgz
+cd path/to/project/using/webpack                      # go in the root directory of your project
+npm install path/to/package.tgz                       # install the locally built package
 ```
 
 ## License
