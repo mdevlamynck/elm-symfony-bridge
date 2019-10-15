@@ -8,8 +8,26 @@ branches:
         - trying
         - master
 
-script:
-  - npm run build
-  - npm run ci-format
-  - npm run ci-test
-  - npm run ci-test-examples
+jobs:
+    include:
+        - stage: test
+          name: "Elm tests"
+          script:
+            - npm install
+            - npm run ci-format
+            - npm run ci-test
+            - npm run ci-test-examples
+
+        - stage: test
+          name: "Webpack tests"
+          script:
+            - cd webpack
+            - npm install
+            - npm run build
+
+        - stage: test
+          name: "Parcel tests"
+          script:
+            - cd parcel
+            - npm install
+            - npm run build

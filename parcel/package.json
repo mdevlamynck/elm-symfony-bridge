@@ -1,5 +1,5 @@
 {
-  "name": "elm-symfony-bridge",
+  "name": "parcel-plugin-elm-symfony-bridge",
   "version": "1.0.4",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
@@ -9,17 +9,15 @@
     "elm",
     "symfony",
     "tools",
-    "webpack",
-    "webpack-plugin",
+    "parcel",
+    "parcel-plugin",
     "translation",
     "routing",
     "bridge"
   ],
+  "main": "dist/parcel.js",
   "scripts": {
-    "test": "elm-test",
-    "ci-format": "elm-format --validate .",
-    "ci-test": "elm-test --verbose",
-    "ci-test-examples": "elm-verify-examples -r --elm-test-args=--verbose"
+    "build": "parcel build parcel.js"
   },
   "repository": {
     "type": "git",
@@ -34,9 +32,6 @@
   "dependencies": {},
   "devDependencies": {
     "elm": "^0.19.0-bugfix6",
-    "elm-format": "^0.8.1",
-    "elm-hot": "^1.1.2",
-    "elm-test": "^0.19.0-rev6",
-    "elm-verify-examples": "^3.1.0"
+    "parcel-bundler": "^1.12.4"
   }
 }
