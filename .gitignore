@@ -2,7 +2,9 @@ elm-stuff
 tests/VerifyExamples
 doc.json
 node_modules
+.cache
 dist
 .idea
 .*.sw*
 elm-symfony-bridge-*.tgz
+parcel-plugin-elm-symfony-bridge-*.tgz

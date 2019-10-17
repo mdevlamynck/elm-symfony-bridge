@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   mode: 'production',
-  entry: './src/webpack.js',
+  entry: './webpack.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'elm-symfony-bridge.js',

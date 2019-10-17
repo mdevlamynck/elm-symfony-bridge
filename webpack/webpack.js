@@ -5,7 +5,7 @@ const path = require('path');
 const glob = require('glob');
 const validateOptions = require('schema-utils');
 const schema = require('./schema.json');
-const ElmWorker = require('./Main.elm').Elm.Main;
+const ElmWorker = require('../src/Main.elm').Elm.Main;
 
 class ElmSymfonyBridgePlugin {
     constructor(options) {
