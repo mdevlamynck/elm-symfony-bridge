@@ -62,7 +62,7 @@ Encore
         use: {
             loader: 'elm-webpack-loader',
             options: {
-                pathToMake: 'node_modules/.bin/elm-make',
+                pathToElm: 'node_modules/.bin/elm',
                 debug: !Encore.isProduction(),
                 optimize: Encore.isProduction()
             }
