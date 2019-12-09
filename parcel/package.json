@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-elm-symfony-bridge",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
