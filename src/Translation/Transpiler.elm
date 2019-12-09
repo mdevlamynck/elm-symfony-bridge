@@ -6,11 +6,10 @@ module Translation.Transpiler exposing (transpileToElm, Command, File)
 
 -}
 
-import Char
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import Elm exposing (..)
-import Json.Decode as Decode exposing (bool, decodeString, dict, errorToString, float, int, list, map, oneOf, string, succeed, value)
+import Json.Decode exposing (bool, decodeString, dict, errorToString, float, int, list, map, oneOf, string, succeed, value)
 import List.Unique
 import Result
 import Result.Extra as Result

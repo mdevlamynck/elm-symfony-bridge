@@ -2,7 +2,6 @@ module MainTest exposing (suite)
 
 import Elm exposing (Version(..))
 import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, string)
 import Json.Encode as Encode exposing (Value)
 import Main exposing (Msg(..), decodeJsValue, update)
 import Test exposing (..)

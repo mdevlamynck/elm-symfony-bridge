@@ -8,15 +8,11 @@ module Translation.Parser exposing (parseTranslationContent)
 
 import Char
 import Hex
-import List.Extra as List
-import List.Unique
 import Parser exposing (..)
-import Parser.Extra exposing (chomp, oneOf)
+import Parser.Extra exposing (chomp, oneOfBacktrackable)
 import Result
 import Result.Extra as Result
-import StringUtil exposing (indent)
 import Translation.Data exposing (..)
-import Unindent exposing (unindent)
 
 
 
@@ -39,7 +35,7 @@ parseTranslationContent input =
 -}
 translation : Parser TranslationContent
 translation =
-    oneOf
+    oneOfBacktrackable
         [ pluralizedMessage
         , singleMessage
         ]
@@ -78,11 +74,11 @@ pluralMessageVariant =
 -}
 appliesTo : Parser AppliesTo
 appliesTo =
-    oneOf
+    oneOfBacktrackable
         [ interval
         , listValue
         , succeed Indexed
-            |. oneOf
+            |. oneOfBacktrackable
                 [ label
                 , succeed ""
                 ]
@@ -104,7 +100,7 @@ interval =
             succeed identity
                 |. symbol "]"
                 |. spaces
-                |= oneOf
+                |= oneOfBacktrackable
                     [ succeed Inf
                         |. symbol "-Inf"
                     , succeed Excluded
@@ -121,7 +117,7 @@ interval =
             succeed (|>)
                 |= integer
                 |. spaces
-                |= oneOf
+                |= oneOfBacktrackable
                     [ succeed Included
                         |. symbol "]"
                     , succeed Excluded
@@ -129,10 +125,10 @@ interval =
                     ]
 
         lowInterval =
-            oneOf [ lowInclusive, lowExclusive ]
+            oneOfBacktrackable [ lowInclusive, lowExclusive ]
 
         highInterval =
-            oneOf [ highInf, highValue ]
+            oneOfBacktrackable [ highInf, highValue ]
     in
     succeed (\low high -> Interval low high |> List.singleton |> Intervals)
         |= lowInterval
@@ -222,7 +218,7 @@ messageChunks =
     succeed trim
         |= loop []
             (\revList ->
-                oneOf
+                oneOfBacktrackable
                     [ succeed (\parsed -> Loop <| parsed :: revList)
                         |= variable
                     , succeed (merge revList >> Loop)
@@ -313,7 +309,7 @@ spaces =
 -}
 integer : Parser Int
 integer =
-    oneOf
+    oneOfBacktrackable
         [ int
         , succeed ((*) -1)
             |. symbol "-"
@@ -346,7 +342,7 @@ sequenceAtLeastTwoElements config =
            )
         |= lazy
             (\_ ->
-                oneOf
+                oneOfBacktrackable
                     [ sequenceAtLeastTwoElements config
                     , succeed List.singleton
                         |= config.item

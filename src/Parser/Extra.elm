@@ -1,4 +1,7 @@
-module Parser.Extra exposing (chomp, oneOf)
+module Parser.Extra exposing
+    ( chomp
+    , oneOfBacktrackable
+    )
 
 {-| Common functions used in the different parsers.
 
@@ -22,6 +25,6 @@ chomp n =
 
 {-| Redefines oneOf to make all variants backtrackable for simplicity.
 -}
-oneOf : List (Parser a) -> Parser a
-oneOf =
+oneOfBacktrackable : List (Parser a) -> Parser a
+oneOfBacktrackable =
     List.map backtrackable >> Parser.oneOf

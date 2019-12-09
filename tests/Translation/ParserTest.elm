@@ -5,7 +5,6 @@ import Fuzz exposing (Fuzzer, string)
 import Test exposing (..)
 import Translation.Data exposing (..)
 import Translation.Parser exposing (parseTranslationContent)
-import Unindent exposing (..)
 
 
 longString : String
