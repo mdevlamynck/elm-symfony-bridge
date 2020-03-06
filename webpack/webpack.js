@@ -12,13 +12,13 @@ class ElmSymfonyBridgePlugin {
         validateOptions(schema, options, 'elm-symfony-bridge');
 
         this.options = options;
-		this.setDefaultValueIfAbsent(options, 'outputFolder', 'public');
-		this.setDefaultValueIfAbsent(options, 'elmRoot', './assets/elm');
-		this.setDefaultValueIfAbsent(options, 'elmVersion', '0.19');
-		this.setDefaultValueIfAbsent(options, 'enableRouting', true);
-		this.setDefaultValueIfAbsent(options, 'lang', 'en');
-		this.setDefaultValueIfAbsent(options, 'enableTranslations', true);
-		this.setDefaultValueIfAbsent(options, 'urlPrefix', '/index.php');
+        this.setDefaultValueIfAbsent(options, 'outputFolder', 'public');
+        this.setDefaultValueIfAbsent(options, 'elmRoot', './assets/elm');
+        this.setDefaultValueIfAbsent(options, 'elmVersion', '0.19');
+        this.setDefaultValueIfAbsent(options, 'enableRouting', true);
+        this.setDefaultValueIfAbsent(options, 'lang', 'en');
+        this.setDefaultValueIfAbsent(options, 'enableTranslations', true);
+        this.setDefaultValueIfAbsent(options, 'urlPrefix', '/index.php');
 
         this.transpiler = ElmWorker.init();
         this.hasAlreadyRun = false;
@@ -133,12 +133,12 @@ class ElmSymfonyBridgePlugin {
         }
     }
 
-	setDefaultValueIfAbsent(options, key, value) {
-		var actualValue = options[key];
-		if (actualValue === null || typeof actualValue === 'undefined') {
-			options[key] = value;
-		}
-	}
+    setDefaultValueIfAbsent(options, key, value) {
+        var actualValue = options[key];
+        if (actualValue === null || typeof actualValue === 'undefined') {
+            options[key] = value;
+        }
+    }
 
     makeDir(dir) {
         try {
@@ -183,9 +183,9 @@ class ElmSymfonyBridgePlugin {
         if (data.type === type && data.succeeded === true) {
             callback();
         } else if (data.succeeded === true) {
-            console.log("Expected " + type + " got " + data.type + ".");
+            console.error("Expected " + type + " got " + data.type + ".");
         } else {
-            console.log(data.error);
+            console.error(data.error);
         }
     }
 
