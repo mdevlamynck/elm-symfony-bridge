@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-elm-symfony-bridge",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
@@ -15,10 +15,12 @@
     "routing",
     "bridge"
   ],
-  "main": "dist/parcel.js",
-  "files": [ "dist/parcel.js" ],
+  "main": "dist/elm-symfony-bridge.js",
+  "files": [
+    "dist/elm-symfony-bridge.js"
+  ],
   "scripts": {
-    "build": "parcel build -t node parcel.js"
+    "build": "parcel build -t node index.js -o elm-symfony-bridge.js"
   },
   "repository": {
     "type": "git",

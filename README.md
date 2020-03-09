@@ -40,7 +40,7 @@ You can install the parcel plugin with [npm](https://www.npmjs.com/get-npm):
 npm install parcel-plugin-elm-symfony-bridge --save-dev
 ```
 
-And your all done!
+And you're all done!
 
 ## Configuration
 
@@ -75,10 +75,10 @@ Encore
         elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
 
         enableRouting: true,            // Optional: enable generating routes, defaults to true
-        lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
+        urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses '/index.php', symfony < 4 '/app_dev.php')
 
         enableTranslations: true,       // Optional: enable generating translations, defaults to true
-        urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses '/index.php', symfony < 4 '/app_dev.php')
+        lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
     }))
     .configureFilenames({
         js: '[name].[chunkhash].js',
@@ -98,17 +98,26 @@ module.exports = Encore.getWebpackConfig();
 
 This plugin follows parcel's zero-config philosophy and will automatically configure itself. For reference here are the rules used to infer the config:
 
-```
-dev: is parcel building in dev or prod mode ?
-outputFolder: './public' for symfony 4, './web' for symfony 3
-elmRoot: uses the src root defined in elm.json / elm-package.json
-elmVersion: is there a elm.json (0.19) or a elm-package.json (0.18)?
+* `watch`: is watch mode enabled in parcel?
+* `dev`: is parcel building in dev or prod mode?
+* `generatedCodeFolder`: `elm-stuff/generated-code/elm-symfony-bridge`
+* `elmVersion`: is there a elm.json (0.19) or a elm-package.json (0.18)?
+* `enableRouting`: true
+* `urlPrefix`: `/index.php` for symfony 4, `/app_dev.php` for symfony 3
+* `enableTranslations`: true if the willdurand/js-translation-bundle package is installed
+* `lang`: uses the default lang configured in symfony
 
-enableRouting: always true
-lang: uses the default lang configured in symfony
+If these rules don't work for you, you can specify the value for any of these parameters in your `package.json` under the `elm-symfony-bridge` key like so:
 
-enableTranslations: true if the willdurand/js-translation-bundle package is installed
-urlPrefix: '/index.php' for symfony 4, '/app_dev.php' for symfony 3
+```json
+{
+  ...
+  "elm-symfony-bridge": {
+    "enableRouting": false,
+    "lang": "fr"
+  },
+  ...
+}
 ```
 
 ## Usage
