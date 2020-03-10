@@ -55,7 +55,7 @@ npm install parcel-plugin-elm-symfony-bridge --save-dev
 or with [yarn](https://yarnpkg.com/getting-started/install):
 
 ```bash
-yarn install parcel-plugin-elm-symfony-bridge --save-dev
+yarn add parcel-plugin-elm-symfony-bridge --dev
 ```
 
 And you're all done!

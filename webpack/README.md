@@ -53,7 +53,7 @@ You can install the webpack plugin with [npm](https://www.npmjs.com/get-npm) or 
 npm install elm-symfony-bridge --save-dev
 
 # Yarn
-yarn install elm-symfony-bridge --save-dev
+yarn add elm-symfony-bridge --dev
 ```
 
 The usage example bellow also uses `@symfony/webpack-encore` and `elm-webpack-loader` which you can install with:
@@ -64,8 +64,8 @@ npm install @symfony/webpack-encore --save-dev
 npm install elm-webpack-loader --save-dev
 
 # Yarn
-yarn install @symfony/webpack-encore --save-dev
-yarn install elm-webpack-loader --save-dev
+yarn add @symfony/webpack-encore --dev
+yarn add elm-webpack-loader --dev
 ```
 
 ## Configuration
