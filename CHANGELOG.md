@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+New features:
+  * Add parcel support
+
+Bug fixes:
+  * Correctly handle the absence of routes in symfony
+
 ## 1.0.5
 
 Bug fixes:
