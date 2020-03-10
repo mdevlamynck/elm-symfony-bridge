@@ -2,12 +2,13 @@
 
 [![Build Status](https://travis-ci.org/mdevlamynck/elm-symfony-bridge.svg?branch=master)](https://travis-ci.org/mdevlamynck/elm-symfony-bridge)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mdevlamynck/elm-symfony-bridge/issues)
-[![webpack plugin](https://img.shields.io/npm/v/elm-symfony-bridge?label=webpack%20plugin&logo=webpack%20plugin)
+[![webpack plugin](https://img.shields.io/npm/v/elm-symfony-bridge?label=webpack%20plugin&logo=webpack%20plugin)](https://www.npmjs.com/package/elm-symfony-bridge)
 
 Webpack plugin exposing symfony's translations and routing to elm.
 
 ## Table of content
 
+* [Quick start](#quick-start)
 * [Installation](#Installation)
 * [Configuration](#Configuration)
 * [Usage](../doc/Usage.md)
@@ -16,19 +17,55 @@ Webpack plugin exposing symfony's translations and routing to elm.
 * [Hacking](#Hacking)
 * [License](#License)
 
+## Quick Start
+
+Translations are exposed using the `Trans.{domain}` module like following:
+
+```elm
+import Trans.Messages as Messages
+import Trans.Security as Security
+
+displayStuff : Html msg
+displayStuff = 
+    div [] [ text Messages.alert_awesome_plugin ]
+    div [] [ text Security.global_must_have ]
+```
+
+The routing is exposed using the `Routing` module like following:
+
+```elm
+import Http
+import Routing
+
+makeHttpCall : Cmd msg
+makeHttpCall =
+    Http.send MsgGetThisPlugin <|
+        Http.get Routing.app_get_this_plugin
+            pluginDecoder
+```
+
 ## Installation
 
-You can install the webpack plugin with [npm](https://www.npmjs.com/get-npm):
+You can install the webpack plugin with [npm](https://www.npmjs.com/get-npm) or with [yarn](https://yarnpkg.com/getting-started/install):
 
 ```bash
+# NPM
 npm install elm-symfony-bridge --save-dev
+
+# Yarn
+yarn install elm-symfony-bridge --save-dev
 ```
 
 The usage example bellow also uses `@symfony/webpack-encore` and `elm-webpack-loader` which you can install with:
 
 ```bash
+# NPM
 npm install @symfony/webpack-encore --save-dev
 npm install elm-webpack-loader --save-dev
+
+# Yarn
+yarn install @symfony/webpack-encore --save-dev
+yarn install elm-webpack-loader --save-dev
 ```
 
 ## Configuration

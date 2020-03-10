@@ -2,20 +2,56 @@
 
 [![Build Status](https://travis-ci.org/mdevlamynck/elm-symfony-bridge.svg?branch=master)](https://travis-ci.org/mdevlamynck/elm-symfony-bridge)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mdevlamynck/elm-symfony-bridge/issues)
-![webpack plugin](https://img.shields.io/npm/v/elm-symfony-bridge?label=webpack%20plugin&logo=webpack%20plugin)
-![parcel plugin](https://img.shields.io/npm/v/parcel-plugin-elm-symfony-bridge?label=parcel%20plugin&logo=parcel%20plugin)
+[![webpack plugin](https://img.shields.io/npm/v/elm-symfony-bridge?label=webpack%20plugin&logo=webpack%20plugin)](https://www.npmjs.com/package/elm-symfony-bridge)
+[![parcel plugin](https://img.shields.io/npm/v/parcel-plugin-elm-symfony-bridge?label=parcel%20plugin&logo=parcel%20plugin)](https://www.npmjs.com/package/parcel-plugin-elm-symfony-bridge)
 
-Webpack and Parcel plugin exposing symfony's translations and routing to elm.
+Webpack and Parcel plugin exposing Symfony's translations and routing to Elm. 
+The translations are available through the `Trans.{domain}` Elm module and the routing is available through the `Routing` Elm module.
 
 For more information see [Webpack](webpack/README.md) or [Parcel](parcel/README.md) specific documentation.
 
 ## Table of content
 
+* [Quick start](#quick-start)
+* [Webpack](webpack/README.md)
+    - [Installation](webpack/README.md#Installation)
+    - [Configuration](webpack/README.md#Configuration)
+* [Parcel](parcel/README.md)
+    - [Installation](parcel/README.md#Installation)
+    - [Configuration](parcel/README.md#Configuration)
 * [Usage](doc/Usage.md)
-* [Versioning](#Versioning)
-* [Contributing](#Contributing)
+* [Versioning](#versioning)
+* [Contributing](#contributing)
 * [Hacking](#Hacking)
 * [License](#License)
+
+## Quick Start
+
+Translations are exposed using the `Trans.{domain}` module like following:
+
+```elm
+import Trans.Messages as Messages
+import Trans.Security as Security
+
+displayStuff : Html msg
+displayStuff = 
+    div [] [ text Messages.alert_awesome_plugin ]
+    div [] [ text Security.global_must_have ]
+```
+
+The routing is exposed using the `Routing` module like following:
+
+```elm
+import Http
+import Routing
+
+makeHttpCall : Cmd msg
+makeHttpCall =
+    Http.get 
+        { url = Routing.app_get_this_plugin
+        , expect = Http.expectString MsgGetThisPlugin
+        }
+```
 
 ## Usage
 
