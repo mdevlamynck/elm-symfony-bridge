@@ -259,10 +259,10 @@ newMessagesView nbNewMessages friendName =
 userStatusView :  Maybe User -> Html msg
 userStatusView user =
     case user of
-        Just { status } -> 
+        Just { status } ->
             div []
                 [ text (Trans.user_status_keyname status) ]
-        Nothing -> 
+        Nothing ->
             div []
                 [ text Trans.user_status_keyname_disconnected ]
 ```
