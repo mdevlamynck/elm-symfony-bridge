@@ -6,7 +6,7 @@
 [![parcel plugin](https://img.shields.io/npm/v/parcel-plugin-elm-symfony-bridge?label=parcel%20plugin&logo=parcel%20plugin)](https://www.npmjs.com/package/parcel-plugin-elm-symfony-bridge)
 
 Webpack and Parcel plugin exposing Symfony's translations and routing to Elm. 
-The translations are available through the `Trans.{domain}` Elm module and the routing is available through the `Routing` Elm module.
+The translations are available through the `Trans.<domain>` Elm module and the routing is available through the `Routing` Elm module.
 
 For more information see [Webpack](webpack/README.md) or [Parcel](parcel/README.md) specific documentation.
 
@@ -27,7 +27,7 @@ For more information see [Webpack](webpack/README.md) or [Parcel](parcel/README.
 
 ## Quick Start
 
-Translations are exposed using the `Trans.{domain}` module like following:
+Translations are exposed using the `Trans.<domain>` module like following:
 
 ```elm
 import Trans.Messages as Messages

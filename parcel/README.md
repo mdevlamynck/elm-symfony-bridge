@@ -19,7 +19,7 @@ Parcel plugin exposing symfony's translations and routing to elm.
 
 ## Quick Start
 
-Translations are exposed using the `Trans.{domain}` module like following:
+Translations are exposed using the `Trans.<domain>` module like following:
 
 ```elm
 import Trans.Messages as Messages
@@ -78,12 +78,10 @@ If these rules don't work for you, you can override any of these parameters in y
 
 ```json
 {
-  ...
   "elm-symfony-bridge": {
     "enableRouting": false,
     "lang": "fr"
   },
-  ...
 }
 ```
 
@@ -108,7 +106,7 @@ Contributions are welcomed! There are many ways to contribute, and we appreciate
 * [Feature Request](https://github.com/mdevlamynck/elm-symfony-bridge/issues): You have a use case not covered by the current api? Want to suggest a change or add something? We'd be glad to read about it and start a discussion to try to find the best possible solution.
 * [Pull Request](https://github.com/mdevlamynck/elm-symfony-bridge/pulls): Want to contribute code or documentation? We'd love that! If you need help to get started, GitHub as [documentation](https://help.github.com/articles/about-pull-requests/) on pull requests. We use the ["fork and pull model"](https://help.github.com/articles/about-collaborative-development-models/) were contributors push changes to their personnal fork and then create pull requests to the main repository. Please make your pull requests against the `master` branch.
 
-As a reminder, all contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+As a reminder, all contributors are expected to follow our [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ## Hacking
 
