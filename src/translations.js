@@ -8,9 +8,9 @@ function transpile(global) {
         return;
     }
 
-    symfony.dumpTranslations(global.options.generatedCodeFolder, global.options);
+    symfony.dumpTranslations(global.options.tmpFolder, global.options.dev);
 
-    const files = glob.sync('./' + global.options.generatedCodeFolder + '/translations/*/' + global.options.lang + '.json');
+    const files = glob.sync('./' + global.options.tmpFolder + '/translations/*/' + global.options.lang + '.json');
     let remainingTranslations = files.length;
 
     const elmSubscription = function (data) {

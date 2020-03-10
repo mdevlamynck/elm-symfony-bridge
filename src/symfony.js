@@ -1,32 +1,32 @@
 import { execSync } from 'child_process';
 
-function runCommand(command, options) {
+function runCommand(command, isDev) {
     return execSync(
-        './bin/console ' + command + ' --env=' + (options.dev ? 'dev' : 'prod'),
+        './bin/console ' + command + ' --env=' + (isDev ? 'dev' : 'prod'),
         {encoding: 'utf8', stdio: []}
     );
 }
 
-function queryConfig(configKey, options) {
-    const config = JSON.parse(runCommand(`debug:container --parameter=${configKey} --format=json`, options));
+function queryConfig(configKey, isDev) {
+    const config = JSON.parse(runCommand(`debug:container --parameter=${configKey} --format=json`, isDev));
     return config[configKey] || null;
 }
 
-function hasBazingaJsTranslationBundle(options) {
+function hasBazingaJsTranslationBundle(isDev) {
     try {
-        runCommand('debug:container bazinga.jstranslation.dump_command --format=json', options);
+        runCommand('debug:container bazinga.jstranslation.dump_command --format=json', isDev);
         return true;
     } catch (e) {
         return false;
     }
 }
 
-function queryRouting(options) {
-    return fixPhpJsonSerialization(runCommand('debug:router --format=json', options));
+function queryRouting(isDev) {
+    return fixPhpJsonSerialization(runCommand('debug:router --format=json', isDev));
 }
 
-function dumpTranslations(outFolder, options) {
-    runCommand('bazinga:js-translation:dump ' + outFolder, options);
+function dumpTranslations(outFolder, isDev) {
+    runCommand('bazinga:js-translation:dump ' + outFolder, isDev);
 }
 
 function fixPhpJsonSerialization(content) {

@@ -1,9 +1,36 @@
 {
+  "name": "elm-symfony-bridge",
+  "version": "1.1.0",
+  "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
+  "license": "MIT",
+  "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge#readme",
+  "description": "Webpack and Parcel plugins exposing symfony's translations and routing to elm.",
+  "keywords": [
+    "elm",
+    "symfony",
+    "bridge",
+    "tools",
+    "webpack",
+    "parcel",
+    "plugin",
+    "webpack-plugin",
+    "parcel-plugin",
+    "translation",
+    "routing"
+  ],
+  "main": "dist/elm-symfony-bridge.js",
+  "files": [],
   "scripts": {
-    "test": "elm-test",
+    "test": "elm-verify-examples && elm-test",
     "ci-format": "elm-format --validate .",
-    "ci-test": "elm-test --verbose",
-    "ci-test-examples": "elm-verify-examples -r --elm-test-args=--verbose"
+    "ci-test": "elm-verify-examples && elm-test --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdevlamynck/elm-symfony-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mdevlamynck/elm-symfony-bridge/issues"
   },
   "engines": {
     "node": ">=6.11.5"

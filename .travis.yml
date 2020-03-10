@@ -14,7 +14,6 @@ jobs:
             - npm install
             - npm run ci-format
             - npm run ci-test
-            - npm run ci-test-examples
 
         - stage: test
           name: "Webpack tests"

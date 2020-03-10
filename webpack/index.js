@@ -74,7 +74,7 @@ class ElmSymfonyBridgePlugin {
 
     transpileRouting (callback) {
         if (this.options.enableRouting) {
-            const content = symfony.runCommand('debug:router --format=json', this.options);
+            const content = symfony.runCommand('debug:router --format=json', this.options.dev);
 
             const that = this;
             const elmSubscription = function (data) {
@@ -101,7 +101,7 @@ class ElmSymfonyBridgePlugin {
 
     transpileTranslations(callback) {
         if (this.options.enableTranslations) {
-            symfony.runCommand('bazinga:js-translation:dump ' + this.options.outputFolder + '/js', this.options);
+            symfony.runCommand('bazinga:js-translation:dump ' + this.options.outputFolder + '/js', this.options.dev);
 
             const files = glob.sync('./' + this.options.outputFolder + '/js/translations/*/' + this.options.lang + '.json');
             let remainingTranslations = files.length;

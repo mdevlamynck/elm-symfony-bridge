@@ -7,7 +7,7 @@ function transpile(global) {
         return;
     }
 
-    let content = symfony.queryRouting('debug:router --format=json', global.options);
+    let content = symfony.queryRouting('debug:router --format=json', global.options.dev);
 
     const elmSubscription = function (data) {
         utils.onSuccess('routing', data, function() {

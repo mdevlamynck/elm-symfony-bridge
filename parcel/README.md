@@ -2,24 +2,60 @@
 
 [![Build Status](https://travis-ci.org/mdevlamynck/elm-symfony-bridge.svg?branch=master)](https://travis-ci.org/mdevlamynck/elm-symfony-bridge)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mdevlamynck/elm-symfony-bridge/issues)
-![webpack plugin](https://img.shields.io/npm/v/elm-symfony-bridge?label=webpack%20plugin&logo=webpack%20plugin)
-![parcel plugin](https://img.shields.io/npm/v/parcel-plugin-elm-symfony-bridge?label=parcel%20plugin&logo=parcel%20plugin)
+[![parcel plugin](https://img.shields.io/npm/v/parcel-plugin-elm-symfony-bridge?label=parcel%20plugin&logo=parcel%20plugin)
 
-Webpack and Parcel plugin exposing symfony's translations and routing to elm.
-
-For more information see [Webpack](webpack/README.md) or [Parcel](parcel/README.md) specific documentation.
+Parcel plugin exposing symfony's translations and routing to elm.
 
 ## Table of content
 
-* [Usage](doc/Usage.md)
+* [Installation](#Installation)
+* [Configuration](#Configuration)
+* [Usage](../doc/Usage.md)
 * [Versioning](#Versioning)
 * [Contributing](#Contributing)
 * [Hacking](#Hacking)
 * [License](#License)
 
+## Installation
+
+You can install the parcel plugin with [npm](https://www.npmjs.com/get-npm):
+
+```bash
+npm install parcel-plugin-elm-symfony-bridge --save-dev
+```
+
+And you're all done!
+
+## Configuration
+
+This plugin follows parcel's zero-config philosophy and will automatically configure itself. You should be able to mostly ignore this section but if you really need to tweak something, here is the config along with the rules used to infer each value:
+
+* `watch`: Do we watch for changes to regenerate elm code? (defaults to parcel's own watch value)
+* `dev`: Use symfony's env=dev or env=prod (defaults to parcel's own dev value)
+* `generatedCodeFolder`: Where to put generated code. Automatically added to your elm's `source-directories` config (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
+* `tmpFolder`: Where to put temporary (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
+* `elmVersion`: Elm version the generated code should be compatible with (defaults to 0.19 if a `elm.json` file is present, 0.18 if a `elm-package.json` file is present)
+* `enableRouting`: Enable generating routes (defaults to true)
+* `urlPrefix`: When dev is true, which prefix to use when generating urls (defaults to `/index.php` or `/app_dev.php` depending on which is found)
+* `enableTranslations`: Enable generating translations (defaults to true if the willdurand/js-translation-bundle package is installed)
+* `lang`: Lang to use when exporting translations (defaults to the default lang configured in symfony)
+
+If these rules don't work for you, you can override any of these parameters in your `package.json` under the `elm-symfony-bridge` key like so:
+
+```json
+{
+  ...
+  "elm-symfony-bridge": {
+    "enableRouting": false,
+    "lang": "fr"
+  },
+  ...
+}
+```
+
 ## Usage
 
-See [Usage](doc/Usage.md).
+See [Usage](../doc/Usage.md).
 
 ## Versioning
 
@@ -46,7 +82,7 @@ The sources are organized in 3 main folders:
 
 * `/` the root contains the elm code: `src` for the sources and `tests` for the elm tests.
 * `/webpack` contains all the specifics for the webpack plugin.
-* `/parcel` contains all the specifics for the parcel plugin.
+* `/parcel` contains all the specifics for the parcel plugin (you are here).
 
 This project uses the following tools for development:
 
@@ -55,7 +91,7 @@ This project uses the following tools for development:
 * [elm-test](https://github.com/rtfeldman/node-test-runner)
 * [elm-verify-examples](https://github.com/stoeffel/elm-verify-examples)
 
-You'll find the following commands useful when hacking on this project:
+You'll find the following commands useful when hacking on this project (assuming you're at the root of the repository and this in this folder):
 
 ```bash
 # build the package
@@ -79,4 +115,4 @@ npm install path/to/package.tgz                       # install the locally buil
 
 elm-symfony-bridge is distributed under the terms of the MIT license.
 
-See [LICENSE](LICENSE.md) for details.
+See [LICENSE](../LICENSE.md) for details.

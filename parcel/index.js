@@ -13,6 +13,7 @@ function run(bundler) {
             watch: bundler.options.watch,
             dev: !bundler.options.production,
             generatedCodeFolder: 'elm-stuff/generated-code/elm-symfony-bridge',
+            tmpFolder: 'elm-stuff/generated-code/elm-symfony-bridge',
             elmVersion: '0.19',
             enableRouting: true,
             urlPrefix: '/index.php',
