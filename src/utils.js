@@ -52,8 +52,6 @@ function arrayPushIfNotPresent(array, value) {
 function onSuccess(type, data, callback) {
     if (data.type === type && data.succeeded === true) {
         callback();
-    } else if (data.succeeded === true) {
-        error('Expected ' + type + ' got ' + data.type + '.');
     } else {
         error(data.error);
     }

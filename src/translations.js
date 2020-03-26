@@ -21,7 +21,6 @@ function transpile(global) {
         remainingTranslations--;
         if (remainingTranslations === 0) {
             global.transpiler.ports.sendToJs.unsubscribe(elmSubscription);
-            callback();
         }
     };
 
