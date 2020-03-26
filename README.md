@@ -107,7 +107,7 @@ npm install path/to/package.tgz                        # install the locally bui
 
 # Using a local build in a project using parcel
 cd parcel && npm install && npm run build && npm pack # build a package.tgz
-cd path/to/project/using/webpack                      # go in the root directory of your project
+cd path/to/project/using/parcel                       # go in the root directory of your project
 npm install path/to/package.tgz                       # install the locally built package
 ```
 
