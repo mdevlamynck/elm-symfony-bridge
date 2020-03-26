@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+Bug fixes:
+  * Fix translation support in the parcel plugin
+
 ## 1.1.0
 
 New features:
