@@ -19,21 +19,22 @@ function run(bundler) {
             urlPrefix: '/index.php',
             enableTranslations: false,
             lang: 'en',
+            watchFolders: ['src', 'app', 'config', 'translations'],
+            watchExtensions: ['php', 'yaml', 'yml', 'xml'],
+            watchConfig: ['elm.json', 'elm-package.json', 'package.json', 'composer.json'],
         }
     };
     loadConfig(global);
 
     if (global.options.watch) {
         const regenerateWatches = utils.combinations(
-			['src', 'app', 'config'],
-			['php', 'yaml', 'yml', 'xml'],
-			(folder, extension) => folder + '/**/*.' + extension
-		);
-
-        const reloadConfigWatches = ['elm.json', 'elm-package.json', 'package.json', 'composer.json'];
+            global.options.watchFolders,
+            global.options.watchExtensions,
+            (folder, extension) => folder + '/**/*.' + extension
+        );
 
         chokidar.watch(regenerateWatches, { ignoreInitial: true }).on('all', () => generate(global));
-        chokidar.watch(reloadConfigWatches, { ignoreInitial: true }).on('all', () => reloadConfig(global));
+        chokidar.watch(global.options.watchConfig, { ignoreInitial: true }).on('all', () => reloadConfig(global));
     }
 
     generate(global);
