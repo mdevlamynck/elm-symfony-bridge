@@ -52,7 +52,7 @@ function arrayPushIfNotPresent(array, value) {
 function onSuccess(type, data, callback) {
     if (data.type === type && data.succeeded === true) {
         callback();
-    } else {
+    } else if (data.succeeded === false) {
         error(data.error);
     }
 }

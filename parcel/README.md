@@ -65,6 +65,9 @@ And you're all done!
 This plugin follows parcel's zero-config philosophy and will automatically configure itself. You should be able to mostly ignore this section but if you really need to tweak something, here is the config along with the rules used to infer each value:
 
 * `watch`: Do we watch for changes to regenerate elm code? (defaults to parcel's own watch value)
+* `watchFolders`: Which folders to watch (defaults to `src`, `app`, `config`, `translations`)
+* `watchExtensions`: Which file extensions to watch (defaults to `php`, `yaml`, `yml`, `xml`)
+* `watchConfig`: Which files to watch for configuration changes (defaults to `elm.json`, `elm-package.json`, `package.json`, `composer.json`)
 * `dev`: Use symfony's env=dev or env=prod (defaults to parcel's own dev value)
 * `generatedCodeFolder`: Where to put generated code. Automatically added to your elm's `source-directories` config (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
 * `tmpFolder`: Where to put temporary (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)

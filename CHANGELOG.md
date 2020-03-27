@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.2
+
+Bug fixes:
+  * Fix bad invocation of routing command in production mode
+  * Fix bogus error message
+  * Add `translations` to watched folders
+  * Allow configuration of watches
+
 ## 1.1.1
 
 Bug fixes:
