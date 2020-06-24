@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3
+
+Bug fixes:
+  * Fix generation of translations with a domain that contains characters not allowed to appear in an elm module name
+
 ## 1.1.2
 
 Bug fixes:

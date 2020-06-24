@@ -94,9 +94,6 @@ This project uses the following tools for development:
 You'll find the following commands useful when hacking on this project:
 
 ```bash
-# build the package
-npm run build
-
 # run the tests and doc tests
 npm run test
 
