@@ -10,7 +10,7 @@ import Unindent exposing (..)
 suite : Test
 suite =
     describe "Converts a translation json to an elm module" <|
-        [ describe "Succeesfull conversion" <|
+        [ describe "Successful conversion" <|
             [ test "Works with empty translation file" <|
                 \_ ->
                     let
@@ -709,6 +709,39 @@ suite =
                     in
                     Expect.equal expected (transpileToElm input)
             ]
+        , test "Works with translation domains not directly mapping to valid elm module name" <|
+            \_ ->
+                let
+                    input =
+                        { name = ""
+                        , content =
+                            unindent
+                                """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "weird-domain": []
+                                            }
+                                        }
+                                    }
+                                    """
+                        , version = Elm_0_19
+                        }
+
+                    expected =
+                        Ok
+                            { name = "Trans/WeirdDomain.elm"
+                            , content = unindent """
+                                    module Trans.WeirdDomain exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
+                                    """
+                            }
+                in
+                Expect.equal expected (transpileToElm input)
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
                 \_ ->

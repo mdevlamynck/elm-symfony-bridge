@@ -1,7 +1,7 @@
 module Elm exposing
     ( Module(..), Function(..), Arg(..), Expr(..)
     , Version(..), renderElmModule
-    , normalizeFunctionName
+    , normalizeModuleName, normalizeFunctionName
     )
 
 {-| Module defining a simplified AST of elm code along with a render to string function.
@@ -19,11 +19,13 @@ module Elm exposing
 
 # Utils
 
-@docs normalizeFunctionName
+@docs normalizeModuleName, normalizeFunctionName
 
 -}
 
-import StringUtil exposing (indent)
+import Char exposing (isAlpha)
+import String.Extra exposing (toSentenceCase)
+import StringUtil exposing (indent, splitOn)
 
 
 {-| An elm module with its name and the functions it defines.
@@ -220,6 +222,15 @@ renderElmCaseWildcardVariant : String
 renderElmCaseWildcardVariant =
     "_ ->\n"
         ++ indent "\"\""
+
+
+{-| Formats a string to match elm rules on module name.
+-}
+normalizeModuleName : String -> String
+normalizeModuleName =
+    splitOn (not << isAlpha)
+        >> List.map toSentenceCase
+        >> String.concat
 
 
 {-| Formats a string to match elm rules on function name.

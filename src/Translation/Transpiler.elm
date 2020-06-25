@@ -179,10 +179,14 @@ createAKeynameTranslation ( baseName, translations ) =
 -}
 convertToElm : Version -> TranslationDomain -> File
 convertToElm version { lang, domain, translations } =
-    { name = "Trans/" ++ domain ++ ".elm"
+    let
+        normalizedDomain =
+            normalizeModuleName domain
+    in
+    { name = "Trans/" ++ normalizedDomain ++ ".elm"
     , content =
         renderElmModule version <|
-            Module ("Trans." ++ domain)
+            Module ("Trans." ++ normalizedDomain)
                 (List.map (translationToElm lang) translations)
     }
 
