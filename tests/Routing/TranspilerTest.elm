@@ -345,6 +345,42 @@ suite =
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
+                , test "Handles variable name conflicting with reserved elm keywords" <|
+                    \_ ->
+                        let
+                            input =
+                                { urlPrefix = ""
+                                , content =
+                                    unindent """
+                                        {
+                                            "app_rest_user_type": {
+                                                "path": "/user/types/{type}",
+                                                "requirements": {
+                                                    "type": ""
+                                                }
+                                            }
+                                        }
+                                    """
+                                , version = Elm_0_19
+                                }
+
+                            expected =
+                                Ok <|
+                                    unindent """
+                                    module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
+
+
+                                    app_rest_user_type : { type_ : String } -> String
+                                    app_rest_user_type params_ =
+                                        "" ++ "/user/types/" ++ params_.type_
+                                    """
+                        in
+                        Expect.equal expected (transpileToElm input)
                 ]
             ]
         ]

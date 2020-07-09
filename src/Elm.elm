@@ -2,6 +2,7 @@ module Elm exposing
     ( Module(..), Function(..), Arg(..), Expr(..)
     , Version(..), renderElmModule
     , normalizeModuleName, normalizeFunctionName
+    , keywords
     )
 
 {-| Module defining a simplified AST of elm code along with a render to string function.
@@ -20,6 +21,11 @@ module Elm exposing
 # Utils
 
 @docs normalizeModuleName, normalizeFunctionName
+
+
+# Misc
+
+@docs keywords
 
 -}
 
@@ -273,3 +279,10 @@ replaceMatches predicate replacement =
                     c
             )
         >> String.fromList
+
+
+{-| List of reserved elm keywords.
+-}
+keywords : List String
+keywords =
+    [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ]

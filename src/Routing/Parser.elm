@@ -7,6 +7,7 @@ module Routing.Parser exposing (parseRoutingContent)
 -}
 
 import Char
+import Elm
 import Parser exposing (..)
 import Parser.Extra exposing (chomp)
 import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
@@ -52,7 +53,15 @@ path =
 -}
 variable : Parser String
 variable =
-    succeed identity
+    let
+        buildVariable varName =
+            if List.member varName Elm.keywords then
+                varName ++ "_"
+
+            else
+                varName
+    in
+    succeed buildVariable
         |. symbol "{"
         |= (getChompedString <|
                 succeed ()

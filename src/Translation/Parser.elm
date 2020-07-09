@@ -7,6 +7,7 @@ module Translation.Parser exposing (parseTranslationContent)
 -}
 
 import Char
+import Elm
 import Hex
 import Parser exposing (..)
 import Parser.Extra exposing (chomp, oneOfBacktrackable)
@@ -237,7 +238,7 @@ variable =
             if varName == "count" then
                 VariableCount
 
-            else if List.member varName [ "if", "then", "else", "case", "of", "let", "in", "type", "module", "where", "import", "exposing", "as", "port" ] then
+            else if List.member varName Elm.keywords then
                 Variable (varName ++ "_")
 
             else
