@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.4
 
 Bug fixes:
   * Fix generated code for routes with variable name conflicting with elm reserved keywords
