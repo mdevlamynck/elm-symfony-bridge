@@ -26,7 +26,7 @@ import Trans.Messages as Messages
 import Trans.Security as Security
 
 displayStuff : Html msg
-displayStuff = 
+displayStuff =
     div [] [ text Messages.alert_awesome_plugin ]
     div [] [ text Security.global_must_have ]
 ```
@@ -39,9 +39,10 @@ import Routing
 
 makeHttpCall : Cmd msg
 makeHttpCall =
-    Http.send MsgGetThisPlugin <|
-        Http.get Routing.app_get_this_plugin
-            pluginDecoder
+    Http.get
+        { url = Routing.app_get_this_plugin
+        , expect = Http.expectString MsgGetThisPlugin
+        }
 ```
 
 ## Installation
@@ -121,29 +122,24 @@ The sources are organized in 3 main folders:
 
 This project uses the following tools for development:
 
-* [npm](https://www.npmjs.com/)
+* [yarn](https://yarnpkg.com/)
 * [elm](https://elm-lang.org/)
 * [elm-test](https://github.com/rtfeldman/node-test-runner)
 * [elm-verify-examples](https://github.com/stoeffel/elm-verify-examples)
 
-You'll find the following commands useful when hacking on this project (assuming you're at the root of the repository and this in this folder):
+You'll find the following commands useful when hacking on this project:
 
 ```bash
 # build the package
-npm run build
+yarn run build
 
 # run the tests and doc tests
-npm run test
-
-# Using a local build in a project using webpack
-cd webpack && npm install && npm run build && npm pack # build a package.tgz
-cd path/to/project/using/webpack                       # go in the root directory of your project
-npm install path/to/package.tgz                        # install the locally built package
+yarn run test
 
 # Using a local build in a project using parcel
-cd parcel && npm install && npm run build && npm pack # build a package.tgz
-cd path/to/project/using/webpack                      # go in the root directory of your project
-npm install path/to/package.tgz                       # install the locally built package
+yarn install && yarn run build && yarn pack # build a package.tgz
+cd path/to/project/using/parcel             # go in the root directory of your project
+yarn install path/to/package.tgz            # install the locally built package
 ```
 
 ## License

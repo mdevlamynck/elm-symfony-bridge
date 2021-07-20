@@ -4,14 +4,14 @@ import glob from 'glob';
 import schema from './schema.json';
 import symfony from '../src/symfony.js';
 import utils from '../src/utils.js';
-import validateOptions from 'schema-utils';
+import { validate } from 'schema-utils';
 
 const watchedFolders = ['src', 'app', 'config'];
 
 class ElmSymfonyBridgePlugin {
 
     constructor(options) {
-        validateOptions(schema, options, 'elm-symfony-bridge');
+        validate(schema, options, 'elm-symfony-bridge');
 
         this.options = options;
         utils.setDefaultValueIfAbsent(options, 'outputFolder', 'public');
