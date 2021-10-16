@@ -1,4 +1,4 @@
-module Translation.Data exposing
+module Translation.Legacy.Data exposing
     ( Translation, TranslationContent(..), Alternative, AppliesTo(..), Chunk(..), Interval, IntervalBound(..)
     , mapText
     )
@@ -39,9 +39,9 @@ type TranslationContent
     | Keyname (List ( String, String ))
 
 
-{-| A plurilized translation message is constitued of several alternatives, represented by this type.
+{-| A pluralized translation message is constituted of several alternatives, represented by this type.
 
-A translation without pluralization is considered to be constitued of a single Alternative.
+A translation without pluralization is considered to be constituted of a single Alternative.
 
 -}
 type alias Alternative =
@@ -50,7 +50,7 @@ type alias Alternative =
     }
 
 
-{-| Represents the conditions for using this particuliar plural variant.
+{-| Represents the conditions for using this particular plural variant.
 
 Intervals means `count` value must match the list of values / range.
 Indexed means the position in the list of variants is used.
