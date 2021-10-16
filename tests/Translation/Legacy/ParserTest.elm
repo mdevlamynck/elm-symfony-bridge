@@ -1,10 +1,10 @@
-module Translation.ParserTest exposing (suite)
+module Translation.Legacy.ParserTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, string)
 import Test exposing (..)
-import Translation.Data exposing (..)
-import Translation.Parser exposing (parseTranslationContent)
+import Translation.Legacy.Data exposing (..)
+import Translation.Legacy.Parser exposing (parseTranslationContent)
 
 
 longString : String
