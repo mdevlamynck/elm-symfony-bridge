@@ -1,4 +1,4 @@
-module Translation.Transpiler exposing (transpileToElm, Command, File)
+module Translation.Legacy.Transpiler exposing (transpileToElm, Command, File)
 
 {-| Converts a JSON containing translations from Symfony and turn them into an elm file.
 
@@ -14,8 +14,8 @@ import List.Unique
 import Result
 import Result.Extra as Result
 import String.Extra as String
-import Translation.Data exposing (..)
-import Translation.Parser as Parser
+import Translation.Legacy.Data exposing (..)
+import Translation.Legacy.Parser as Parser
 
 
 {-| Parameters to the transpile command.

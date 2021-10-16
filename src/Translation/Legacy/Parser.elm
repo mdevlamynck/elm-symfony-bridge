@@ -1,4 +1,4 @@
-module Translation.Parser exposing (parseTranslationContent)
+module Translation.Legacy.Parser exposing (parseTranslationContent)
 
 {-| Parser for a TranslationContent.
 
@@ -13,7 +13,7 @@ import Parser exposing (..)
 import Parser.Extra exposing (chomp, oneOfBacktrackable)
 import Result
 import Result.Extra as Result
-import Translation.Data exposing (..)
+import Translation.Legacy.Data exposing (..)
 
 
 

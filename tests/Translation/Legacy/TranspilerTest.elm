@@ -1,10 +1,10 @@
-module Translation.TranspilerTest exposing (suite)
+module Translation.Legacy.TranspilerTest exposing (suite)
 
 import Dict
 import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Test exposing (..)
-import Translation.Transpiler exposing (transpileToElm)
+import Translation.Legacy.Transpiler exposing (transpileToElm)
 import Unindent exposing (..)
 
 

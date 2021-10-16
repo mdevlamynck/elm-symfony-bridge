@@ -17,7 +17,7 @@ import Platform.Cmd exposing (Cmd)
 import Platform.Sub exposing (Sub)
 import Result.Extra as Result
 import Routing.Transpiler as Routing
-import Translation.Transpiler as Translation exposing (File)
+import Translation.Legacy.Transpiler as Translation exposing (File)
 
 
 {-| Entry point.
