@@ -10,7 +10,7 @@ import Char
 import Elm
 import Hex
 import Parser exposing (..)
-import Parser.Extra exposing (chomp, oneOfBacktrackable)
+import Parser.Extra exposing (..)
 import Result
 import Result.Extra as Result
 import Translation.Legacy.Data exposing (..)
@@ -71,7 +71,7 @@ pluralMessageVariant =
         |= messageChunks
 
 
-{-| Parses an AppliesTo in its interval form.
+{-| Parses an AppliesTo.
 -}
 appliesTo : Parser AppliesTo
 appliesTo =
@@ -316,70 +316,3 @@ integer =
             |. symbol "-"
             |= int
         ]
-
-
-
----- Utils parsers
-
-
-{-| Parser for a list of elements containing at least two elements.
--}
-sequenceAtLeastTwoElements :
-    { item : Parser item
-    , separator : Char
-    , spaces : Parser ()
-    }
-    -> Parser (List item)
-sequenceAtLeastTwoElements config =
-    succeed (::)
-        |= (backtrackable <|
-                succeed identity
-                    |= itemInSequence
-                        { item = config.item
-                        , separator = config.separator
-                        }
-                    |. chompIf ((==) config.separator)
-                    |. config.spaces
-           )
-        |= lazy
-            (\_ ->
-                oneOfBacktrackable
-                    [ sequenceAtLeastTwoElements config
-                    , succeed List.singleton
-                        |= config.item
-                    ]
-            )
-
-
-{-| Parses one element that is part of `sequenceAtLeastTwoElements`.
--}
-itemInSequence :
-    { item : Parser item
-    , separator : Char
-    }
-    -> Parser item
-itemInSequence { item, separator } =
-    chompWhile ((/=) separator)
-        |> getChompedString
-        |> andThen
-            (\content ->
-                case Parser.run item content of
-                    Ok parsedItem ->
-                        succeed parsedItem
-
-                    Err _ ->
-                        problem ""
-            )
-
-
-{-| Makes a parser fail if the given predicate is True.
--}
-failIf : (a -> Bool) -> Parser a -> Parser a
-failIf predicate =
-    Parser.andThen <|
-        \value ->
-            if predicate value then
-                problem ""
-
-            else
-                succeed value
