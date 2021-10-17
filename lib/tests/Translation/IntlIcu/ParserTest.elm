@@ -1,9 +1,11 @@
 module Translation.IntlIcu.ParserTest exposing (suite)
 
 import Expect exposing (Expectation)
+import Fuzz exposing (Fuzzer, string)
 import Test exposing (..)
 import Translation.IntlIcu.Data exposing (..)
 import Translation.IntlIcu.Parser exposing (parseTranslationContent)
+import Unindent exposing (unindent)
 
 
 longString : String
@@ -17,7 +19,10 @@ suite : Test
 suite =
     describe "Parses a translation" <|
         [ describe "Success cases" <|
-            [ test "Should work on very long string" <|
+            [ fuzz string "Should work on any string" <|
+                \input ->
+                    Expect.ok (parseTranslationContent input)
+            , test "Should work on very long string" <|
                 \_ ->
                     Expect.ok (parseTranslationContent longString)
             , test "Should parse raw text" <|
@@ -95,6 +100,23 @@ suite =
                                     }
                                 ]
                             )
+            , test "Should parse selectordinal variable with offset and variable shorthand syntax" <|
+                \_ ->
+                    parseTranslationContent "{rank, selectordinal, offset:1 one {#st} two {#nd} few {#rd} other {#th}}"
+                        |> Expect.equal
+                            (Ok
+                                [ Var
+                                    { name = "rank"
+                                    , type_ =
+                                        Plural { offset = 1 }
+                                            [ { pattern = One, value = [ Var { name = "rank", type_ = Number Nothing }, Text "st" ] }
+                                            , { pattern = Two, value = [ Var { name = "rank", type_ = Number Nothing }, Text "nd" ] }
+                                            , { pattern = Few, value = [ Var { name = "rank", type_ = Number Nothing }, Text "rd" ] }
+                                            , { pattern = PluralOther, value = [ Var { name = "rank", type_ = Number Nothing }, Text "th" ] }
+                                            ]
+                                    }
+                                ]
+                            )
             , test "Should parse select variable" <|
                 \_ ->
                     parseTranslationContent "{gender, select, female {woman} male {man} other {person}}"
@@ -135,7 +157,7 @@ suite =
                                 " \t\u{000D}\n\u{0085}\u{00A0}\u{180E}\u{2001}\u{2028}\u{2029}\u{202F}\u{205F}\u{2060}␋\u{3000}\u{FEFF}"
                         in
                         parseTranslationContent (white ++ "{" ++ white ++ "p" ++ white ++ "}" ++ white)
-                            |> Expect.equal (Ok [ Text white, Var { name = "p", type_ = Raw } ])
+                            |> Expect.equal (Ok [ Text white, Var { name = "p", type_ = Raw }, Text white ])
                 ]
             , describe "escaping" <|
                 [ test "Should allow escaping of { via '" <|
@@ -156,7 +178,7 @@ suite =
                             |> Expect.equal (Ok [ Text "{'" ])
                 , test "Should allow escaping of # via '" <|
                     \_ ->
-                        parseTranslationContent "#"
+                        parseTranslationContent "'#'"
                             |> Expect.equal (Ok [ Text "#" ])
                 , test "Should allow unescaped '" <|
                     \_ ->
@@ -183,79 +205,242 @@ suite =
                         parseTranslationContent "{n,date,'a style'}"
                             |> Expect.equal (Ok [ Var { name = "n", type_ = Date (Just "a style") } ])
                 ]
+            , test "Should parse multilines full example" <|
+                \_ ->
+                    let
+                        msg =
+                            unindent """{gender_of_host, select,
+                                            female {{num_guests, plural, offset:1
+                                                =0    {{host} does not give a party.}
+                                                =1    {{host} invites {guest} to her party.}
+                                                =2    {{host} invites {guest} and one other person to her party.}
+                                                other {{host} invites {guest} and # other people to her party.}
+                                            }}
+                                            male {{num_guests, plural, offset:1
+                                                =0    {{host} does not give a party.}
+                                                =1    {{host} invites {guest} to his party.}
+                                                =2    {{host} invites {guest} and one other person to his party.}
+                                                other {{host} invites {guest} and # other people to his party.}
+                                            }}
+                                            other {{num_guests, plural, offset:1
+                                                =0    {{host} does not give a party.}
+                                                =1    {{host} invites {guest} to their party.}
+                                                =2    {{host} invites {guest} and one other person to their party.}
+                                                other {{host} invites {guest} and # other people to their party.}
+                                            }}
+                                        }
+                        """
+                    in
+                    parseTranslationContent msg
+                        |> Expect.equal
+                            (Ok
+                                [ Var
+                                    { name = "gender_of_host"
+                                    , type_ =
+                                        Select
+                                            [ { pattern = SelectText "female"
+                                              , value =
+                                                    [ Var
+                                                        { name = "num_guests"
+                                                        , type_ =
+                                                            Plural { offset = 1 }
+                                                                [ { pattern = Value 0
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " does not give a party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = Value 1
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " to her party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = Value 2
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " and one other person to her party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = PluralOther
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " and "
+                                                                        , Var { name = "num_guests", type_ = Number Nothing }
+                                                                        , Text " other people to her party."
+                                                                        ]
+                                                                  }
+                                                                ]
+                                                        }
+                                                    ]
+                                              }
+                                            , { pattern = SelectText "male"
+                                              , value =
+                                                    [ Var
+                                                        { name = "num_guests"
+                                                        , type_ =
+                                                            Plural { offset = 1 }
+                                                                [ { pattern = Value 0
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " does not give a party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = Value 1
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " to his party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = Value 2
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " and one other person to his party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = PluralOther
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " and "
+                                                                        , Var { name = "num_guests", type_ = Number Nothing }
+                                                                        , Text " other people to his party."
+                                                                        ]
+                                                                  }
+                                                                ]
+                                                        }
+                                                    ]
+                                              }
+                                            , { pattern = SelectOther
+                                              , value =
+                                                    [ Var
+                                                        { name = "num_guests"
+                                                        , type_ =
+                                                            Plural { offset = 1 }
+                                                                [ { pattern = Value 0
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " does not give a party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = Value 1
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " to their party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = Value 2
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " and one other person to their party."
+                                                                        ]
+                                                                  }
+                                                                , { pattern = PluralOther
+                                                                  , value =
+                                                                        [ Var { name = "host", type_ = Raw }
+                                                                        , Text " invites "
+                                                                        , Var { name = "guest", type_ = Raw }
+                                                                        , Text " and "
+                                                                        , Var { name = "num_guests", type_ = Number Nothing }
+                                                                        , Text " other people to their party."
+                                                                        ]
+                                                                  }
+                                                                ]
+                                                        }
+                                                    ]
+                                              }
+                                            ]
+                                    }
+                                ]
+                            )
             ]
         , describe "Failure cases" <|
             [ test "Fails on extra closing brace" <|
                 \_ ->
                     parseTranslationContent ""
-                        |> Expect.equal (Err "Unexpected } found")
+                        |> Expect.ok
             , test "Fails on empty placeholder" <|
                 \_ ->
                     parseTranslationContent "{}"
-                        |> Expect.equal (Err "Expected placeholder id but found }")
+                        |> Expect.ok
             , test "Fails on open brace in placeholder" <|
                 \_ ->
                     parseTranslationContent "{n{"
-                        |> Expect.equal (Err "Expected , or } but found {")
+                        |> Expect.ok
             , test "Fails on missing type" <|
                 \_ ->
                     parseTranslationContent "{n,}"
-                        |> Expect.equal (Err "Expected placeholder type but found }")
+                        |> Expect.ok
             , test "Fails on unknown type" <|
                 \_ ->
                     parseTranslationContent "{a, custom, one}"
-                        |> Expect.equal (Err "Expected know type but found \"custom\"")
+                        |> Expect.ok
             , test "Fails on open brace after type" <|
                 \_ ->
                     parseTranslationContent "{n,d{"
-                        |> Expect.equal (Err "Expected , or } but found {")
+                        |> Expect.ok
             , test "Fails on missing style" <|
                 \_ ->
                     parseTranslationContent "{n,t,}"
-                        |> Expect.equal (Err "Expected placeholder style name but found }")
+                        |> Expect.ok
             , test "Fails on missing sub-messages for select" <|
                 \_ ->
                     parseTranslationContent "{n,select}"
-                        |> Expect.equal (Err "Expected select sub-messages but found }")
+                        |> Expect.ok
             , test "Fails on missing sub-messages for selectordinal" <|
                 \_ ->
                     parseTranslationContent "{n,selectordinal}"
-                        |> Expect.equal (Err "Expected selectordinal sub-messages but found }")
+                        |> Expect.ok
             , test "Fails on missing sub-messages for plural" <|
                 \_ ->
                     parseTranslationContent "{n,plural}"
-                        |> Expect.equal (Err "Expected plural sub-messages but found }")
+                        |> Expect.ok
             , test "Fails on missing other for select" <|
                 \_ ->
                     parseTranslationContent "{n,select,}"
-                        |> Expect.equal (Err "\"other\" sub-message must be specified in select")
+                        |> Expect.ok
             , test "Fails on missing other for selectordinal" <|
                 \_ ->
                     parseTranslationContent "{n,selectordinal,}"
-                        |> Expect.equal (Err "\"other\" sub-message must be specified in selectordinal")
+                        |> Expect.ok
             , test "Fails on missing other for plural" <|
                 \_ ->
                     parseTranslationContent "{n,plural,}"
-                        |> Expect.equal (Err "\"other\" sub-message must be specified in plural")
+                        |> Expect.ok
             , test "Fails on missing selector" <|
                 \_ ->
                     parseTranslationContent "{n,select,{a}}"
-                        |> Expect.equal (Err "Expected sub-message selector but found {")
+                        |> Expect.ok
             , test "Fails on missing { for sub-message" <|
                 \_ ->
                     parseTranslationContent "{n,select,other a}"
-                        |> Expect.equal (Err "Expected { to start sub-message but found a")
+                        |> Expect.ok
             , test "Fails on missing } for sub-message" <|
                 \_ ->
                     parseTranslationContent "{n,select,other{a"
-                        |> Expect.equal (Err "Expected } to end sub-message but found end of message pattern")
+                        |> Expect.ok
             , test "Fails on missing offset number" <|
                 \_ ->
                     parseTranslationContent "{n,plural,offset:}"
-                        |> Expect.equal (Err "Expected offset number but found }")
+                        |> Expect.ok
             , test "Fails on missing closing brace" <|
                 \_ ->
                     parseTranslationContent "{a,b,c"
-                        |> Expect.equal (Err "Expected } but found end of message pattern")
+                        |> Expect.ok
             ]
         ]
