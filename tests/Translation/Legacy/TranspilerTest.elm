@@ -4,7 +4,7 @@ import Dict
 import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Test exposing (..)
-import Translation.Legacy.Transpiler exposing (transpileToElm)
+import Translation.Transpiler exposing (transpileToElm)
 import Unindent exposing (..)
 
 
@@ -23,7 +23,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": []
+                                                "messages+intl-icu": []
                                             }
                                         }
                                     }
@@ -34,9 +34,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -57,7 +57,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {"translation": null}
+                                                "messages+intl-icu": {"translation": null}
                                             }
                                         }
                                     }
@@ -68,9 +68,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -96,7 +96,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {"translation": ""}
+                                                "messages+intl-icu": {"translation": ""}
                                             }
                                         }
                                     }
@@ -107,9 +107,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -135,7 +135,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "button.validate.global": "Ok",
                                                     "button.validate.save": "Enregistrer"
                                                 }
@@ -149,9 +149,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -182,7 +182,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "boolean_false": false,
                                                     "boolean_true": true,
                                                     "float": 3.14,
@@ -198,9 +198,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -241,7 +241,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "array": [42, 3.14, null],
                                                     "object": { "invalid": "invalid", "number": 42 },
                                                     "null": null,
@@ -257,9 +257,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -300,7 +300,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "page.error.503": "Error 503",
                                                     "form.step2.save": "Enregistrer"
                                                 }
@@ -314,9 +314,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -347,7 +347,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
                                                 }
                                             }
@@ -360,9 +360,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -389,7 +389,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "This value is not valid.": "Cette valeur n'est pas valide."
                                                 }
                                             }
@@ -402,9 +402,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -430,7 +430,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "__name__label__": "__name__label__",
                                                     "9things": "9things"
                                                 }
@@ -444,9 +444,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -477,7 +477,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "user.notifications": "%count% notifications non lues",
                                                     "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
                                                 }
@@ -491,9 +491,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -524,7 +524,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
                                                     "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
                                                 }
@@ -538,9 +538,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -579,7 +579,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
                                                 }
                                             }
@@ -592,9 +592,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -627,7 +627,7 @@ suite =
                                     {
                                         "translations": {
                                             "en": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
                                                 }
                                             }
@@ -640,9 +640,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -675,7 +675,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages": {
+                                                "messages+intl-icu": {
                                                     "honorific_title.keyname.miss": "Miss",
                                                     "honorific_title.keyname.mister": "Mister"
                                                 }
@@ -689,9 +689,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/Messages.elm"
+                                { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
-                                    module Trans.Messages exposing (..)
+                                    module Trans.MessagesIntlIcu exposing (..)
 
 
                                     fromInt : Int -> String
@@ -724,31 +724,32 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
-            , test "Works with translation domains not directly mapping to valid elm module name" <|
-                \_ ->
-                    let
-                        input =
-                            { name = ""
-                            , content =
-                                unindent
-                                    """
-                                        {
-                                            "translations": {
-                                                "fr": {
-                                                    "weird-domain": []
-                                                }
+            ]
+        , test "Works with translation domains not directly mapping to valid elm module name" <|
+            \_ ->
+                let
+                    input =
+                        { name = ""
+                        , content =
+                            unindent
+                                """
+                                    {
+                                        "translations": {
+                                            "fr": {
+                                                "weird-domain+intl-icu": []
                                             }
                                         }
-                                        """
-                            , version = Elm_0_19
-                            , envVariables = Dict.empty
-                            }
+                                    }
+                                    """
+                        , version = Elm_0_19
+                        , envVariables = Dict.empty
+                        }
 
-                        expected =
-                            Ok
-                                { name = "Trans/WeirdDomain.elm"
-                                , content = unindent """
-                                        module Trans.WeirdDomain exposing (..)
+                    expected =
+                        Ok
+                            { name = "Trans/WeirdDomainIntlIcu.elm"
+                            , content = unindent """
+                                    module Trans.WeirdDomainIntlIcu exposing (..)
 
 
                                         fromInt : Int -> String
@@ -806,7 +807,7 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
+                            , content = """{ "translations": { "fr": { "messages+intl-icu": { "button.validate.global" "Ok" } } } }"""
                             , version = Elm_0_19
                             , envVariables = Dict.empty
                             }
@@ -817,9 +818,9 @@ suite =
                                     """
                                     Problem with the given value:
 
-                                    "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
+                                    "{ \\"translations\\": { \\"fr\\": { \\"messages+intl-icu\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
 
-                                    This is not valid JSON! Unexpected string in JSON at position 67
+                                    This is not valid JSON! Unexpected string in JSON at position 76
                                     """
                     in
                     Expect.equal expected (transpileToElm input)
