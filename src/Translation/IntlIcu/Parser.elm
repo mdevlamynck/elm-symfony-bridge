@@ -235,30 +235,24 @@ isPatternChar c =
 
 replaceShorthand : Maybe String -> Chunk -> Chunk
 replaceShorthand replaceWith c =
+    let
+        replaceShorthandInVariant replaceWith_ v =
+            { v | value = List.map (replaceShorthand replaceWith_) v.value }
+    in
     case c of
         Var var ->
             case ( replaceWith, var.name, var.type_ ) of
-                ( Just name, "#", Number _ ) ->
+                ( Just name, "#", Number Nothing ) ->
                     Var { var | name = name }
 
                 ( _, _, Select variants ) ->
-                    Var { var | type_ = Select <| List.map (replaceShorthandInSelectVariant replaceWith) variants }
+                    Var { var | type_ = Select <| List.map (replaceShorthandInVariant replaceWith) variants }
 
                 ( _, _, Plural opts variants ) ->
-                    Var { var | type_ = Plural opts <| List.map (replaceShorthandInPluralVariant (Just var.name)) variants }
+                    Var { var | type_ = Plural opts <| List.map (replaceShorthandInVariant (Just var.name)) variants }
 
                 _ ->
                     Var var
 
         _ ->
             c
-
-
-replaceShorthandInSelectVariant : Maybe String -> SelectVariant -> SelectVariant
-replaceShorthandInSelectVariant replaceWith v =
-    { v | value = List.map (replaceShorthand replaceWith) v.value }
-
-
-replaceShorthandInPluralVariant : Maybe String -> PluralVariant -> PluralVariant
-replaceShorthandInPluralVariant replaceWith v =
-    { v | value = List.map (replaceShorthand replaceWith) v.value }
