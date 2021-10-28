@@ -2,7 +2,7 @@ module Elm exposing
     ( Module(..), Function(..), Arg(..), Expr(..)
     , Version(..), renderElmModule
     , normalizeModuleName, normalizeFunctionName
-    , keywords
+    , keywords, quote
     )
 
 {-| Module defining a simplified AST of elm code along with a render to string function.
@@ -25,7 +25,7 @@ module Elm exposing
 
 # Misc
 
-@docs keywords
+@docs keywords, quote
 
 -}
 
@@ -65,7 +65,8 @@ can be an Expr with the expression.
 -}
 type Expr
     = Ifs (List ( Expr, Expr ))
-    | Case String (List ( String, String ))
+    | Case String (List ( String, Expr ))
+    | LetIn (List ( String, Expr )) Expr
     | Expr String
 
 
@@ -178,13 +179,30 @@ renderElmExpr expr =
 
         Case matched variants ->
             ("case " ++ matched ++ " of\n")
-                ++ indent
-                    ((List.map renderElmCaseVariant variants ++ [ renderElmCaseWildcardVariant ])
-                        |> String.join "\n"
-                    )
+                ++ indent (renderElmCaseVariants variants)
+
+        LetIn vars body ->
+            if List.isEmpty vars then
+                renderElmExpr body
+
+            else
+                "let\n"
+                    ++ indent
+                        (vars
+                            |> List.map renderLetVar
+                            |> String.join "\n"
+                        )
+                    ++ "in\n"
+                    ++ renderElmExpr body
 
         Expr body ->
             body
+
+
+renderLetVar : ( String, Expr ) -> String
+renderLetVar ( name, body ) =
+    (name ++ " =\n")
+        ++ (indent <| renderElmExpr body ++ "\n")
 
 
 {-| Recursive function rendering the else if and else parts of an Ifs.
@@ -211,23 +229,18 @@ renderElseIf alternatives =
             ""
 
 
+renderElmCaseVariants : List ( String, Expr ) -> String
+renderElmCaseVariants variants =
+    List.map renderElmCaseVariant variants
+        |> String.join "\n\n"
+
+
 {-| Renders a match arm.
 -}
-renderElmCaseVariant : ( String, String ) -> String
+renderElmCaseVariant : ( String, Expr ) -> String
 renderElmCaseVariant ( match, body ) =
-    ("\"" ++ match ++ "\" ->\n")
-        ++ indent (body ++ "\n")
-
-
-{-| Renders the wildcard variant of a case expression.
-
-Used to render the behaviour of keyname not found when doing a translation.
-
--}
-renderElmCaseWildcardVariant : String
-renderElmCaseWildcardVariant =
-    "_ ->\n"
-        ++ indent "\"\""
+    (match ++ " ->\n")
+        ++ indent (renderElmExpr body)
 
 
 {-| Formats a string to match elm rules on module name.
@@ -279,6 +292,15 @@ replaceMatches predicate replacement =
                     c
             )
         >> String.fromList
+
+
+quote : String -> String
+quote string =
+    if String.contains "\n" string || String.contains "\\" string || String.contains "\"" string then
+        "\"\"\"" ++ string ++ "\"\"\""
+
+    else
+        "\"" ++ string ++ "\""
 
 
 {-| List of reserved elm keywords.

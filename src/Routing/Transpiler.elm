@@ -176,7 +176,7 @@ routeToElmFunction urlPrefix ( routeName, routing ) =
                     (\chunk ->
                         case chunk of
                             Constant path ->
-                                "\"" ++ path ++ "\""
+                                quote path
 
                             Variable Int name ->
                                 "(fromInt params_." ++ name ++ ")"

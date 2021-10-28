@@ -144,8 +144,9 @@ suite =
                                 [ Primitive "Int" "choice" ]
                                 "String"
                                 (Case "choice"
-                                    [ ( "0", "\"zero\"" )
-                                    , ( "1", "\"one\"" )
+                                    [ ( "0", Expr "\"zero\"" )
+                                    , ( "1", Expr "\"one\"" )
+                                    , ( "_", Expr "\"\"" )
                                     ]
                                 )
                             ]
@@ -163,14 +164,121 @@ suite =
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 case choice of
-                                    "0" ->
+                                    0 ->
                                         "zero"
 
-                                    "1" ->
+                                    1 ->
                                         "one"
 
                                     _ ->
                                         ""
+                            """
+                in
+                Expect.equal expected (renderElmModule Elm_0_19 input)
+        , test "Renders nested case … of expressions correctly" <|
+            \_ ->
+                let
+                    input =
+                        Module "Trans.Messages"
+                            [ Function "user_account_balance"
+                                [ Primitive "Int" "choice" ]
+                                "String"
+                                (Case "choice"
+                                    [ ( "0"
+                                      , Case "other"
+                                            [ ( "2", Expr "\"two\"" )
+                                            , ( "_", Expr "\"\"" )
+                                            ]
+                                      )
+                                    , ( "1"
+                                      , Case "other"
+                                            [ ( "3", Expr "\"three\"" )
+                                            , ( "_", Expr "\"\"" )
+                                            ]
+                                      )
+                                    , ( "_", Expr "\"\"" )
+                                    ]
+                                )
+                            ]
+
+                    expected =
+                        unindent """
+                            module Trans.Messages exposing (..)
+
+
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
+                            user_account_balance : Int -> String
+                            user_account_balance choice =
+                                case choice of
+                                    0 ->
+                                        case other of
+                                            2 ->
+                                                "two"
+
+                                            _ ->
+                                                ""
+
+                                    1 ->
+                                        case other of
+                                            3 ->
+                                                "three"
+
+                                            _ ->
+                                                ""
+
+                                    _ ->
+                                        ""
+                            """
+                in
+                Expect.equal expected (renderElmModule Elm_0_19 input)
+        , test "Renders nested let … in … correctly" <|
+            \_ ->
+                let
+                    input =
+                        Module "Trans.Messages"
+                            [ Function "test_nested_let_in"
+                                []
+                                "String"
+                                (LetIn
+                                    [ ( "var1", LetIn [ ( "var3", Expr "\"Hello, \"" ) ] (Expr "var3") )
+                                    , ( "var2", LetIn [ ( "var4", Expr "\"World!\"" ) ] (Expr "var4") )
+                                    ]
+                                    (Expr "var1 ++ var2")
+                                )
+                            ]
+
+                    expected =
+                        unindent """
+                            module Trans.Messages exposing (..)
+
+
+                            fromInt : Int -> String
+                            fromInt int =
+                                String.fromInt int
+
+
+                            test_nested_let_in : String
+                            test_nested_let_in =
+                                let
+                                    var1 =
+                                        let
+                                            var3 =
+                                                "Hello, "
+                                        in
+                                        var3
+
+                                    var2 =
+                                        let
+                                            var4 =
+                                                "World!"
+                                        in
+                                        var4
+                                in
+                                var1 ++ var2
                             """
                 in
                 Expect.equal expected (renderElmModule Elm_0_19 input)

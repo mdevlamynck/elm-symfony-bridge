@@ -3,7 +3,6 @@ module Translation.IntlIcu.Data exposing (..)
 
 type alias Translation =
     { name : String
-    , variables : List String
     , content : Chunks
     }
 

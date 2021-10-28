@@ -15,14 +15,14 @@ suite =
                 \_ ->
                     let
                         input =
-                            { name = ""
+                            { name = "+"
                             , content =
                                 unindent
                                     """
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": []
+                                                "messages": []
                                             }
                                         }
                                     }
@@ -32,9 +32,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -55,7 +55,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {"translation": null}
+                                                "messages": {"translation": null}
                                             }
                                         }
                                     }
@@ -65,9 +65,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -93,7 +93,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {"translation": ""}
+                                                "messages": {"translation": ""}
                                             }
                                         }
                                     }
@@ -103,9 +103,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -131,7 +131,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "button.validate.global": "Ok",
                                                     "button.validate.save": "Enregistrer"
                                                 }
@@ -144,9 +144,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -156,12 +156,12 @@ suite =
 
                                     button_validate_global : String
                                     button_validate_global =
-                                        \"\"\"Ok\"\"\"
+                                        "Ok"
 
 
                                     button_validate_save : String
                                     button_validate_save =
-                                        \"\"\"Enregistrer\"\"\"
+                                        "Enregistrer"
                                     """
                                 }
                     in
@@ -177,7 +177,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "boolean_false": false,
                                                     "boolean_true": true,
                                                     "float": 3.14,
@@ -192,9 +192,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -204,22 +204,22 @@ suite =
 
                                     boolean_false : String
                                     boolean_false =
-                                        \"\"\"false\"\"\"
+                                        "false"
 
 
                                     boolean_true : String
                                     boolean_true =
-                                        \"\"\"true\"\"\"
+                                        "true"
 
 
                                     float : String
                                     float =
-                                        \"\"\"3.14\"\"\"
+                                        "3.14"
 
 
                                     integer : String
                                     integer =
-                                        \"\"\"42\"\"\"
+                                        "42"
                                     """
                                 }
                     in
@@ -235,7 +235,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "array": [42, 3.14, null],
                                                     "object": { "invalid": "invalid", "number": 42 },
                                                     "null": null,
@@ -250,9 +250,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -277,7 +277,7 @@ suite =
 
                                     valid : String
                                     valid =
-                                        \"\"\"valid\"\"\"
+                                        "valid"
                                     """
                                 }
                     in
@@ -293,7 +293,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "page.error.503": "Error 503",
                                                     "form.step2.save": "Enregistrer"
                                                 }
@@ -306,9 +306,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -318,12 +318,12 @@ suite =
 
                                     form_step2_save : String
                                     form_step2_save =
-                                        \"\"\"Enregistrer\"\"\"
+                                        "Enregistrer"
 
 
                                     page_error_503 : String
                                     page_error_503 =
-                                        \"\"\"Error 503\"\"\"
+                                        "Error 503"
                                     """
                                 }
                     in
@@ -339,7 +339,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
                                                 }
                                             }
@@ -351,9 +351,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -363,7 +363,7 @@ suite =
 
                                     multiline_html_translation : { link : String } -> String
                                     multiline_html_translation params_ =
-                                        \"\"\"<a href=\\\"\"\"\" ++ params_.link ++ \"\"\"\\">
+                                        \"\"\"<a href=\"\"\"\" ++ params_.link ++ \"\"\"\">
                                         </a>\"\"\"
                                     """
                                 }
@@ -380,7 +380,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "This value is not valid.": "Cette valeur n'est pas valide."
                                                 }
                                             }
@@ -392,9 +392,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -404,7 +404,7 @@ suite =
 
                                     this_value_is_not_valid_ : String
                                     this_value_is_not_valid_ =
-                                        \"\"\"Cette valeur n'est pas valide.\"\"\"
+                                        "Cette valeur n'est pas valide."
                                     """
                                 }
                     in
@@ -420,7 +420,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "__name__label__": "__name__label__",
                                                     "9things": "9things"
                                                 }
@@ -433,9 +433,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -445,12 +445,12 @@ suite =
 
                                     f_9things : String
                                     f_9things =
-                                        \"\"\"9things\"\"\"
+                                        "9things"
 
 
                                     f__name__label__ : String
                                     f__name__label__ =
-                                        \"\"\"__name__label__\"\"\"
+                                        "__name__label__"
                                     """
                                 }
                     in
@@ -466,7 +466,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "user.notifications": "%count% notifications non lues",
                                                     "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
                                                 }
@@ -479,9 +479,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -491,12 +491,12 @@ suite =
 
                                     user_notifications : Int -> String
                                     user_notifications count =
-                                        (fromInt count) ++ \"\"\" notifications non lues\"\"\"
+                                        (fromInt count) ++ " notifications non lues"
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
                                     user_welcome params_ =
-                                        \"\"\"Bonjour \"\"\" ++ params_.firstname ++ \"\"\" \"\"\" ++ params_.lastname ++ \"\"\" et bienvenu !\"\"\"
+                                        "Bonjour " ++ params_.firstname ++ " " ++ params_.lastname ++ " et bienvenu !"
                                     """
                                 }
                     in
@@ -512,7 +512,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
                                                     "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
                                                 }
@@ -525,9 +525,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -538,19 +538,19 @@ suite =
                                     user_account_balance : Int -> String
                                     user_account_balance count =
                                         if count < 0 then
-                                            \"\"\"Negative\"\"\"
+                                            "Negative"
                                         else
-                                            \"\"\"Positive\"\"\"
+                                            "Positive"
 
 
                                     user_notifications : Int -> { user : String } -> String
                                     user_notifications count params_ =
                                         if count == 0 then
-                                            params_.user ++ \"\"\", pas de notification\"\"\"
+                                            params_.user ++ ", pas de notification"
                                         else if count == 1 then
-                                            params_.user ++ \"\"\", \"\"\" ++ (fromInt count) ++ \"\"\" notification non lue\"\"\"
+                                            params_.user ++ ", " ++ (fromInt count) ++ " notification non lue"
                                         else
-                                            params_.user ++ \"\"\", \"\"\" ++ (fromInt count) ++ \"\"\" notifications non lues\"\"\"
+                                            params_.user ++ ", " ++ (fromInt count) ++ " notifications non lues"
                                     """
                                 }
                     in
@@ -566,7 +566,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
                                                 }
                                             }
@@ -578,9 +578,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -591,13 +591,13 @@ suite =
                                     apples : Int -> String
                                     apples count =
                                         if count == 0 then
-                                            \"\"\"Il n'y a pas de pomme\"\"\"
+                                            "Il n'y a pas de pomme"
                                         else if count == 0 || count == 1 then
-                                            \"\"\"Il y a une pomme\"\"\"
+                                            "Il y a une pomme"
                                         else if count == 5 then
-                                            \"\"\"Il y a cinq pommes\"\"\"
+                                            "Il y a cinq pommes"
                                         else
-                                            \"\"\"Il y a \"\"\" ++ (fromInt count) ++ \"\"\" pommes\"\"\"
+                                            "Il y a " ++ (fromInt count) ++ " pommes"
                                     """
                                 }
                     in
@@ -613,7 +613,7 @@ suite =
                                     {
                                         "translations": {
                                             "en": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
                                                 }
                                             }
@@ -625,9 +625,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -638,13 +638,13 @@ suite =
                                     apples : Int -> String
                                     apples count =
                                         if count == 0 then
-                                            \"\"\"There are no apples\"\"\"
+                                            "There are no apples"
                                         else if count == 1 then
-                                            \"\"\"There is one apple\"\"\"
+                                            "There is one apple"
                                         else if count == 5 then
-                                            \"\"\"There are five apples\"\"\"
+                                            "There are five apples"
                                         else
-                                            \"\"\"There are \"\"\" ++ (fromInt count) ++ \"\"\" apples\"\"\"
+                                            "There are " ++ (fromInt count) ++ " apples"
                                     """
                                 }
                     in
@@ -660,7 +660,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "messages+intl-icu": {
+                                                "messages": {
                                                     "honorific_title.keyname.miss": "Miss",
                                                     "honorific_title.keyname.mister": "Mister"
                                                 }
@@ -673,9 +673,9 @@ suite =
 
                         expected =
                             Ok
-                                { name = "Trans/MessagesIntlIcu.elm"
+                                { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                    module Trans.MessagesIntlIcu exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
                                     fromInt : Int -> String
@@ -685,12 +685,12 @@ suite =
 
                                     honorific_title_keyname_miss : String
                                     honorific_title_keyname_miss =
-                                        \"\"\"Miss\"\"\"
+                                        "Miss"
 
 
                                     honorific_title_keyname_mister : String
                                     honorific_title_keyname_mister =
-                                        \"\"\"Mister\"\"\"
+                                        "Mister"
 
 
                                     honorific_title_keyname : String -> String
@@ -720,7 +720,7 @@ suite =
                                     {
                                         "translations": {
                                             "fr": {
-                                                "weird-domain+intl-icu": []
+                                                "weird-domain": []
                                             }
                                         }
                                     }
@@ -730,9 +730,9 @@ suite =
 
                     expected =
                         Ok
-                            { name = "Trans/WeirdDomainIntlIcu.elm"
+                            { name = "Trans/WeirdDomain.elm"
                             , content = unindent """
-                                    module Trans.WeirdDomainIntlIcu exposing (..)
+                                    module Trans.WeirdDomain exposing (..)
 
 
                                     fromInt : Int -> String
@@ -748,7 +748,7 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content = """{ "translations": { "fr": { "messages+intl-icu": { "button.validate.global" "Ok" } } } }"""
+                            , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
                             , version = Elm_0_19
                             }
 
@@ -758,9 +758,9 @@ suite =
                                     """
                                     Problem with the given value:
 
-                                    "{ \\"translations\\": { \\"fr\\": { \\"messages+intl-icu\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
+                                    "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
 
-                                    This is not valid JSON! Unexpected string in JSON at position 76
+                                    This is not valid JSON! Unexpected string in JSON at position 67
                                     """
                     in
                     Expect.equal expected (transpileToElm input)
