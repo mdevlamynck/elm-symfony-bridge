@@ -1,5 +1,6 @@
 module ElmTest exposing (suite)
 
+import Dict
 import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), Version(..), renderElmModule)
 import Expect exposing (Expectation)
 import Test exposing (..)
@@ -46,7 +47,7 @@ suite =
                         Module "Trans.Messages"
                             [ Function "user_welcome"
                                 [ Primitive "Int" "choice"
-                                , Record [ ( "String", "firstname" ), ( "String", "lastname" ) ]
+                                , Record <| Dict.fromList [ ( "firstname", "String" ), ( "lastname", "String" ) ]
                                 ]
                                 "String"
                                 (Expr "\"Ok\"")

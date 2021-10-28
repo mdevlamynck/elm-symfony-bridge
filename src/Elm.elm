@@ -30,6 +30,7 @@ module Elm exposing
 -}
 
 import Char exposing (isAlpha)
+import Dict exposing (Dict)
 import String.Extra exposing (toSentenceCase)
 import StringUtil exposing (indent, splitOn)
 
@@ -53,7 +54,7 @@ Can either be a Primitive with name and type or a Record with the name and type 
 -}
 type Arg
     = Primitive String String
-    | Record (List ( String, String ))
+    | Record (Dict String String)
 
 
 {-| An elm expression.
@@ -133,10 +134,11 @@ renderElmType arg =
         Record types ->
             let
                 renderTypes =
-                    List.map
-                        (\( typeName, argName ) ->
-                            argName ++ " : " ++ typeName
-                        )
+                    Dict.toList
+                        >> List.map
+                            (\( argName, typeName ) ->
+                                argName ++ " : " ++ typeName
+                            )
                         >> String.join ", "
             in
             "{ " ++ renderTypes types ++ " }"
