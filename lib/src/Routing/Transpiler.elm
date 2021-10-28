@@ -164,22 +164,22 @@ routeToElmFunction urlPrefix ( routeName, routing ) =
                     (\chunk ->
                         case chunk of
                             Variable Int name ->
-                                Just ( "Int", name )
+                                Just ( name, "Int" )
 
                             Variable String name ->
-                                Just ( "String", name )
+                                Just ( name, "String" )
 
                             _ ->
                                 Nothing
                     )
+                |> Dict.fromList
 
         arguments =
-            case record of
-                [] ->
-                    []
+            if Dict.isEmpty record then
+                []
 
-                record_ ->
-                    [ Record record_ ]
+            else
+                [ Record record ]
 
         url =
             (Constant urlPrefix :: routing)

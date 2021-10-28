@@ -1,5 +1,6 @@
 module Translation.IntlIcu.Transpiler exposing (parseTranslation, translationToElm)
 
+import Dict
 import Elm exposing (..)
 import Result
 import Translation.IntlIcu.Data exposing (..)
@@ -54,9 +55,12 @@ extractArguments chunks =
                     "Int"
 
         args =
-            List.map (\var -> ( toElmType var.type_, var.name )) (collectVariables chunks)
+            chunks
+                |> collectVariables
+                |> List.map (\var -> ( var.name, toElmType var.type_ ))
+                |> Dict.fromList
     in
-    if args == [] then
+    if Dict.isEmpty args then
         []
 
     else
@@ -74,10 +78,10 @@ collectVariables =
                 Var var ->
                     case var.type_ of
                         Select variants ->
-                            List.concatMap (\variant -> collectVariables variant.value) variants
+                            var :: List.concatMap (\variant -> collectVariables variant.value) variants
 
                         Plural _ variants ->
-                            List.concatMap (\variant -> collectVariables variant.value) variants
+                            var :: List.concatMap (\variant -> collectVariables variant.value) variants
 
                         _ ->
                             [ var ]
@@ -161,10 +165,10 @@ chunkToElm chunk =
                     Debug.todo ""
 
                 Select variants ->
-                    selectToElm var.name variants
+                    selectToElm ("params_." ++ var.name) variants
 
                 Plural opts variants ->
-                    Debug.todo ""
+                    pluralToElm ("params_." ++ var.name) variants
 
 
 selectToElm : String -> SelectVariants -> Expr
@@ -186,6 +190,43 @@ selectPatternToElm pattern =
             quote text
 
         SelectOther ->
+            "_"
+
+
+pluralToElm : String -> PluralVariants -> Expr
+pluralToElm name variants =
+    Case name <|
+        List.map
+            (\{ pattern, value } ->
+                ( pluralPatternToElm pattern
+                , chunksToElm value
+                )
+            )
+            variants
+
+
+pluralPatternToElm : PluralPattern -> String
+pluralPatternToElm pattern =
+    case pattern of
+        Value value ->
+            String.fromInt value
+
+        Zero ->
+            String.fromInt 0
+
+        One ->
+            String.fromInt 1
+
+        Two ->
+            String.fromInt 2
+
+        Few ->
+            Debug.todo ""
+
+        Many ->
+            Debug.todo ""
+
+        PluralOther ->
             "_"
 
 
