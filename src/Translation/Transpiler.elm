@@ -7,7 +7,6 @@ module Translation.Transpiler exposing (transpileToElm, Command, File)
 -}
 
 import Dict exposing (Dict)
-import Dict.Extra as Dict
 import Elm exposing (..)
 import Json.Decode exposing (bool, decodeString, dict, errorToString, float, int, map, oneOf, string, succeed, value)
 import Result
@@ -133,7 +132,7 @@ parseTranslationDomain json =
         parseTranslationDomainWith json IntlIcu.parseTranslation IntlIcu
 
     else
-        parseTranslationDomainWith json Legacy.parseTranslation <| \t -> Legacy <| t ++ keynameTranslations t
+        parseTranslationDomainWith json Legacy.parseTranslation <| \t -> Legacy <| t ++ Legacy.keynameTranslations t
 
 
 parseTranslationDomainWith : JsonTranslationDomain -> (( String, String ) -> Result String a) -> (List a -> TranslationsInDomain) -> Result String TranslationDomain
@@ -151,54 +150,6 @@ parseTranslationDomainWith { lang, domain, translations } parser builder =
                 , translations = builder translations_
                 }
             )
-
-
-{-| Creates all extra keyname translation functions.
--}
-keynameTranslations : List Legacy.Translation -> List Legacy.Translation
-keynameTranslations translations =
-    translations
-        |> groupByKeyname
-        |> Dict.toList
-        |> List.map createAKeynameTranslation
-
-
-{-| Groups together functions with a common same name from the beginning up to `_keyname_`.
-Filters out functions not containing `_keyname_` in their name.
--}
-groupByKeyname : List Legacy.Translation -> Dict String (List Legacy.Translation)
-groupByKeyname =
-    Dict.filterGroupBy <|
-        \{ name, variables } ->
-            let
-                base =
-                    String.leftOfBack "_keyname_" name
-
-                keyname =
-                    String.rightOfBack "_keyname_" name
-
-                isKeynameCorrect =
-                    keyname /= "" && (keyname |> not << String.contains ".")
-            in
-            if isKeynameCorrect && List.isEmpty variables then
-                Just (base ++ "_keyname")
-
-            else
-                Nothing
-
-
-{-| Creates a translation function delegating to existing translation,
-choosing the correct one based on a keyname parameter.
--}
-createAKeynameTranslation : ( String, List Legacy.Translation ) -> Legacy.Translation
-createAKeynameTranslation ( baseName, translations ) =
-    Legacy.Translation baseName
-        []
-        (Legacy.Keyname <|
-            List.map
-                (\{ name } -> ( String.rightOfBack "_keyname_" name, name ))
-                translations
-        )
 
 
 {-| Turns a TranslationDomain into its elm representation.
@@ -221,7 +172,7 @@ translationToElm : String -> TranslationsInDomain -> List Function
 translationToElm lang translationsInDomain =
     case translationsInDomain of
         IntlIcu translations ->
-            List.map (IntlIcu.translationToElm lang) translations
+            List.map IntlIcu.translationToElm translations
 
         Legacy translations ->
             List.map (Legacy.translationToElm lang) translations

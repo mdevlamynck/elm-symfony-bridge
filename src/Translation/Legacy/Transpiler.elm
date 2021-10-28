@@ -1,8 +1,11 @@
-module Translation.Legacy.Transpiler exposing (parseTranslation, translationToElm)
+module Translation.Legacy.Transpiler exposing (keynameTranslations, parseTranslation, translationToElm)
 
+import Dict exposing (Dict)
+import Dict.Extra as Dict
 import Elm exposing (..)
 import List.Unique
 import Result
+import String.Extra as String
 import Translation.Legacy.Data exposing (..)
 import Translation.Legacy.Parser as Parser
 
@@ -130,7 +133,18 @@ translationContentToElm lang translationContent =
                 )
 
         Keyname variants ->
-            Case "keyname" variants
+            Case "keyname" (toElmCaseVariants variants)
+
+
+toElmCaseVariants : List ( String, String ) -> List ( String, Expr )
+toElmCaseVariants variants =
+    List.map toElmCaseVariant variants
+        ++ [ ( "_", Expr <| quote "" ) ]
+
+
+toElmCaseVariant : ( String, String ) -> ( String, Expr )
+toElmCaseVariant ( name, value ) =
+    ( quote name, Expr value )
 
 
 {-| Indexed variant application conditions depending on the lang.
@@ -296,8 +310,8 @@ combineChunks list =
                 |> List.map chunkToString
                 |> String.join " ++ "
     in
-    if string == "" then
-        "\"\""
+    if String.isEmpty string then
+        quote string
 
     else
         string
@@ -307,16 +321,60 @@ combineChunks list =
 -}
 chunkToString : Chunk -> String
 chunkToString chunk =
-    let
-        escape =
-            String.replace "\"" "\\\""
-    in
     case chunk of
         Text text ->
-            "\"\"\"" ++ escape text ++ "\"\"\""
+            quote text
 
         Variable variable ->
             "params_." ++ variable
 
         VariableCount ->
             "(fromInt count)"
+
+
+{-| Creates all extra keyname translation functions.
+-}
+keynameTranslations : List Translation -> List Translation
+keynameTranslations translations =
+    translations
+        |> groupByKeyname
+        |> Dict.toList
+        |> List.map createAKeynameTranslation
+
+
+{-| Groups together functions with a common same name from the beginning up to `_keyname_`.
+Filters out functions not containing `_keyname_` in their name.
+-}
+groupByKeyname : List Translation -> Dict String (List Translation)
+groupByKeyname =
+    Dict.filterGroupBy <|
+        \{ name, variables } ->
+            let
+                base =
+                    String.leftOfBack "_keyname_" name
+
+                keyname =
+                    String.rightOfBack "_keyname_" name
+
+                isKeynameCorrect =
+                    keyname /= "" && (keyname |> not << String.contains ".")
+            in
+            if isKeynameCorrect && List.isEmpty variables then
+                Just (base ++ "_keyname")
+
+            else
+                Nothing
+
+
+{-| Creates a translation function delegating to existing translation,
+choosing the correct one based on a keyname parameter.
+-}
+createAKeynameTranslation : ( String, List Translation ) -> Translation
+createAKeynameTranslation ( baseName, translations ) =
+    Translation baseName
+        []
+        (Keyname <|
+            List.map
+                (\{ name } -> ( String.rightOfBack "_keyname_" name, name ))
+                translations
+        )
