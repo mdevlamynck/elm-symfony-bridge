@@ -79,6 +79,8 @@ typeBasic =
         |. spaces
         |= oneOfBacktrackable
             [ succeed Number |. keyword "number"
+            , succeed Number |. keyword "ordinal"
+            , succeed Number |. keyword "spellout"
             , succeed Date |. keyword "date"
             , succeed Time |. keyword "time"
             , succeed Duration |. keyword "duration"

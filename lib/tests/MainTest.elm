@@ -109,7 +109,7 @@ suite =
 
                                             button_validate_global : String
                                             button_validate_global =
-                                                \"\"\"Ok\"\"\"
+                                                "Ok"
                                             """
                                               )
                                             ]
