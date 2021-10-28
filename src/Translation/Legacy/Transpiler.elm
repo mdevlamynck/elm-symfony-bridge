@@ -77,10 +77,12 @@ translationToElm lang translation =
                 []
 
         recordArgs =
-            List.map (\arg -> ( "String", arg )) translation.variables
+            translation.variables
+                |> List.map (\arg -> ( arg, "String" ))
+                |> Dict.fromList
 
         record =
-            if recordArgs == [] then
+            if Dict.isEmpty recordArgs then
                 []
 
             else
