@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
 import fs from './filesystem.js';
 import glob from 'glob';
 import path from 'path';
 import symfony from './symfony.js';
+import utils from './utils.js';
 
 function guessImplicit(global) {
     return {
@@ -28,7 +30,23 @@ function readExplicit() {
     }
 }
 
+function loadEnvVariables(global) {
+    let envVars = readEnvVariables();
+
+    Object.entries(global.options.envVariables).forEach(([key, value]) => {
+        global.options.envVariables[key] = envVars.parsed[value] || null;
+    });
+}
+
+function readEnvVariables() {
+    let env = dotenv.config({ path: './.env' })
+    let localEnv = dotenv.config({ path: './.env.local' })
+
+    return utils.merge(localEnv, env);
+}
+
 module.exports = {
     guessImplicit,
-    readExplicit
+    readExplicit,
+    loadEnvVariables,
 };

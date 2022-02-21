@@ -58,5 +58,5 @@ module.exports = {
     writeIfChanged,
     readFile,
     readJsonFile,
-    editJsonFile
+    editJsonFile,
 };

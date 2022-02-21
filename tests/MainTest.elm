@@ -1,5 +1,6 @@
 module MainTest exposing (suite)
 
+import Dict
 import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Json.Encode as Encode exposing (Value)
@@ -22,12 +23,32 @@ suite =
                                         [ ( "name", Encode.string "fileName" )
                                         , ( "content", Encode.string "{}" )
                                         , ( "version", Encode.string "0.19" )
+                                        , ( "envVariables", Encode.object [ ( "key", Encode.string "value" ) ] )
                                         ]
                                   )
                                 ]
 
                         expected =
-                            TranspileTranslation { name = "fileName", content = "{}", version = Elm_0_19 }
+                            TranspileTranslation { name = "fileName", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
+                    in
+                    Expect.equal expected (decodeJsValue input)
+            , test "Valid transpile routing command" <|
+                \_ ->
+                    let
+                        input =
+                            Encode.object
+                                [ ( "routing"
+                                  , Encode.object
+                                        [ ( "urlPrefix", Encode.string "/" )
+                                        , ( "content", Encode.string "{}" )
+                                        , ( "version", Encode.string "0.19" )
+                                        , ( "envVariables", Encode.object [ ( "key", Encode.string "value" ) ] )
+                                        ]
+                                  )
+                                ]
+
+                        expected =
+                            TranspileRouting { urlPrefix = "/", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
                     in
                     Expect.equal expected (decodeJsValue input)
             ]
@@ -64,6 +85,7 @@ suite =
                                             }
                                             """
                                     , version = Elm_0_19
+                                    , envVariables = Dict.empty
                                     }
 
                             expected =
@@ -101,6 +123,7 @@ suite =
                                     { name = "fileName"
                                     , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
                                     , version = Elm_0_19
+                                    , envVariables = Dict.empty
                                     }
 
                             expected =

@@ -3,24 +3,32 @@ import glob from 'glob';
 import symfony from './symfony.js';
 import utils from './utils.js';
 
-function transpile(global) {
+function transpile(global, callback = null) {
     if (!global.options.enableTranslations) {
+        if (typeof callback === 'function') {
+            callback();
+        }
+
         return;
     }
 
-    symfony.dumpTranslations(global.options.tmpFolder, global.options.dev);
+    symfony.dumpTranslations(global.options.outputFolder, global.options.dev);
 
-    const files = glob.sync('./' + global.options.tmpFolder + '/translations/*/' + global.options.lang + '.json');
+    const files = glob.sync(global.options.outputFolder + '/translations/*/' + global.options.lang + '.json');
     let remainingTranslations = files.length;
 
-    const elmSubscription = function (data) {
-        utils.onSuccess('translation', data, function() {
-            fs.writeIfChanged(global.options.generatedCodeFolder + '/' + data.file.name, data.file.content);
+    const elmSubscription = data => {
+        utils.onSuccess('translation', data, () => {
+            fs.writeIfChanged(global.options.elmRoot + '/' + data.file.name, data.file.content);
         });
 
         remainingTranslations--;
         if (remainingTranslations === 0) {
             global.transpiler.ports.sendToJs.unsubscribe(elmSubscription);
+
+            if (typeof callback === 'function') {
+                callback();
+            }
         }
     };
 
@@ -31,7 +39,8 @@ function transpile(global) {
             translation: {
                 name: file,
                 content: content,
-                version: global.options.elmVersion
+                version: global.options.elmVersion,
+                envVariables: global.options.envVariables,
             }
         });
     });

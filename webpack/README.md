@@ -104,6 +104,10 @@ Encore
 
         enableTranslations: true,       // Optional: enable generating translations, defaults to true
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
+
+        envVariables: {                 // Optional: variables to replace during compile time
+            '%variable%': 'ENV_VAR'
+        },
     }))
     .configureFilenames({
         js: '[name].[chunkhash].js',

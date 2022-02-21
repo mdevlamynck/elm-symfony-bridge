@@ -6,9 +6,11 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 -}
 
-import Dict
+import Dict exposing (Dict)
+import Dict.Extra as Dict
 import Elm exposing (Version(..))
 import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode exposing (Value)
 import Platform exposing (Program, worker)
 import Platform.Cmd exposing (Cmd)
@@ -50,6 +52,7 @@ type Msg
     = NoOp
     | TranspileRouting Routing.Command
     | TranspileTranslation Translation.Command
+    | CommandError String
 
 
 {-| Run received commands.
@@ -75,54 +78,75 @@ update message =
                 |> formatResult translation.name
                 |> encodeTranslationResult
 
+        CommandError error ->
+            Encode.object
+                [ ( "succeeded", Encode.bool False )
+                , ( "error", Encode.string error )
+                ]
+
 
 {-| Decode json commands.
 -}
 decodeJsValue : Value -> Msg
 decodeJsValue =
-    Decode.decodeValue ((Decode.dict << Decode.dict) Decode.string)
-        >> Result.toMaybe
-        >> Maybe.andThen (Dict.toList >> List.head)
-        >> Maybe.andThen
-            (\( command, commandArgs ) ->
-                let
-                    urlPrefix =
-                        Dict.get "urlPrefix" commandArgs
+    Decode.decodeValue commandDecoder
+        >> Result.mapError (CommandError << Decode.errorToString)
+        >> Result.merge
 
-                    fileName =
-                        Dict.get "name" commandArgs
 
-                    content =
-                        Dict.get "content" commandArgs
+commandDecoder : Decoder Msg
+commandDecoder =
+    Decode.oneOf
+        [ routingDecoder
+        , translationDecoder
+        ]
 
-                    version =
-                        Dict.get "version" commandArgs
-                            |> Maybe.andThen
-                                (\versionString ->
-                                    case versionString of
-                                        "0.18" ->
-                                            Just Elm_0_18
 
-                                        "0.19" ->
-                                            Just Elm_0_19
+routingDecoder : Decoder Msg
+routingDecoder =
+    Decode.succeed TranspileRouting
+        |> Decode.required "routing"
+            (Decode.succeed Routing.Command
+                |> Decode.required "urlPrefix" Decode.string
+                |> Decode.required "content" Decode.string
+                |> Decode.required "version" versionDecoder
+                |> Decode.required "envVariables" envVariableDecoder
+            )
 
-                                        _ ->
-                                            Nothing
-                                )
-                in
-                case command of
-                    "routing" ->
-                        Maybe.map3 Routing.Command urlPrefix content version
-                            |> Maybe.map TranspileRouting
 
-                    "translation" ->
-                        Maybe.map3 Translation.Command fileName content version
-                            |> Maybe.map TranspileTranslation
+translationDecoder : Decoder Msg
+translationDecoder =
+    Decode.succeed TranspileTranslation
+        |> Decode.required "translation"
+            (Decode.succeed Translation.Command
+                |> Decode.required "name" Decode.string
+                |> Decode.required "content" Decode.string
+                |> Decode.required "version" versionDecoder
+                |> Decode.required "envVariables" envVariableDecoder
+            )
+
+
+versionDecoder : Decoder Version
+versionDecoder =
+    Decode.string
+        |> Decode.andThen
+            (\versionString ->
+                case versionString of
+                    "0.18" ->
+                        Decode.succeed Elm_0_18
+
+                    "0.19" ->
+                        Decode.succeed Elm_0_19
 
                     _ ->
-                        Nothing
+                        Decode.fail <| "Unsupported version: " ++ versionString
             )
-        >> Maybe.withDefault NoOp
+
+
+envVariableDecoder : Decoder (Dict String String)
+envVariableDecoder =
+    Decode.dict (Decode.maybe Decode.string)
+        |> Decode.map (Dict.filterMap (\k maybeV -> maybeV))
 
 
 {-| Encode transpiled routing results.

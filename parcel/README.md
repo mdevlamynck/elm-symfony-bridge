@@ -70,13 +70,14 @@ This plugin follows parcel's zero-config philosophy and will automatically confi
 * `watchExtensions`: Which file extensions to watch (defaults to `php`, `yaml`, `yml`, `xml`)
 * `watchConfig`: Which files to watch for configuration changes (defaults to `elm.json`, `elm-package.json`, `package.json`, `composer.json`)
 * `dev`: Use symfony's env=dev or env=prod (defaults to parcel's own dev value)
-* `generatedCodeFolder`: Where to put generated code. Automatically added to your elm's `source-directories` config (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
-* `tmpFolder`: Where to put temporary (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
+* `elmRoot`: Where to put generated code. Automatically added to your elm's `source-directories` config (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
+* `outputFolder`: Where to put temporary (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
 * `elmVersion`: Elm version the generated code should be compatible with (defaults to 0.19 if a `elm.json` file is present, 0.18 if a `elm-package.json` file is present)
 * `enableRouting`: Enable generating routes (defaults to true)
 * `urlPrefix`: When dev is true, which prefix to use when generating urls (defaults to `/index.php` or `/app_dev.php` depending on which is found)
 * `enableTranslations`: Enable generating translations (defaults to true if the willdurand/js-translation-bundle package is installed)
 * `lang`: Lang to use when exporting translations (defaults to the default lang configured in symfony)
+* `envVariables`: Variables to replace during compile time
 
 If these rules don't work for you, you can override any of these parameters in your `package.json` under the `elm-symfony-bridge` key like so:
 

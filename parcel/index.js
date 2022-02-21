@@ -12,8 +12,8 @@ function run(bundler) {
         options: {
             watch: bundler.options.watch,
             dev: !bundler.options.production,
-            generatedCodeFolder: 'elm-stuff/generated-code/elm-symfony-bridge',
-            tmpFolder: 'elm-stuff/generated-code/elm-symfony-bridge',
+            elmRoot: './elm-stuff/generated-code/elm-symfony-bridge',
+            outputFolder: './elm-stuff/generated-code/elm-symfony-bridge',
             elmVersion: '0.19',
             enableRouting: true,
             urlPrefix: '/index.php',
@@ -43,6 +43,8 @@ function run(bundler) {
 function loadConfig(global) {
     global.options = utils.overrideDefaultsIfProvided(config.guessImplicit(global), global.options);
     global.options = utils.overrideDefaultsIfProvided(config.readExplicit(), global.options);
+
+    config.loadEnvVariables(global);
 }
 
 function generate(global) {
@@ -53,9 +55,9 @@ function generate(global) {
 
 function prepareFolderForGeneratedCode(global) {
     const file = global.options.elmVersion === '0.19' ? 'elm.json' : 'elm-package.json';
-    fs.editJsonFile(file, (elmConfig) => {
-        return utils.mapKey(elmConfig, 'source-directories', (sources) => {
-            return utils.arrayPushIfNotPresent(sources, global.options.generatedCodeFolder);
+    fs.editJsonFile(file, elmConfig => {
+        return utils.mapKey(elmConfig, 'source-directories', sources => {
+            return utils.arrayPushIfNotPresent(sources, global.options.elmRoot);
         });
     });
 }
