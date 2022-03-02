@@ -1,5 +1,6 @@
 module Translation.TranspilerTest exposing (suite)
 
+import Dict
 import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Test exposing (..)
@@ -28,6 +29,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -61,6 +63,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -99,6 +102,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -140,6 +144,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -188,6 +193,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -246,6 +252,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -302,6 +309,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -347,6 +355,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -388,6 +397,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -429,6 +439,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -475,6 +486,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -521,6 +533,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -574,6 +587,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -621,6 +635,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -669,6 +684,7 @@ suite =
                                     }
                                     """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -708,40 +724,82 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
-            ]
-        , test "Works with translation domains not directly mapping to valid elm module name" <|
-            \_ ->
-                let
-                    input =
-                        { name = ""
-                        , content =
-                            unindent
-                                """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "weird-domain": []
+            , test "Works with translation domains not directly mapping to valid elm module name" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                        {
+                                            "translations": {
+                                                "fr": {
+                                                    "weird-domain": []
+                                                }
                                             }
                                         }
-                                    }
-                                    """
-                        , version = Elm_0_19
-                        }
-
-                    expected =
-                        Ok
-                            { name = "Trans/WeirdDomain.elm"
-                            , content = unindent """
-                                    module Trans.WeirdDomain exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-                                    """
+                                        """
+                            , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
-                in
-                Expect.equal expected (transpileToElm input)
+
+                        expected =
+                            Ok
+                                { name = "Trans/WeirdDomain.elm"
+                                , content = unindent """
+                                        module Trans.WeirdDomain exposing (..)
+
+
+                                        fromInt : Int -> String
+                                        fromInt int =
+                                            String.fromInt int
+                                        """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
+            , test "Handles env variables" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
+                                        {
+                                            "translations": {
+                                                "fr": {
+                                                    "messages": {
+                                                        "env.variable": "une %variable% remplaçée"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        """
+                            , version = Elm_0_19
+                            , envVariables = Dict.fromList [ ( "%variable%", "value" ) ]
+                            }
+
+                        expected =
+                            Ok
+                                { name = "Trans/Messages.elm"
+                                , content = unindent """
+                                        module Trans.Messages exposing (..)
+
+
+                                        fromInt : Int -> String
+                                        fromInt int =
+                                            String.fromInt int
+
+
+                                        env_variable : String
+                                        env_variable =
+                                            \"\"\"une value remplaçée\"\"\"
+                                        """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
+            ]
         , describe "Failed conversion" <|
             [ test "Prints invalid json input" <|
                 \_ ->
@@ -750,6 +808,7 @@ suite =
                             { name = ""
                             , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =

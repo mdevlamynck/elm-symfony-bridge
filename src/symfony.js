@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 function runCommand(command, isDev) {
     return execSync(
         './bin/console ' + command + ' --env=' + (isDev ? 'dev' : 'prod'),
-        {encoding: 'utf8', stdio: []}
+        { encoding: 'utf8', stdio: [] }
     );
 }
 
@@ -40,5 +40,5 @@ module.exports = {
     queryConfig,
     hasBazingaJsTranslationBundle,
     queryRouting,
-    dumpTranslations
+    dumpTranslations,
 };

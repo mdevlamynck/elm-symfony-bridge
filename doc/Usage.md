@@ -153,3 +153,19 @@ It also supports variants to handle plural rules. The special variable `%count%`
 
 Finally if there is a `keyname` in the translation path, an extra function is created accepting a keyname variable to choose the translation. This is for convenience and should be used with care, if the keyname does not match any translation the function returns an empty string.
 
+## Replace variable during compile time
+
+Variables can be resolved at compile time using the `envVariables` option :
+
+```
+envVariables: {
+    '{site_name}': 'SITE_NAME', // example of variable in routing
+    '%site_name%': 'SITE_NAME', // example of variable in translation
+}
+```
+
+Values are read from `./.env.local` or `./env` :
+
+```
+SITE_NAME=value
+```

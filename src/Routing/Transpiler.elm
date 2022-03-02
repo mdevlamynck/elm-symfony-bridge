@@ -22,6 +22,7 @@ type alias Command =
     { urlPrefix : String
     , content : String
     , version : Version
+    , envVariables : Dict String String
     }
 
 
@@ -31,6 +32,7 @@ transpileToElm : Command -> Result String String
 transpileToElm command =
     command.content
         |> readJsonContent
+        |> Result.map (replaceEnvVariables command.envVariables)
         |> Result.andThen parseRouting
         |> Result.map (convertToElm command.version command.urlPrefix)
 
@@ -65,6 +67,15 @@ decodeRouting =
                   succeed Dict.empty
                 ]
             )
+
+
+replaceEnvVariables : Dict String String -> Dict String JsonRouting -> Dict String JsonRouting
+replaceEnvVariables envVariables =
+    let
+        replace routing =
+            Dict.foldl String.replace routing envVariables
+    in
+    Dict.map (\k r -> { r | path = replace r.path })
 
 
 {-| Turns the raw extracted data into our internal representation.

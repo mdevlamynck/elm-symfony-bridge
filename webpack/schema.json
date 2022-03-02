@@ -10,7 +10,7 @@
     "outputFolder": {
       "type": "string",
       "description": "set the folder where content is generated",
-      "default": "public"
+      "default": "./public"
     },
     "elmRoot": {
       "type": "string",
@@ -42,6 +42,12 @@
       "type": "string",
       "description": "when dev is true, which prefix to use when generating urls",
       "default": "/index.php"
+    },
+    "envVariables": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
     }
   }
 }

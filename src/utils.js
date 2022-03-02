@@ -13,8 +13,8 @@ function overrideDefaultsIfProvided(override, defaults) {
 function combinations(l1, l2, callback) {
     let results = [];
 
-    l1.forEach((e1) => {
-        l2.forEach((e2) => {
+    l1.forEach(e1 => {
+        l2.forEach(e2 => {
             results.push(callback(e1, e2));
         });
     });
@@ -28,6 +28,10 @@ function mapKey(object, key, callback) {
     }
 
     return object;
+}
+
+function merge(object = {}, defaultObject = {}) {
+    return Object.assign({}, defaultObject, object);
 }
 
 function setDefaultValueIfAbsent(options, key, value) {
@@ -69,8 +73,9 @@ module.exports = {
     overrideDefaultsIfProvided,
     combinations,
     mapKey,
+    merge,
     setDefaultValueIfAbsent,
     arrayPushIfNotPresent,
     onSuccess,
-    error
+    error,
 };

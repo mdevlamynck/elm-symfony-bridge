@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+New features:
+  * Add support for global variable replacement through env vars
+
 ## 1.1.4
 
 Bug fixes:

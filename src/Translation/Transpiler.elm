@@ -24,6 +24,7 @@ type alias Command =
     { name : String
     , content : String
     , version : Version
+    , envVariables : Dict String String
     }
 
 
@@ -41,6 +42,7 @@ transpileToElm : Command -> Result String File
 transpileToElm command =
     command.content
         |> readJsonContent
+        |> Result.map (replaceEnvVariables command.envVariables)
         |> Result.andThen parseTranslationDomain
         |> Result.map (convertToElm command.version)
 
@@ -106,6 +108,15 @@ readJsonContent =
                     )
                 >> Result.fromMaybe "No translations found in this JSON"
             )
+
+
+replaceEnvVariables : Dict String String -> JsonTranslationDomain -> JsonTranslationDomain
+replaceEnvVariables envVariables json =
+    let
+        replace translation =
+            Dict.foldl String.replace translation envVariables
+    in
+    { json | translations = Dict.map (\k v -> replace v) json.translations }
 
 
 {-| Parses the translations into use usable type.

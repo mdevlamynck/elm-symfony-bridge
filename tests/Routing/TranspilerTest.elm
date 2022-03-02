@@ -1,5 +1,6 @@
 module Routing.TranspilerTest exposing (suite)
 
+import Dict
 import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Routing.Transpiler exposing (transpileToElm)
@@ -19,6 +20,7 @@ suite =
                             , content =
                                 unindent """ """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -47,6 +49,7 @@ suite =
                                 }
                                 """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -76,6 +79,7 @@ suite =
                                 }
                                 """
                             , version = Elm_0_19
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -111,6 +115,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -134,6 +139,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -176,6 +182,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -221,6 +228,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -255,6 +263,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -289,6 +298,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -326,6 +336,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -362,6 +373,7 @@ suite =
                                         }
                                     """
                                 , version = Elm_0_19
+                                , envVariables = Dict.empty
                                 }
 
                             expected =
@@ -378,6 +390,43 @@ suite =
                                     app_rest_user_type : { type_ : String } -> String
                                     app_rest_user_type params_ =
                                         "" ++ "/user/types/" ++ params_.type_
+                                    """
+                        in
+                        Expect.equal expected (transpileToElm input)
+                , test "Handles env variables" <|
+                    \_ ->
+                        let
+                            input =
+                                { urlPrefix = ""
+                                , content =
+                                    unindent """
+                                        {
+                                            "app_rest_user_type": {
+                                                "path": "/user/types/{variable}",
+                                                "requirements": {
+                                                    "type": ""
+                                                }
+                                            }
+                                        }
+                                    """
+                                , version = Elm_0_19
+                                , envVariables = Dict.fromList [ ( "{variable}", "value" ) ]
+                                }
+
+                            expected =
+                                Ok <|
+                                    unindent """
+                                    module Routing exposing (..)
+
+
+                                    fromInt : Int -> String
+                                    fromInt int =
+                                        String.fromInt int
+
+
+                                    app_rest_user_type : String
+                                    app_rest_user_type =
+                                        "" ++ "/user/types/value"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
