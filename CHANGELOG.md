@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+Bug fixes:
+* Fix env files variables merge
+
+
 ## 1.2.0
 
 New features:
