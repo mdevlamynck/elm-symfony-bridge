@@ -12,6 +12,7 @@ function run(bundler) {
         options: {
             watch: bundler.options.watch,
             dev: !bundler.options.production,
+            projectRoot: './',
             elmRoot: './elm-stuff/generated-code/elm-symfony-bridge',
             outputFolder: './elm-stuff/generated-code/elm-symfony-bridge',
             elmVersion: '0.19',

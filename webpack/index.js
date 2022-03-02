@@ -16,6 +16,7 @@ class ElmSymfonyBridgePlugin {
 
         this.options = options;
         utils.setDefaultValueIfAbsent(options, 'outputFolder', './public');
+        utils.setDefaultValueIfAbsent(options, 'projectRoot', './');
         utils.setDefaultValueIfAbsent(options, 'elmRoot', './assets/elm');
         utils.setDefaultValueIfAbsent(options, 'elmVersion', '0.19');
         utils.setDefaultValueIfAbsent(options, 'enableRouting', true);

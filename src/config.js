@@ -8,8 +8,8 @@ import utils from './utils.js';
 function guessImplicit(global) {
     return {
         elmVersion: fs.exists('elm.json') ? '0.19' : (fs.exists('elm-package.json') ? '0.18' : null),
-        enableTranslations: symfony.hasBazingaJsTranslationBundle(global.options.dev),
-        lang: symfony.queryConfig('kernel.default_locale', global.options.dev),
+        enableTranslations: symfony.hasBazingaJsTranslationBundle(global.options),
+        lang: symfony.queryConfig('kernel.default_locale', global.options),
         urlPrefix: guessUrlPrefix()
     };
 }

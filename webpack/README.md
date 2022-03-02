@@ -96,6 +96,7 @@ Encore
     .addPlugin(new ElmSymfonyBridgePlugin({
         dev: !Encore.isProduction(),    // Required: use symfony's env=dev or env=prod
         outputFolder: 'public',         // Optional: set the folder where content is generated, defaults to 'public' (symfony >= 4 uses 'public', symfony < 4 'web')
+        projectRoot: './',              // Optional: root folder of your symfony project, defaults to './'
         elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to './assets/elm'
         elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
 
