@@ -34,13 +34,13 @@ function loadEnvVariables(global) {
     let envVars = readEnvVariables();
 
     Object.entries(global.options.envVariables).forEach(([key, value]) => {
-        global.options.envVariables[key] = envVars.parsed[value] || null;
+        global.options.envVariables[key] = envVars[value] || null;
     });
 }
 
 function readEnvVariables() {
-    let env = dotenv.config({ path: './.env' })
-    let localEnv = dotenv.config({ path: './.env.local' })
+    let env = dotenv.config({ path: './.env' }).parsed;
+    let localEnv = dotenv.config({ path: './.env.local' }).parsed;
 
     return utils.merge(localEnv, env);
 }
