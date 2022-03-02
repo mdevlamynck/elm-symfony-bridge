@@ -12,6 +12,11 @@
       "description": "set the folder where content is generated",
       "default": "./public"
     },
+    "projectRoot": {
+      "type": "string",
+      "description": "root folder of your symfony project",
+      "default": "./"
+    },
     "elmRoot": {
       "type": "string",
       "description": "root folder of your elm code",
