@@ -31,22 +31,27 @@ function readExplicit() {
 }
 
 function loadEnvVariables(global) {
-    let envVars = readEnvVariables();
+    let envVars = readEnvVariables(global.options);
 
     Object.entries(global.options.envVariables).forEach(([key, value]) => {
         global.options.envVariables[key] = envVars[value] || null;
     });
 }
 
-function readEnvVariables() {
-    let env = dotenv.config({ path: './.env' }).parsed;
-    let localEnv = dotenv.config({ path: './.env.local' }).parsed;
+function readEnvVariables(options) {
+    let env = dotenv.config({ path: resolve('./.env', options) }).parsed;
+    let localEnv = dotenv.config({ path: resolve('./.env.local', options) }).parsed;
 
     return utils.merge(localEnv, env);
+}
+
+function resolve(folder, options) {
+    return path.resolve(options.projectRoot, folder);
 }
 
 module.exports = {
     guessImplicit,
     readExplicit,
     loadEnvVariables,
+    resolve,
 };

@@ -1,15 +1,19 @@
+import config from './config.js';
 import { execSync } from 'child_process';
 
 function runCommand(command, options) {
+    const consoleBinPath = config.resolve('bin/console', options);
+
     return execSync(
-        options.projectRoot + 'bin/console ' + command + ' --env=' + (options.dev ? 'dev' : 'prod'),
+        consoleBinPath + ' ' + command + ' --env=' + (options.dev ? 'dev' : 'prod'),
         { encoding: 'utf8', stdio: [] }
     );
 }
 
 function queryConfig(configKey, options) {
-    const config = JSON.parse(runCommand(`debug:container --parameter=${configKey} --format=json`, options));
-    return config[configKey] || null;
+    const conf = JSON.parse(runCommand(`debug:container --parameter=${configKey} --format=json`, options));
+
+    return conf[configKey] || null;
 }
 
 function hasBazingaJsTranslationBundle(options) {
@@ -26,7 +30,9 @@ function queryRouting(options) {
 }
 
 function dumpTranslations(options) {
-    runCommand('bazinga:js-translation:dump ' + options.outputFolder, options);
+    const outputFolder = config.resolve(options.outputFolder, options);
+
+    runCommand('bazinga:js-translation:dump ' + outputFolder, options);
 }
 
 function fixPhpJsonSerialization(content) {

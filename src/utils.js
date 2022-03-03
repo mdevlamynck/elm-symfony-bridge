@@ -36,6 +36,7 @@ function merge(object = {}, defaultObject = {}) {
 
 function setDefaultValueIfAbsent(options, key, value) {
     var actualValue = options[key];
+
     if (actualValue === null || typeof actualValue === 'undefined') {
         options[key] = value;
     }
