@@ -1,8 +1,8 @@
-import config from './config.js';
+import fs from './filesystem.js';
 import { execSync } from 'child_process';
 
 function runCommand(command, options) {
-    const consoleBinPath = config.resolve('bin/console', options);
+    const consoleBinPath = fs.resolve('bin/console', options);
 
     return execSync(
         consoleBinPath + ' ' + command + ' --env=' + (options.dev ? 'dev' : 'prod'),
@@ -30,7 +30,7 @@ function queryRouting(options) {
 }
 
 function dumpTranslations(options) {
-    const outputFolder = config.resolve(options.outputFolder, options);
+    const outputFolder = fs.resolve(options.outputFolder, options);
 
     runCommand('bazinga:js-translation:dump ' + outputFolder, options);
 }

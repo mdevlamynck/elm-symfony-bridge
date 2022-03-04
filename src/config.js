@@ -39,19 +39,14 @@ function loadEnvVariables(global) {
 }
 
 function readEnvVariables(options) {
-    let env = dotenv.config({ path: resolve('./.env', options) }).parsed;
-    let localEnv = dotenv.config({ path: resolve('./.env.local', options) }).parsed;
+    let env = dotenv.config({ path: fs.resolve('./.env', options) }).parsed;
+    let localEnv = dotenv.config({ path: fs.resolve('./.env.local', options) }).parsed;
 
     return utils.merge(localEnv, env);
-}
-
-function resolve(folder, options) {
-    return path.resolve(options.projectRoot, folder);
 }
 
 module.exports = {
     guessImplicit,
     readExplicit,
     loadEnvVariables,
-    resolve,
 };

@@ -53,10 +53,15 @@ function editJsonFile(filePath, callback) {
     }
 }
 
+function resolve(folder, options) {
+    return path.resolve(options.projectRoot, folder);
+}
+
 module.exports = {
     exists,
     writeIfChanged,
     readFile,
     readJsonFile,
     editJsonFile,
+    resolve,
 };

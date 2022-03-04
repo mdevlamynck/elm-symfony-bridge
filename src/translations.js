@@ -1,4 +1,3 @@
-import config from './config.js';
 import fs from './filesystem.js';
 import glob from 'glob';
 import symfony from './symfony.js';
@@ -15,7 +14,7 @@ function transpile(global, callback = null) {
 
     symfony.dumpTranslations(global.options);
 
-    const outputFolder = config.resolve(global.options.outputFolder, global.options);
+    const outputFolder = fs.resolve(global.options.outputFolder, global.options);
     const files = glob.sync(outputFolder + '/translations/*/' + global.options.lang + '.json');
     let remainingTranslations = files.length;
 

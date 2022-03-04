@@ -31,7 +31,7 @@ function run(bundler) {
         const regenerateWatches = utils.combinations(
             global.options.watchFolders,
             global.options.watchExtensions,
-            (folder, extension) => config.resolve(folder, global.options) + '/**/*.' + extension
+            (folder, extension) => fs.resolve(folder, global.options) + '/**/*.' + extension
         );
 
         chokidar.watch(regenerateWatches, { ignoreInitial: true }).on('all', () => generate(global));

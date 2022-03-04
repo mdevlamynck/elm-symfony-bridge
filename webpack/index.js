@@ -1,5 +1,6 @@
 import ElmWorker from '../src/Main.elm';
 import config from '../src/config.js';
+import fs from '../src/filesystem.js';
 import routing from '../src/routing.js';
 import schema from './schema.json';
 import symfony from '../src/symfony.js';
@@ -55,9 +56,9 @@ class ElmSymfonyBridgePlugin {
             let dirs = compilation.contextDependencies;
 
             if (typeof dirs !== 'undefined') {
-                const absolutePath = config.resolve(folder, that.options);
-
                 watchedFolders.forEach(folder => {
+                    const absolutePath = fs.resolve(folder, that.options);
+
                     utils.arrayPushIfNotPresent(dirs, absolutePath);
                 });
 
