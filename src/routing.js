@@ -11,7 +11,7 @@ function transpile(global, callback = null) {
         return;
     }
 
-    let content = symfony.queryRouting(global.options.dev);
+    let content = symfony.queryRouting(global.options);
 
     const elmSubscription = data => {
         utils.onSuccess('routing', data, () => {

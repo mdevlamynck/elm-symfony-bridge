@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+New features:
+* Add projectRoot option
+
 ## 1.2.1
 
 Bug fixes:

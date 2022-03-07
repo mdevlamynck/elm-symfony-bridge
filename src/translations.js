@@ -12,7 +12,7 @@ function transpile(global, callback = null) {
         return;
     }
 
-    symfony.dumpTranslations(global.options.outputFolder, global.options.dev);
+    symfony.dumpTranslations(global.options);
 
     const files = glob.sync(global.options.outputFolder + '/translations/*/' + global.options.lang + '.json');
     let remainingTranslations = files.length;

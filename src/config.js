@@ -8,8 +8,8 @@ import utils from './utils.js';
 function guessImplicit(global) {
     return {
         elmVersion: fs.exists('elm.json') ? '0.19' : (fs.exists('elm-package.json') ? '0.18' : null),
-        enableTranslations: symfony.hasBazingaJsTranslationBundle(global.options.dev),
-        lang: symfony.queryConfig('kernel.default_locale', global.options.dev),
+        enableTranslations: symfony.hasBazingaJsTranslationBundle(global.options),
+        lang: symfony.queryConfig('kernel.default_locale', global.options),
         urlPrefix: guessUrlPrefix()
     };
 }
@@ -31,16 +31,16 @@ function readExplicit() {
 }
 
 function loadEnvVariables(global) {
-    let envVars = readEnvVariables();
+    let envVars = readEnvVariables(global.options);
 
     Object.entries(global.options.envVariables).forEach(([key, value]) => {
         global.options.envVariables[key] = envVars[value] || null;
     });
 }
 
-function readEnvVariables() {
-    let env = dotenv.config({ path: './.env' }).parsed;
-    let localEnv = dotenv.config({ path: './.env.local' }).parsed;
+function readEnvVariables(options) {
+    let env = dotenv.config({ path: fs.resolve('./.env', options) }).parsed;
+    let localEnv = dotenv.config({ path: fs.resolve('./.env.local', options) }).parsed;
 
     return utils.merge(localEnv, env);
 }

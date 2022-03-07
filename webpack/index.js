@@ -1,5 +1,6 @@
 import ElmWorker from '../src/Main.elm';
 import config from '../src/config.js';
+import fs from '../src/filesystem.js';
 import routing from '../src/routing.js';
 import schema from './schema.json';
 import symfony from '../src/symfony.js';
@@ -15,7 +16,8 @@ class ElmSymfonyBridgePlugin {
         validate(schema, options, 'elm-symfony-bridge');
 
         this.options = options;
-        utils.setDefaultValueIfAbsent(options, 'outputFolder', './public');
+        utils.setDefaultValueIfAbsent(options, 'outputFolder', './elm-stuff/generated-code/elm-symfony-bridge');
+        utils.setDefaultValueIfAbsent(options, 'projectRoot', './');
         utils.setDefaultValueIfAbsent(options, 'elmRoot', './assets/elm');
         utils.setDefaultValueIfAbsent(options, 'elmVersion', '0.19');
         utils.setDefaultValueIfAbsent(options, 'enableRouting', true);
@@ -55,7 +57,9 @@ class ElmSymfonyBridgePlugin {
 
             if (typeof dirs !== 'undefined') {
                 watchedFolders.forEach(folder => {
-                    utils.arrayPushIfNotPresent(dirs, folder);
+                    const absolutePath = fs.resolve(folder, that.options);
+
+                    utils.arrayPushIfNotPresent(dirs, absolutePath);
                 });
 
                 compilation.contextDependencies = dirs;

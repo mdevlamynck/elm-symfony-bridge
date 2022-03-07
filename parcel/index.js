@@ -12,6 +12,7 @@ function run(bundler) {
         options: {
             watch: bundler.options.watch,
             dev: !bundler.options.production,
+            projectRoot: './',
             elmRoot: './elm-stuff/generated-code/elm-symfony-bridge',
             outputFolder: './elm-stuff/generated-code/elm-symfony-bridge',
             elmVersion: '0.19',
@@ -30,7 +31,7 @@ function run(bundler) {
         const regenerateWatches = utils.combinations(
             global.options.watchFolders,
             global.options.watchExtensions,
-            (folder, extension) => folder + '/**/*.' + extension
+            (folder, extension) => fs.resolve(folder, global.options) + '/**/*.' + extension
         );
 
         chokidar.watch(regenerateWatches, { ignoreInitial: true }).on('all', () => generate(global));
