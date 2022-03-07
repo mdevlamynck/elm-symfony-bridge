@@ -72,7 +72,7 @@ This plugin follows parcel's zero-config philosophy and will automatically confi
 * `dev`: Use symfony's env=dev or env=prod (defaults to parcel's own dev value)
 * `projectRoot`: Path to the root of your symfony project (defaults to `./`)
 * `elmRoot`: Where to put generated code. Automatically added to your elm's `source-directories` config (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
-* `outputFolder`: Where to put temporary (defaults to `elm-stuff/generated-code/elm-symfony-bridge`)
+* `outputFolder`: Where to put intermediate build artifacts (defaults to `./elm-stuff/generated-code/elm-symfony-bridge`)
 * `elmVersion`: Elm version the generated code should be compatible with (defaults to 0.19 if a `elm.json` file is present, 0.18 if a `elm-package.json` file is present)
 * `enableRouting`: Enable generating routes (defaults to true)
 * `urlPrefix`: When dev is true, which prefix to use when generating urls (defaults to `/index.php` or `/app_dev.php` depending on which is found)

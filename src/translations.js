@@ -14,8 +14,7 @@ function transpile(global, callback = null) {
 
     symfony.dumpTranslations(global.options);
 
-    const outputFolder = fs.resolve(global.options.outputFolder, global.options);
-    const files = glob.sync(outputFolder + '/translations/*/' + global.options.lang + '.json');
+    const files = glob.sync(global.options.outputFolder + '/translations/*/' + global.options.lang + '.json');
     let remainingTranslations = files.length;
 
     const elmSubscription = data => {

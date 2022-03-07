@@ -9,7 +9,7 @@
     },
     "outputFolder": {
       "type": "string",
-      "description": "set the folder where content is generated",
+      "description": "set the folder where to put intermediate build artifacts",
       "default": "./public"
     },
     "projectRoot": {

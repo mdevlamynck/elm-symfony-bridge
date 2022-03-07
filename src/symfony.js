@@ -30,9 +30,7 @@ function queryRouting(options) {
 }
 
 function dumpTranslations(options) {
-    const outputFolder = fs.resolve(options.outputFolder, options);
-
-    runCommand('bazinga:js-translation:dump ' + outputFolder, options);
+    runCommand('bazinga:js-translation:dump ' + options.outputFolder, options);
 }
 
 function fixPhpJsonSerialization(content) {
