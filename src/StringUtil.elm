@@ -1,4 +1,4 @@
-module StringUtil exposing (indent, splitOn)
+module StringUtil exposing (indent, unindent, splitOn)
 
 {-| Extra tools on strings.
 
@@ -6,7 +6,7 @@ module StringUtil exposing (indent, splitOn)
 
 -}
 
-import List.Extra exposing (dropWhile, span, takeWhile)
+import List.Extra as List exposing (dropWhile, span, takeWhile)
 
 
 {-| Add one level of indentation (4 spaces) to the given string.
@@ -28,6 +28,48 @@ indent lines =
             )
         |> String.join "\n"
 
+{-| Unindents a multiline string to allow you to embed code (like json) in elm.
+
+It removes indentation on every lines up to the first character of the first line.
+Leading and trailing empty lines are removed.
+
+    jsonWithUnindent : String
+    jsonWithUnindent =
+        unindent """
+        {
+            "some": "json value",
+            "embedded": "in your elm code"
+        }
+        """
+
+    jsonWithoutUnindent : String
+    jsonWithoutUnindent =
+        "{\n    \"some\": \"json value\",\n    \"embedded\": \"in your elm code\"\n}"
+
+    jsonWithUnindent == jsonWithoutUnindent
+    --> True
+
+-}
+unindent : String -> String
+unindent text =
+    let
+        textTrimmedFromEmptyLines =
+            text
+                |> String.lines
+                |> List.dropWhile (String.toList >> List.all ((==) ' '))
+                |> List.dropWhileRight (String.toList >> List.all ((==) ' '))
+
+        nbCharToDrop =
+            textTrimmedFromEmptyLines
+                |> List.head
+                |> Maybe.withDefault ""
+                |> String.toList
+                |> List.takeWhile ((==) ' ')
+                |> List.length
+    in
+    textTrimmedFromEmptyLines
+        |> List.map (String.dropLeft nbCharToDrop)
+        |> String.join "\n"
 
 {-| Split a string on separator (skipping the separators) using a predicate to detect separators.
 

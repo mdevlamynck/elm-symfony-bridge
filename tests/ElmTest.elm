@@ -4,7 +4,7 @@ import Dict
 import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), Version(..), renderElmModule)
 import Expect exposing (Expectation)
 import Test exposing (..)
-import Unindent exposing (..)
+import StringUtil exposing (..)
 
 
 suite : Test
