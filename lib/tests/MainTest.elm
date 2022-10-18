@@ -6,7 +6,7 @@ import Expect exposing (Expectation)
 import Json.Encode as Encode exposing (Value)
 import Main exposing (Msg(..), decodeJsValue, update)
 import Test exposing (..)
-import Unindent exposing (..)
+import StringUtil exposing (..)
 
 
 suite : Test

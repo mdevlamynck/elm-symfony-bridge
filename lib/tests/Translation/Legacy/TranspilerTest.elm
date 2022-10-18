@@ -5,7 +5,7 @@ import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Test exposing (..)
 import Translation.Transpiler exposing (transpileToElm)
-import Unindent exposing (..)
+import StringUtil exposing (..)
 
 
 suite : Test
