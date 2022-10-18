@@ -8,7 +8,11 @@ module Routing.Transpiler exposing (Command, transpileToElm)
 
 import Char
 import Dict exposing (Dict)
-import Elm exposing (..)
+import Elm
+import Elm.Annotation
+import Elm.Op
+import ElmOld exposing (..)
+import Gen.String
 import Json.Decode exposing (Decoder, decodeString, dict, errorToString, map, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (required)
 import Result.Extra as Result
@@ -21,7 +25,6 @@ import Routing.Parser as Parser
 type alias Command =
     { urlPrefix : String
     , content : String
-    , version : Version
     , envVariables : Dict String String
     }
 
@@ -34,7 +37,7 @@ transpileToElm command =
         |> readJsonContent
         |> Result.map (replaceEnvVariables command.envVariables)
         |> Result.andThen parseRouting
-        |> Result.map (convertToElm command.version command.urlPrefix)
+        |> Result.map (convertToElm command.urlPrefix)
 
 
 {-| Represents the content of a JSON routing.
@@ -143,58 +146,92 @@ removeLeadingUnderscore name =
 
 {-| Turns the routing information into an elm module.
 -}
-convertToElm : Version -> String -> Dict String Routing -> String
-convertToElm version urlPrefix routing =
-    Module "Routing"
+convertToElm : String -> Dict String Routing -> String
+convertToElm urlPrefix routing =
+    Elm.file [ "Routing" ]
         (routing
             |> Dict.toList
             |> List.map (routeToElmFunction urlPrefix)
         )
-        |> renderElmModule version
+        |> .contents
 
 
 {-| Turns one route into an elm function.
 -}
-routeToElmFunction : String -> ( String, Routing ) -> Function
+routeToElmFunction : String -> ( String, Routing ) -> Elm.Declaration
 routeToElmFunction urlPrefix ( routeName, routing ) =
     let
-        record =
+        onlyConsts =
             routing
                 |> List.filterMap
                     (\chunk ->
                         case chunk of
-                            Variable Int name ->
-                                Just ( name, "Int" )
-
-                            Variable String name ->
-                                Just ( name, "String" )
+                            Constant path ->
+                                Just path
 
                             _ ->
                                 Nothing
                     )
-                |> Dict.fromList
+    in
+    if List.length onlyConsts == List.length routing then
+        routeToElmFunctionWithoutParams urlPrefix routeName onlyConsts
 
-        arguments =
-            if Dict.isEmpty record then
-                []
+    else
+        routeToElmFunctionWithParams urlPrefix routeName routing
 
-            else
-                [ Record record ]
 
-        url =
-            (Constant urlPrefix :: routing)
-                |> List.map
+{-| Turns one route into an elm function.
+-}
+routeToElmFunctionWithoutParams : String -> String -> List String -> Elm.Declaration
+routeToElmFunctionWithoutParams urlPrefix routeName routing =
+    Elm.declaration routeName <|
+        Gen.String.call_.concat
+            ((urlPrefix :: routing)
+                |> List.map Elm.string
+                |> Elm.list
+            )
+
+
+{-| Turns one route into an elm function with parameters.
+-}
+routeToElmFunctionWithParams : String -> String -> Routing -> Elm.Declaration
+routeToElmFunctionWithParams urlPrefix routeName routing =
+    let
+        args =
+            ( "params_", Just <| Elm.Annotation.record argsType )
+
+        argsType =
+            routing
+                |> List.filterMap
                     (\chunk ->
                         case chunk of
                             Constant path ->
-                                quote path
+                                Nothing
 
                             Variable Int name ->
-                                "(fromInt params_." ++ name ++ ")"
+                                Just ( name, Elm.Annotation.int )
 
                             Variable String name ->
-                                "params_." ++ name
+                                Just ( name, Elm.Annotation.string )
                     )
-                |> String.join " ++ "
+
+        body params_ =
+            Gen.String.call_.concat
+                ((Constant urlPrefix :: routing)
+                    |> List.map
+                        (\chunk ->
+                            case chunk of
+                                Constant path ->
+                                    Elm.string path
+
+                                Variable Int name ->
+                                    Gen.String.call_.fromInt (params_ |> Elm.get name)
+
+                                Variable String name ->
+                                    params_ |> Elm.get name
+                        )
+                    |> Elm.list
+                )
     in
-    Function routeName arguments "String" (Expr url)
+    Elm.declaration routeName <|
+        Elm.fn args body

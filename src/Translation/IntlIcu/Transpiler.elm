@@ -1,7 +1,7 @@
 module Translation.IntlIcu.Transpiler exposing (parseTranslation, translationToElm)
 
 import Dict
-import Elm exposing (..)
+import ElmOld exposing (..)
 import Result
 import Translation.IntlIcu.Data exposing (..)
 import Translation.IntlIcu.Parser as Parser
@@ -153,7 +153,7 @@ chunkToElm chunk =
                     Expr <| "params_." ++ var.name
 
                 Number _ ->
-                    Expr <| "(fromInt params_." ++ var.name ++ ")"
+                    Expr <| "(String.fromInt params_." ++ var.name ++ ")"
 
                 Date _ ->
                     Debug.todo ""

@@ -1,4 +1,7 @@
-module StringUtil exposing (indent, unindent, splitOn)
+module StringUtil exposing
+    ( indent, splitOn
+    , unindent
+    )
 
 {-| Extra tools on strings.
 
@@ -27,6 +30,7 @@ indent lines =
                     ""
             )
         |> String.join "\n"
+
 
 {-| Unindents a multiline string to allow you to embed code (like json) in elm.
 
@@ -70,6 +74,7 @@ unindent text =
     textTrimmedFromEmptyLines
         |> List.map (String.dropLeft nbCharToDrop)
         |> String.join "\n"
+
 
 {-| Split a string on separator (skipping the separators) using a predicate to detect separators.
 

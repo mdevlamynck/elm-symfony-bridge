@@ -7,7 +7,7 @@ module Routing.Parser exposing (parseRoutingContent)
 -}
 
 import Char
-import Elm
+import ElmOld
 import Parser exposing (..)
 import Parser.Extra exposing (chomp)
 import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
@@ -55,7 +55,7 @@ variable : Parser String
 variable =
     let
         buildVariable varName =
-            if List.member varName Elm.keywords then
+            if List.member varName ElmOld.keywords then
                 varName ++ "_"
 
             else

@@ -1,12 +1,11 @@
 module MainTest exposing (suite)
 
 import Dict
-import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Json.Encode as Encode exposing (Value)
 import Main exposing (Msg(..), decodeJsValue, update)
-import Test exposing (..)
 import StringUtil exposing (..)
+import Test exposing (..)
 
 
 suite : Test
@@ -22,14 +21,13 @@ suite =
                                   , Encode.object
                                         [ ( "name", Encode.string "fileName" )
                                         , ( "content", Encode.string "{}" )
-                                        , ( "version", Encode.string "0.19" )
                                         , ( "envVariables", Encode.object [ ( "key", Encode.string "value" ) ] )
                                         ]
                                   )
                                 ]
 
                         expected =
-                            TranspileTranslation { name = "fileName", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
+                            TranspileTranslation { name = "fileName", content = "{}", envVariables = Dict.fromList [ ( "key", "value" ) ] }
                     in
                     Expect.equal expected (decodeJsValue input)
             , test "Valid transpile routing command" <|
@@ -41,14 +39,13 @@ suite =
                                   , Encode.object
                                         [ ( "urlPrefix", Encode.string "/" )
                                         , ( "content", Encode.string "{}" )
-                                        , ( "version", Encode.string "0.19" )
                                         , ( "envVariables", Encode.object [ ( "key", Encode.string "value" ) ] )
                                         ]
                                   )
                                 ]
 
                         expected =
-                            TranspileRouting { urlPrefix = "/", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
+                            TranspileRouting { urlPrefix = "/", content = "{}", envVariables = Dict.fromList [ ( "key", "value" ) ] }
                     in
                     Expect.equal expected (decodeJsValue input)
             ]
@@ -84,7 +81,6 @@ suite =
                                                 }
                                             }
                                             """
-                                    , version = Elm_0_19
                                     , envVariables = Dict.empty
                                     }
 
@@ -98,11 +94,6 @@ suite =
                                             , ( "content"
                                               , Encode.string <| unindent """
                                             module Trans.Messages exposing (..)
-
-
-                                            fromInt : Int -> String
-                                            fromInt int =
-                                                String.fromInt int
 
 
                                             button_validate_global : String
@@ -122,7 +113,6 @@ suite =
                                 TranspileTranslation <|
                                     { name = "fileName"
                                     , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
-                                    , version = Elm_0_19
                                     , envVariables = Dict.empty
                                     }
 
@@ -137,7 +127,7 @@ suite =
                                                     Error fileName: Problem with the given value:
 
                                                     "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
-                                                    
+
                                                     This is not valid JSON! Unexpected string in JSON at position 67
                                                     """
                                       )

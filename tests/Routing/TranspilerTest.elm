@@ -1,11 +1,10 @@
 module Routing.TranspilerTest exposing (suite)
 
 import Dict
-import Elm exposing (Version(..))
 import Expect exposing (Expectation)
 import Routing.Transpiler exposing (transpileToElm)
-import Test exposing (..)
 import StringUtil exposing (..)
+import Test exposing (..)
 
 
 suite : Test
@@ -19,7 +18,6 @@ suite =
                             { urlPrefix = ""
                             , content =
                                 unindent """ """
-                            , version = Elm_0_19
                             , envVariables = Dict.empty
                             }
 
@@ -48,7 +46,6 @@ suite =
                                     }
                                 }
                                 """
-                            , version = Elm_0_19
                             , envVariables = Dict.empty
                             }
 
@@ -78,7 +75,6 @@ suite =
                                     }
                                 }
                                 """
-                            , version = Elm_0_19
                             , envVariables = Dict.empty
                             }
 
@@ -114,7 +110,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -138,7 +133,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -148,14 +142,9 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_front_home : String
                                     app_front_home =
-                                        "/app_dev.php" ++ "/home"
+                                        String.concat [ "/app_dev.php", "/home" ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -181,7 +170,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -191,24 +179,19 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_front_home : String
                                     app_front_home =
-                                        "" ++ "/home"
+                                        String.concat [ "", "/home" ]
 
 
                                     f_9things : String
                                     f_9things =
-                                        "" ++ "/home"
+                                        String.concat [ "", "/home" ]
 
 
                                     f_ignored_route : String
                                     f_ignored_route =
-                                        "" ++ "/home"
+                                        String.concat [ "", "/home" ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -227,7 +210,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -237,14 +219,9 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_front_home : String
                                     app_front_home =
-                                        "" ++ "/home"
+                                        String.concat [ "", "/home" ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -262,7 +239,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -272,14 +248,9 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_fr_n__h0m3 : String
                                     app_fr_n__h0m3 =
-                                        "" ++ "/home"
+                                        String.concat [ "", "/home" ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -297,7 +268,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -307,14 +277,9 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_front_home : String
                                     app_front_home =
-                                        "" ++ "/home"
+                                        String.concat [ "", "/home" ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -335,7 +300,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -345,14 +309,15 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_rest_user_find_friend : { id : Int, username : String } -> String
                                     app_rest_user_find_friend params_ =
-                                        "" ++ "/user/" ++ (fromInt params_.id) ++ "/find-friend/" ++ params_.username
+                                        String.concat
+                                            [ ""
+                                            , "/user/"
+                                            , String.fromInt params_.id
+                                            , "/find-friend/"
+                                            , params_.username
+                                            ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -372,7 +337,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.empty
                                 }
 
@@ -382,14 +346,9 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_rest_user_type : { type_ : String } -> String
                                     app_rest_user_type params_ =
-                                        "" ++ "/user/types/" ++ params_.type_
+                                        String.concat [ "", "/user/types/", params_.type_ ]
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -409,7 +368,6 @@ suite =
                                             }
                                         }
                                     """
-                                , version = Elm_0_19
                                 , envVariables = Dict.fromList [ ( "{variable}", "value" ) ]
                                 }
 

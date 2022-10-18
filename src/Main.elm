@@ -8,7 +8,6 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 import Dict exposing (Dict)
 import Dict.Extra as Dict
-import Elm exposing (Version(..))
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode exposing (Value)
@@ -109,7 +108,6 @@ routingDecoder =
             (Decode.succeed Routing.Command
                 |> Decode.required "urlPrefix" Decode.string
                 |> Decode.required "content" Decode.string
-                |> Decode.required "version" versionDecoder
                 |> Decode.required "envVariables" envVariableDecoder
             )
 
@@ -121,27 +119,11 @@ translationDecoder =
             (Decode.succeed Translation.Command
                 |> Decode.required "name" Decode.string
                 |> Decode.required "content" Decode.string
-                |> Decode.required "version" versionDecoder
                 |> Decode.required "envVariables" envVariableDecoder
             )
 
 
-versionDecoder : Decoder Version
-versionDecoder =
-    Decode.string
-        |> Decode.andThen
-            (\versionString ->
-                case versionString of
-                    "0.18" ->
-                        Decode.succeed Elm_0_18
-
-                    "0.19" ->
-                        Decode.succeed Elm_0_19
-
-                    _ ->
-                        Decode.fail <| "Unsupported version: " ++ versionString
-            )
-
+                    "translation" ->
 
 envVariableDecoder : Decoder (Dict String String)
 envVariableDecoder =

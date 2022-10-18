@@ -2,7 +2,7 @@ module Translation.Legacy.Transpiler exposing (keynameTranslations, parseTransla
 
 import Dict exposing (Dict)
 import Dict.Extra as Dict
-import Elm exposing (..)
+import ElmOld exposing (..)
 import List.Unique
 import Result
 import String.Extra as String
@@ -331,7 +331,7 @@ chunkToString chunk =
             "params_." ++ variable
 
         VariableCount ->
-            "(fromInt count)"
+            "(String.fromInt count)"
 
 
 {-| Creates all extra keyname translation functions.
