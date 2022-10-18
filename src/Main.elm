@@ -7,7 +7,6 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 -}
 
 import Dict
-import Elm exposing (Version(..))
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
 import Platform exposing (Program, worker)
@@ -95,28 +94,14 @@ decodeJsValue =
                     content =
                         Dict.get "content" commandArgs
 
-                    version =
-                        Dict.get "version" commandArgs
-                            |> Maybe.andThen
-                                (\versionString ->
-                                    case versionString of
-                                        "0.18" ->
-                                            Just Elm_0_18
-
-                                        "0.19" ->
-                                            Just Elm_0_19
-
-                                        _ ->
-                                            Nothing
-                                )
                 in
                 case command of
                     "routing" ->
-                        Maybe.map3 Routing.Command urlPrefix content version
+                        Maybe.map2 Routing.Command urlPrefix content
                             |> Maybe.map TranspileRouting
 
                     "translation" ->
-                        Maybe.map3 Translation.Command fileName content version
+                        Maybe.map2 Translation.Command fileName content
                             |> Maybe.map TranspileTranslation
 
                     _ ->

@@ -1,10 +1,9 @@
 module Translation.IntlIcu.TranspilerTest exposing (suite)
 
-import Elm exposing (Version(..))
 import Expect exposing (Expectation)
+import StringUtil exposing (..)
 import Test exposing (..)
 import Translation.Transpiler exposing (transpileToElm)
-import StringUtil exposing (..)
 
 
 suite : Test
@@ -27,7 +26,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -35,11 +33,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
                                     """
                                 }
                     in
@@ -60,7 +53,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -68,11 +60,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     translation : String
@@ -98,7 +85,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -106,11 +92,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     translation : String
@@ -139,7 +120,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -147,11 +127,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     button_validate_global : String
@@ -187,7 +162,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -195,11 +169,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     boolean_false : String
@@ -245,7 +214,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -253,11 +221,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     array : String
@@ -301,7 +264,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -309,11 +271,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     form_step2_save : String
@@ -346,7 +303,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -354,11 +310,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     multiline_html_translation : { link : String } -> String
@@ -388,7 +339,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -396,11 +346,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     this_value_is_not_valid_ : String
@@ -429,7 +374,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -437,11 +381,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     f_9things : String
@@ -474,7 +413,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -482,11 +420,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
@@ -514,7 +447,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -524,14 +456,9 @@ suite =
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     user_notifications : { count : Int } -> String
                                     user_notifications params_ =
-                                        (fromInt params_.count) ++ " notifications non lues"
+                                        (String.fromInt params_.count) ++ " notifications non lues"
                                     """
                                 }
                     in
@@ -557,7 +484,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -565,11 +491,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     global_expression_gender : { gender : String } -> String
@@ -609,7 +530,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -617,11 +537,6 @@ suite =
                                 { name = "Trans/MessagesIntlIcu.elm"
                                 , content = unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     global_expression_photos : { numPhotos : Int } -> String
@@ -636,7 +551,7 @@ suite =
                                                         "one photo"
 
                                                     _ ->
-                                                        (fromInt params_.numPhotos) ++ " photos"
+                                                        (String.fromInt params_.numPhotos) ++ " photos"
                                         in
                                         var0
                                     """
@@ -662,7 +577,6 @@ suite =
             --                        }
             --                    }
             --                    """
-            --            , version = Elm_0_19
             --            }
             --
             --        expected =
@@ -670,11 +584,6 @@ suite =
             --                { name = "Trans/MessagesIntlIcu.elm"
             --                , content = unindent """
             --                    module Trans.MessagesIntlIcu exposing (..)
-            --
-            --
-            --                    fromInt : Int -> String
-            --                    fromInt int =
-            --                        String.fromInt int
             --
             --
             --                    party_guests : { numGuests : Int } -> String
@@ -689,7 +598,7 @@ suite =
             --                                        "host and a guest"
             --
             --                                    _ ->
-            --                                        (fromInt <| params_.numGuests - 1) ++ " guests"
+            --                                        (String.fromInt <| params_.numGuests - 1) ++ " guests"
             --                        in
             --                        var0
             --                    """
@@ -715,7 +624,6 @@ suite =
             --                        }
             --                    }
             --                    """
-            --            , version = Elm_0_19
             --            }
             --
             --        expected =
@@ -723,11 +631,6 @@ suite =
             --                { name = "Trans/MessagesIntlIcu.elm"
             --                , content = unindent """
             --                    module Trans.MessagesIntlIcu exposing (..)
-            --
-            --
-            --                    fromInt : Int -> String
-            --                    fromInt int =
-            --                        String.fromInt int
             --
             --
             --                    party_guests : { gender_of_host : String, guest : String, host : String, num_guests : Int } -> String
@@ -749,7 +652,7 @@ suite =
             --                                                        params_.host ++ " invites " ++ params_.guest ++ " and one other person to her party."
             --
             --                                                    _ ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (fromInt <| params_.num_guests - 1) ++ " other people to her party."
+            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (String.fromInt <| params_.num_guests - 1) ++ " other people to her party."
             --                                        in
             --                                        var1
             --
@@ -767,7 +670,7 @@ suite =
             --                                                        params_.host ++ " invites " ++ params_.guest ++ " and one other person to his party."
             --
             --                                                    _ ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (fromInt <| params_.num_guests - 1) ++ " other people to his party."
+            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (String.fromInt <| params_.num_guests - 1) ++ " other people to his party."
             --                                        in
             --                                        var1
             --
@@ -785,7 +688,7 @@ suite =
             --                                                        params_.host ++ " invites " ++ params_.guest ++ " and one other person to their party."
             --
             --                                                    _ ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (fromInt <| params_.num_guests - 1) ++ " other people to their party."
+            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (String.fromInt <| params_.num_guests - 1) ++ " other people to their party."
             --                                        in
             --                                        var1
             --                        in
@@ -811,7 +714,6 @@ suite =
                                         }
                                     }
                                     """
-                        , version = Elm_0_19
                         }
 
                     expected =
@@ -819,11 +721,6 @@ suite =
                             { name = "Trans/WeirdDomainIntlIcu.elm"
                             , content = unindent """
                                     module Trans.WeirdDomainIntlIcu exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
                                     """
                             }
                 in
@@ -835,7 +732,6 @@ suite =
                         input =
                             { name = ""
                             , content = """{ "translations": { "fr": { "messages+intl-icu": { "button.validate.global" "Ok" } } } }"""
-                            , version = Elm_0_19
                             }
 
                         expected =

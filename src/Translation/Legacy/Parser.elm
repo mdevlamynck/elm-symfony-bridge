@@ -7,7 +7,7 @@ module Translation.Legacy.Parser exposing (parseTranslationContent)
 -}
 
 import Char
-import Elm
+import ElmOld
 import Hex
 import Parser exposing (..)
 import Parser.Extra exposing (..)
@@ -238,7 +238,7 @@ variable =
             if varName == "count" then
                 VariableCount
 
-            else if List.member varName Elm.keywords then
+            else if List.member varName ElmOld.keywords then
                 Variable (varName ++ "_")
 
             else

@@ -1,10 +1,9 @@
 module Translation.Legacy.TranspilerTest exposing (suite)
 
-import Elm exposing (Version(..))
 import Expect exposing (Expectation)
+import StringUtil exposing (..)
 import Test exposing (..)
 import Translation.Transpiler exposing (transpileToElm)
-import StringUtil exposing (..)
 
 
 suite : Test
@@ -27,7 +26,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -35,11 +33,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
                                     """
                                 }
                     in
@@ -60,7 +53,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -68,11 +60,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     translation : String
@@ -98,7 +85,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -106,11 +92,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     translation : String
@@ -139,7 +120,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -147,11 +127,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     button_validate_global : String
@@ -187,7 +162,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -195,11 +169,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     boolean_false : String
@@ -245,7 +214,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -253,11 +221,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     array : String
@@ -301,7 +264,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -309,11 +271,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     form_step2_save : String
@@ -346,7 +303,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -354,11 +310,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     multiline_html_translation : { link : String } -> String
@@ -387,7 +338,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -395,11 +345,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     this_value_is_not_valid_ : String
@@ -428,7 +373,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -436,11 +380,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     f_9things : String
@@ -474,7 +413,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -484,14 +422,9 @@ suite =
                                     module Trans.Messages exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     user_notifications : Int -> String
                                     user_notifications count =
-                                        (fromInt count) ++ " notifications non lues"
+                                        (String.fromInt count) ++ " notifications non lues"
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
@@ -520,7 +453,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -528,11 +460,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     user_account_balance : Int -> String
@@ -548,9 +475,9 @@ suite =
                                         if count == 0 then
                                             params_.user ++ ", pas de notification"
                                         else if count == 1 then
-                                            params_.user ++ ", " ++ (fromInt count) ++ " notification non lue"
+                                            params_.user ++ ", " ++ (String.fromInt count) ++ " notification non lue"
                                         else
-                                            params_.user ++ ", " ++ (fromInt count) ++ " notifications non lues"
+                                            params_.user ++ ", " ++ (String.fromInt count) ++ " notifications non lues"
                                     """
                                 }
                     in
@@ -573,7 +500,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -581,11 +507,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     apples : Int -> String
@@ -597,7 +518,7 @@ suite =
                                         else if count == 5 then
                                             "Il y a cinq pommes"
                                         else
-                                            "Il y a " ++ (fromInt count) ++ " pommes"
+                                            "Il y a " ++ (String.fromInt count) ++ " pommes"
                                     """
                                 }
                     in
@@ -620,7 +541,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -628,11 +548,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     apples : Int -> String
@@ -644,7 +559,7 @@ suite =
                                         else if count == 5 then
                                             "There are five apples"
                                         else
-                                            "There are " ++ (fromInt count) ++ " apples"
+                                            "There are " ++ (String.fromInt count) ++ " apples"
                                     """
                                 }
                     in
@@ -668,7 +583,6 @@ suite =
                                         }
                                     }
                                     """
-                            , version = Elm_0_19
                             }
 
                         expected =
@@ -676,11 +590,6 @@ suite =
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
                                     module Trans.Messages exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
 
 
                                     honorific_title_keyname_miss : String
@@ -725,7 +634,6 @@ suite =
                                         }
                                     }
                                     """
-                        , version = Elm_0_19
                         }
 
                     expected =
@@ -733,11 +641,6 @@ suite =
                             { name = "Trans/WeirdDomain.elm"
                             , content = unindent """
                                     module Trans.WeirdDomain exposing (..)
-
-
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
                                     """
                             }
                 in
@@ -749,7 +652,6 @@ suite =
                         input =
                             { name = ""
                             , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
-                            , version = Elm_0_19
                             }
 
                         expected =
