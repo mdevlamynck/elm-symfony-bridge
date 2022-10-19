@@ -2,6 +2,9 @@ module Translation.Legacy.Transpiler exposing (keynameTranslations, parseTransla
 
 import Dict exposing (Dict)
 import Dict.Extra as Dict
+import Elm
+import Elm.Annotation
+import Elm.Case
 import ElmOld exposing (..)
 import List.Unique
 import Result
@@ -56,39 +59,55 @@ extractVariables translationContent =
 
 {-| Turns a translation into an elm function.
 -}
-translationToElm : String -> Translation -> Function
+translationToElm : String -> Translation -> Elm.Declaration
 translationToElm lang translation =
-    let
-        arguments =
-            count ++ keyname ++ record
+    Elm.declaration translation.name <|
+        case translation.content of
+            SingleMessage chunks ->
+                Elm.string ""
 
-        count =
-            if hasCountVariable translation.content then
-                [ Primitive "Int" "count" ]
+            PluralizedMessage alternatives ->
+                Elm.string ""
 
-            else
-                []
+            Keyname variants ->
+                Elm.fn ( "keyname", Just Elm.Annotation.string ) <|
+                    \keyname ->
+                        Elm.Case.string keyname
+                            { cases = List.map (\( k, v ) -> ( k, Elm.apply (Elm.val v) [] )) variants
+                            , otherwise = Elm.string ""
+                            }
 
-        keyname =
-            if hasKeynameVariable translation.content then
-                [ Primitive "String" "keyname" ]
 
-            else
-                []
 
-        recordArgs =
-            translation.variables
-                |> List.map (\arg -> ( arg, "String" ))
-                |> Dict.fromList
-
-        record =
-            if Dict.isEmpty recordArgs then
-                []
-
-            else
-                [ Record recordArgs ]
-    in
-    Function translation.name arguments "String" (translationContentToElm lang translation.content)
+--let
+--    arguments =
+--        count ++ record
+--
+--    count =
+--        if hasCountVariable translation.content then
+--            [ Primitive "Int" "count" ]
+--
+--        else
+--            []
+--
+--    recordArgs =
+--        translation.variables
+--            |> List.map (\arg -> ( arg, "String" ))
+--            |> Dict.fromList
+--
+--    record =
+--        if Dict.isEmpty recordArgs then
+--            []
+--
+--        else
+--            [ Record recordArgs ]
+--in
+--    Elm.fn
+--        Function
+--        translation.name
+--        arguments
+--        "String"
+--        (translationContentToElm lang translation.content)
 
 
 {-| Does a TranslationContent contains a `count` variable?
@@ -119,34 +138,21 @@ hasKeynameVariable translationContent =
             False
 
 
-{-| Turns a TranslationContent into the body of an elm function.
--}
-translationContentToElm : String -> TranslationContent -> Expr
-translationContentToElm lang translationContent =
-    case translationContent of
-        SingleMessage chunks ->
-            Expr (combineChunks chunks)
 
-        PluralizedMessage alternatives ->
-            Ifs
-                (alternatives
-                    |> List.foldl alternativeToElm ( indexedConditions lang, [] )
-                    |> Tuple.second
-                )
-
-        Keyname variants ->
-            Case "keyname" (toElmCaseVariants variants)
-
-
-toElmCaseVariants : List ( String, String ) -> List ( String, Expr )
-toElmCaseVariants variants =
-    List.map toElmCaseVariant variants
-        ++ [ ( "_", Expr <| quote "" ) ]
-
-
-toElmCaseVariant : ( String, String ) -> ( String, Expr )
-toElmCaseVariant ( name, value ) =
-    ( quote name, Expr value )
+--{-| Turns a TranslationContent into the body of an elm function.
+---}
+--translationContentToElm : String -> TranslationContent -> Expr
+--translationContentToElm lang translationContent =
+--    case translationContent of
+--        SingleMessage chunks ->
+--            Expr (combineChunks chunks)
+--
+--        PluralizedMessage alternatives ->
+--            Ifs
+--                (alternatives
+--                    |> List.foldl alternativeToElm ( indexedConditions lang, [] )
+--                    |> Tuple.second
+--                )
 
 
 {-| Indexed variant application conditions depending on the lang.
