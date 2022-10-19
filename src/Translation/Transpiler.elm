@@ -7,6 +7,7 @@ module Translation.Transpiler exposing (transpileToElm, Command, File)
 -}
 
 import Dict exposing (Dict)
+import Elm
 import ElmOld exposing (..)
 import Json.Decode exposing (bool, decodeString, dict, errorToString, float, int, map, oneOf, string, succeed, value)
 import Result
@@ -41,7 +42,7 @@ transpileToElm command =
     command.content
         |> readJsonContent
         |> Result.andThen parseTranslationDomain
-        |> Result.map (convertToElm )
+        |> Result.map convertToElm
 
 
 {-| Represents the content of a JSON translation file.
@@ -150,18 +151,19 @@ convertToElm { lang, domain, translations } =
     in
     { name = "Trans/" ++ normalizedDomain ++ ".elm"
     , content =
-        renderElmModule <|
-            Module ("Trans." ++ normalizedDomain) <|
+        .contents <|
+            Elm.file [ "Trans", normalizedDomain ] <|
                 translationToElm lang translations
     }
 
 
-translationToElm : String -> TranslationsInDomain -> List Function
+translationToElm : String -> TranslationsInDomain -> List Elm.Declaration
 translationToElm lang translationsInDomain =
     case translationsInDomain of
         IntlIcu translations ->
-            List.map IntlIcu.translationToElm translations
+            []
 
+        --List.map IntlIcu.translationToElm translations
         Legacy translations ->
             List.map (Legacy.translationToElm lang) translations
 
