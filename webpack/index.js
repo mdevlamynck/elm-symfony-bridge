@@ -35,17 +35,19 @@ class ElmSymfonyBridgePlugin {
         const that = this;
 
         // Run symfony dumps commands at the beginning of every compilation
-        var beforeCompile = (compilationParameters, callback) => {
+        var compilation = (compilation, compilationParams) => {
             if (that.hasAlreadyRun) {
-                callback();
                 return;
             }
 
             that.hasAlreadyRun = true;
 
-            routing.transpile(that, () => {
-                translations.transpile(that, callback);
-            });
+            try {
+                routing.transpile(that);
+                translations.transpile(that);
+            } catch (error) {
+                compilation.errors.push(error);
+            }
         };
 
         // Trigger recompilation via watching symfony files
@@ -70,12 +72,12 @@ class ElmSymfonyBridgePlugin {
 
         // Webpack 4.x
         if (typeof compiler.hooks !== 'undefined') {
-            compiler.hooks.beforeCompile.tapAsync('ElmSymfonyBridgePlugin', beforeCompile);
+            compiler.hooks.compilation.tap('ElmSymfonyBridgePlugin', compilation);
             compiler.hooks.afterCompile.tapAsync('ElmSymfonyBridgePlugin', afterCompile);
         }
         // Webpack 3.x
         else {
-            compiler.plugin('before-compile', beforeCompile);
+            compiler.plugin('compilation', compilation);
             compiler.plugin('after-compile', afterCompile);
         }
     }
