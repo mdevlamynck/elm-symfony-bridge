@@ -78,7 +78,7 @@ This plugin follows parcel's zero-config philosophy and will automatically confi
 * `urlPrefix`: When dev is true, which prefix to use when generating urls (defaults to `/index.php` or `/app_dev.php` depending on which is found)
 * `enableTranslations`: Enable generating translations (defaults to true if the willdurand/js-translation-bundle package is installed)
 * `lang`: Lang to use when exporting translations (defaults to the default lang configured in symfony)
-* `envVariables`: Variables to replace during compile time
+* `envVariables`: Variables to replace during compile time, will also read env vars
 
 If these rules don't work for you, you can override any of these parameters in your `package.json` under the `elm-symfony-bridge` key like so:
 
@@ -116,11 +116,12 @@ As a reminder, all contributors are expected to follow our [Code of Conduct](../
 
 ## Hacking
 
-The sources are organized in 3 main folders:
+The sources are organized in 4 main folders:
 
 * `/` the root contains the elm code: `src` for the sources and `tests` for the elm tests.
 * `/webpack` contains all the specifics for the webpack plugin.
 * `/parcel` contains all the specifics for the parcel plugin (you are here).
+* `/vite` contains all the specifics for the vite plugin.
 
 This project uses the following tools for development:
 

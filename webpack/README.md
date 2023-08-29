@@ -107,7 +107,7 @@ Encore
         enableTranslations: true,       // Optional: enable generating translations, defaults to true
         lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
 
-        envVariables: {                 // Optional: variables to replace during compile time
+        envVariables: {                 // Optional: variables to replace during compile time, will also read env vars
             '%variable%': 'ENV_VAR'
         },
     }))
@@ -150,11 +150,12 @@ As a reminder, all contributors are expected to follow our [Code of Conduct](../
 
 ## Hacking
 
-The sources are organized in 3 main folders:
+The sources are organized in 4 main folders:
 
 * `/` the root contains the elm code: `src` for the sources and `tests` for the elm tests.
 * `/webpack` contains all the specifics for the webpack plugin (you are here).
 * `/parcel` contains all the specifics for the parcel plugin.
+* `/vite` contains all the specifics for the vite plugin.
 
 This project uses the following tools for development:
 

@@ -8,3 +8,4 @@ dist
 .*.sw*
 elm-symfony-bridge-*.tgz
 parcel-plugin-elm-symfony-bridge-*.tgz
+vite-plugin-elm-symfony-bridge-*.tgz

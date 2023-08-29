@@ -54,6 +54,16 @@ function arrayPushIfNotPresent(array, value) {
     return array;
 }
 
+function arrayAny(array, predicate) {
+    for (const value of array) {
+        if (predicate(value)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function onSuccess(type, data, callback) {
     if (data.type === type && data.succeeded === true) {
         callback();
@@ -77,6 +87,7 @@ module.exports = {
     merge,
     setDefaultValueIfAbsent,
     arrayPushIfNotPresent,
+    arrayAny,
     onSuccess,
     error,
 };
