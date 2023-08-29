@@ -377,11 +377,6 @@ suite =
                                     module Routing exposing (..)
 
 
-                                    fromInt : Int -> String
-                                    fromInt int =
-                                        String.fromInt int
-
-
                                     app_rest_user_type : String
                                     app_rest_user_type =
                                         "" ++ "/user/types/value"

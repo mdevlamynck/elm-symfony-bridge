@@ -128,7 +128,7 @@ suite =
 
                                                     "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
 
-                                                    This is not valid JSON! Unexpected string in JSON at position 67
+                                                    This is not valid JSON! Expected ':' after property name in JSON at position 67
                                                     """
                                       )
                                     ]

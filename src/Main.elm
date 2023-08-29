@@ -123,8 +123,6 @@ translationDecoder =
             )
 
 
-                    "translation" ->
-
 envVariableDecoder : Decoder (Dict String String)
 envVariableDecoder =
     Decode.dict (Decode.maybe Decode.string)

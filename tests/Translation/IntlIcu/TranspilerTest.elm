@@ -1,5 +1,6 @@
 module Translation.IntlIcu.TranspilerTest exposing (suite)
 
+import Dict
 import Expect exposing (Expectation)
 import StringUtil exposing (..)
 import Test exposing (..)
@@ -26,6 +27,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -53,6 +55,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -85,6 +88,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -120,6 +124,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -162,6 +167,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -214,6 +220,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -264,6 +271,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -303,6 +311,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -339,6 +348,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -374,6 +384,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -413,6 +424,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -447,6 +459,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -484,6 +497,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -530,6 +544,7 @@ suite =
                                         }
                                     }
                                     """
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -577,6 +592,7 @@ suite =
             --                        }
             --                    }
             --                    """
+            --            , envVariables = Dict.empty
             --            }
             --
             --        expected =
@@ -624,6 +640,7 @@ suite =
             --                        }
             --                    }
             --                    """
+            --            , envVariables = Dict.empty
             --            }
             --
             --        expected =
@@ -714,6 +731,7 @@ suite =
                                         }
                                     }
                                     """
+                        , envVariables = Dict.empty
                         }
 
                     expected =
@@ -732,6 +750,7 @@ suite =
                         input =
                             { name = ""
                             , content = """{ "translations": { "fr": { "messages+intl-icu": { "button.validate.global" "Ok" } } } }"""
+                            , envVariables = Dict.empty
                             }
 
                         expected =
@@ -742,7 +761,7 @@ suite =
 
                                     "{ \\"translations\\": { \\"fr\\": { \\"messages+intl-icu\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
 
-                                    This is not valid JSON! Unexpected string in JSON at position 76
+                                    This is not valid JSON! Expected ':' after property name in JSON at position 76
                                     """
                     in
                     Expect.equal expected (transpileToElm input)

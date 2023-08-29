@@ -633,15 +633,14 @@ suite =
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
-            ]
-        , test "Works with translation domains not directly mapping to valid elm module name" <|
-            \_ ->
-                let
-                    input =
-                        { name = ""
-                        , content =
-                            unindent
-                                """
+            , test "Works with translation domains not directly mapping to valid elm module name" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content =
+                                unindent
+                                    """
                                     {
                                         "translations": {
                                             "fr": {
@@ -650,13 +649,13 @@ suite =
                                         }
                                     }
                                     """
-                        , envVariables = Dict.empty
-                        }
+                            , envVariables = Dict.empty
+                            }
 
-                    expected =
-                        Ok
-                            { name = "Trans/WeirdDomain.elm"
-                            , content = unindent """
+                        expected =
+                            Ok
+                                { name = "Trans/WeirdDomain.elm"
+                                , content = unindent """
                                     module Trans.WeirdDomain exposing (..)
                                         """
                                 }
@@ -716,7 +715,7 @@ suite =
 
                                     "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
 
-                                    This is not valid JSON! Unexpected string in JSON at position 67
+                                    This is not valid JSON! Expected ':' after property name in JSON at position 67
                                     """
                     in
                     Expect.equal expected (transpileToElm input)
