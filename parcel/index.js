@@ -23,6 +23,7 @@ function run(bundler) {
             watchFolders: ['src', 'app', 'config', 'translations'],
             watchExtensions: ['php', 'yaml', 'yml', 'xml'],
             watchConfig: ['elm.json', 'elm-package.json', 'package.json', 'composer.json'],
+            envVariables: {},
         }
     };
     loadConfig(global);
