@@ -8,7 +8,7 @@ import translations from '../src/translations.js';
 import utils from '../src/utils.js';
 import { validate } from 'schema-utils';
 
-const watchedFolders = ['src', 'app', 'config'];
+const watchedFolders = ['src', 'app', 'config', 'translations'];
 
 class ElmSymfonyBridgePlugin {
 
@@ -28,20 +28,12 @@ class ElmSymfonyBridgePlugin {
         config.loadEnvVariables(this);
 
         this.transpiler = ElmWorker.Elm.Main.init();
-        this.hasAlreadyRun = false;
     }
 
     apply(compiler) {
         const that = this;
 
-        // Run symfony dumps commands at the beginning of every compilation
-        var compilation = (compilation, compilationParams) => {
-            if (that.hasAlreadyRun) {
-                return;
-            }
-
-            that.hasAlreadyRun = true;
-
+        var compile = (compilation, compilationParams) => {
             try {
                 routing.transpile(that);
                 translations.transpile(that);
@@ -50,37 +42,20 @@ class ElmSymfonyBridgePlugin {
             }
         };
 
-        // Trigger recompilation via watching symfony files
-        // Only needed to be enabled after the first compilation
-        var afterCompile = (compilation, callback) => {
-            that.hasAlreadyRun = false;
-
+        var addDirsToWatch = (compilation) => {
             let dirs = compilation.contextDependencies;
 
             if (typeof dirs !== 'undefined') {
                 watchedFolders.forEach(folder => {
-                    const absolutePath = fs.resolve(folder, that.options);
-
-                    utils.arrayPushIfNotPresent(dirs, absolutePath);
+                    compilation.contextDependencies.add(fs.resolve(folder, that.options));
                 });
-
-                compilation.contextDependencies = dirs;
             }
-
-            callback();
-        };
-
-        // Webpack 4.x
-        if (typeof compiler.hooks !== 'undefined') {
-            compiler.hooks.compilation.tap('ElmSymfonyBridgePlugin', compilation);
-            compiler.hooks.afterCompile.tapAsync('ElmSymfonyBridgePlugin', afterCompile);
         }
-        // Webpack 3.x
-        else {
-            compiler.plugin('compilation', compilation);
-            compiler.plugin('after-compile', afterCompile);
-        }
+
+        compiler.hooks.compilation.tap('ElmSymfonyBridgePlugin', compile);
+        compiler.hooks.afterCompile.tap('ElmSymfonyBridgePlugin', addDirsToWatch);
     }
+
 }
 
 module.exports = ElmSymfonyBridgePlugin;
