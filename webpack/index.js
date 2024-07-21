@@ -3,59 +3,67 @@ import config from '../src/config.js';
 import fs from '../src/filesystem.js';
 import routing from '../src/routing.js';
 import schema from './schema.json';
-import symfony from '../src/symfony.js';
 import translations from '../src/translations.js';
 import utils from '../src/utils.js';
 import { validate } from 'schema-utils';
 
-const watchedFolders = ['src', 'app', 'config', 'translations'];
+const watchedDirs = ['src', 'config', 'translations'];
 
-class ElmSymfonyBridgePlugin {
+const that = {
+    options: null,
+    transpiler: ElmWorker.Elm.Main.init(),
+};
 
-    constructor(options) {
-        validate(schema, options, 'elm-symfony-bridge');
-
-        this.options = options;
-        utils.setDefaultValueIfAbsent(options, 'outputFolder', './elm-stuff/generated-code/elm-symfony-bridge');
-        utils.setDefaultValueIfAbsent(options, 'projectRoot', './');
-        utils.setDefaultValueIfAbsent(options, 'elmRoot', './assets/elm');
-        utils.setDefaultValueIfAbsent(options, 'elmVersion', '0.19');
-        utils.setDefaultValueIfAbsent(options, 'enableRouting', true);
-        utils.setDefaultValueIfAbsent(options, 'lang', 'en');
-        utils.setDefaultValueIfAbsent(options, 'enableTranslations', true);
-        utils.setDefaultValueIfAbsent(options, 'urlPrefix', '/index.php');
-        utils.setDefaultValueIfAbsent(options, 'envVariables', {});
-        config.loadEnvVariables(this);
-
-        this.transpiler = ElmWorker.Elm.Main.init();
+function setupOptions(options) {
+    if (that.options !== null) {
+        return;
     }
 
-    apply(compiler) {
-        const that = this;
+    that.options = options;
 
-        var compile = (compilation, compilationParams) => {
-            try {
-                routing.transpile(that);
-                translations.transpile(that);
-            } catch (error) {
-                compilation.errors.push(error);
-            }
-        };
+    validate(schema, that.options, 'elm-symfony-bridge');
 
-        var addDirsToWatch = (compilation) => {
-            let dirs = compilation.contextDependencies;
-
-            if (typeof dirs !== 'undefined') {
-                watchedFolders.forEach(folder => {
-                    compilation.contextDependencies.add(fs.resolve(folder, that.options));
-                });
-            }
-        }
-
-        compiler.hooks.compilation.tap('ElmSymfonyBridgePlugin', compile);
-        compiler.hooks.afterCompile.tap('ElmSymfonyBridgePlugin', addDirsToWatch);
-    }
-
+    utils.setDefaultValueIfAbsent(that.options, 'outputFolder', './elm-stuff/generated-code/elm-symfony-bridge');
+    utils.setDefaultValueIfAbsent(that.options, 'projectRoot', './');
+    utils.setDefaultValueIfAbsent(that.options, 'elmRoot', './assets/elm');
+    utils.setDefaultValueIfAbsent(that.options, 'elmVersion', '0.19');
+    utils.setDefaultValueIfAbsent(that.options, 'enableRouting', true);
+    utils.setDefaultValueIfAbsent(that.options, 'lang', 'en');
+    utils.setDefaultValueIfAbsent(that.options, 'enableTranslations', true);
+    utils.setDefaultValueIfAbsent(that.options, 'urlPrefix', '/index.php');
+    utils.setDefaultValueIfAbsent(that.options, 'envVariables', {});
+    config.loadEnvVariables(that);
 }
 
-module.exports = ElmSymfonyBridgePlugin;
+function removeGeneratedCodeFromDependencies(loader) {
+    const fileDeps = loader.getDependencies();
+    const contextDeps = loader.getContextDependencies();
+    const missingDeps = loader.getMissingDependencies();
+
+    loader.clearDependencies();
+
+    fileDeps
+        .filter((dep) => !dep.match(/\/(Routing|Trans\/[a-zA-Z0-9]+).elm$/))
+        .forEach((dep) => loader.addDependency(dep));
+
+    contextDeps.forEach((dep) => loader.addContextDependency(dep));
+    missingDeps.forEach((dep) => loader.addMissingDependency(dep));
+}
+
+function addDirsToWatch(loader) {
+    watchedDirs.forEach((dir) => loader.addContextDependency(fs.resolve(dir, that.options)));
+}
+
+module.exports = function (source) {
+    removeGeneratedCodeFromDependencies(this);
+    addDirsToWatch(this);
+
+    return source;
+};
+
+module.exports.pitch = function () {
+    setupOptions(this.getOptions());
+
+    routing.transpile(that);
+    translations.transpile(that);
+};
