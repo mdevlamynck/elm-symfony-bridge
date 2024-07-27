@@ -17,7 +17,7 @@ decodeDto =
         \() ->
             Decode.succeed Dto_
                 |> Decode.required "fqn" Decode.string
-                |> Decode.required "fields" (Decode.dict decodeType)
+                |> Decode.required "fields" (Decode.keyValuePairs decodeType)
                 |> Decode.map D
 
 

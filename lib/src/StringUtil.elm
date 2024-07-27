@@ -1,6 +1,6 @@
 module StringUtil exposing
     ( indent, splitOn
-    , unindent
+    , trimEmptyLines, unindent
     )
 
 {-| Extra tools on strings.
@@ -60,8 +60,7 @@ unindent text =
         textTrimmedFromEmptyLines =
             text
                 |> String.lines
-                |> List.dropWhile (String.toList >> List.all ((==) ' '))
-                |> List.dropWhileRight (String.toList >> List.all ((==) ' '))
+                |> trimList (String.toList >> List.all ((==) ' '))
 
         nbCharToDrop =
             textTrimmedFromEmptyLines
@@ -107,3 +106,19 @@ splitOn predicate string =
                     String.fromList firstPart :: remainingParts
     in
     rec (String.toList string)
+
+
+{-| -}
+trimEmptyLines : String -> String
+trimEmptyLines text =
+    text
+        |> String.lines
+        |> trimList (String.toList >> List.all ((==) ' '))
+        |> String.join "\n"
+
+
+trimList : (a -> Bool) -> List a -> List a
+trimList predicate list =
+    list
+        |> List.dropWhile predicate
+        |> List.dropWhileRight predicate

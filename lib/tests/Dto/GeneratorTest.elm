@@ -2,83 +2,87 @@ module Dto.GeneratorTest exposing (suite)
 
 import Dto.Generator exposing (generateElm)
 import Expect
-import StringUtil exposing (unindent)
+import StringUtil exposing (trimEmptyLines, unindent)
 import Test exposing (..)
 
 
 suite : Test
 suite =
     describe "Parser"
-        [ todo "Handles sample from dto-metadata command" -- <|
+        [ test "Handles sample from dto-metadata command" <|
+            \_ ->
+                let
+                    input =
+                        { content = unindent """
+                        [
+                            {
+                                "fqn": "App\\\\Account\\\\UserInterface\\\\RestController\\\\SignInDto",
+                                "fields": {
+                                    "somePrimitive": {
+                                        "defaultValue": null,
+                                        "type": "string",
+                                        "isNullable": true,
+                                        "canBeAbsent": false
+                                    },
+                                    "someList": {
+                                        "defaultValue": null,
+                                        "type": {
+                                            "type": "string",
+                                            "allowsNull": true
+                                        },
+                                        "isNullable": false,
+                                        "canBeAbsent": false
+                                    },
+                                    "someDto": {
+                                        "defaultValue": null,
+                                        "type": {
+                                            "fqn": "App\\\\Account\\\\UserInterface\\\\RestController\\\\SomeDto"
+                                        },
+                                        "isNullable": true,
+                                        "canBeAbsent": false
+                                    }
+                                }
+                            }
+                        ]
+                        """
+                        }
 
-        --\_ ->
-        --    let
-        --        input =
-        --            { content = unindent """
-        --                [
-        --                    {
-        --                        "fqn": "App\\\\Account\\\\UserInterface\\\\RestController\\\\SignInDto",
-        --                        "fields": {
-        --                            "email": {
-        --                                "defaultValue": null,
-        --                                "type": "string",
-        --                                "isNullable": true,
-        --                                "canBeAbsent": false
-        --                            },
-        --                            "password": {
-        --                                "defaultValue": null,
-        --                                "type": "string",
-        --                                "isNullable": true,
-        --                                "canBeAbsent": false
-        --                            },
-        --                            "passwordRepeat": {
-        --                                "defaultValue": null,
-        --                                "type": "string",
-        --                                "isNullable": true,
-        --                                "canBeAbsent": false
-        --                            }
-        --                        }
-        --                    }
-        --                ]
-        --                """
-        --            }
-        --
-        --        expected =
-        --            Ok
-        --                { name = "Dto.elm"
-        --                , content = unindent """
-        --                    module Dto exposing (..)
-        --
-        --                    import Json.Decode as Decode
-        --                    import Json.Decode.Pipeline as Decode
-        --                    import Json.Encode as Encode
-        --                    import Json.Encode.Extra as Encode
-        --
-        --
-        --                    type alias App_Account_SignInDto =
-        --                        { email : Maybe String
-        --                        , password : Maybe String
-        --                        , passwordRepeat : Maybe String
-        --                        }
-        --
-        --
-        --                    decode_App_Account_SignInDto : Json.Decode.Decoder App_Account_SignInDto
-        --                    decode_App_Account_SignInDto =
-        --                        Decode.succeed App_Account_SignInDto
-        --                            |> Decode.succeed "email" (Decode.maybe Decode.string)
-        --                            |> Decode.succeed "password" (Decode.maybe Decode.string)
-        --                            |> Decode.succeed "passwordRepeat" (Decode.maybe Decode.string)
-        --
-        --
-        --                    encode_App_Account_SignInDto : App_Account_SignInDto -> Encode.Value
-        --                    encode_App_Account_SignInDto dto =
-        --                        Encode.object
-        --                            [ ( "email", Encode.maybe Encode.string dto.email )
-        --                            , ( "password", Encode.maybe Encode.string dto.password )
-        --                            , ( "passwordRepeat", Encode.maybe Encode.string dto.passwordRepeat )
-        --                            ]
-        --                    """
-        --                }
-        --    in
-        --    Expect.equal expected (generateElm input)
+                    expected =
+                        Ok
+                            { name = "Dto.elm"
+                            , content = unindent """
+                                module Dto exposing (..)
+
+                                import Json.Decode as Decode
+                                import Json.Decode.Pipeline as Decode
+                                import Json.Encode as Encode
+                                import Json.Encode.Extra as Encode
+
+
+                                type alias AppAccountSignInDto =
+                                    { somePrimitive : Maybe String
+                                    , someList : List (Maybe String)
+                                    , someDto : Maybe AppAccountSomeDto
+                                    }
+
+
+                                decodeAppAccountSignInDto : Decode.Decoder AppAccountSignInDto
+                                decodeAppAccountSignInDto =
+                                    Decode.succeed AppAccountSignInDto
+                                        |> Decode.required "somePrimitive" (Decode.maybe Decode.string)
+                                        |> Decode.required "someList" (Decode.list (Decode.maybe Decode.string))
+                                        |> Decode.required "someDto" (Decode.maybe decodeAppAccountSomeDto)
+
+
+                                encodeAppAccountSignInDto : AppAccountSignInDto -> Encode.Value
+                                encodeAppAccountSignInDto dto =
+                                    Encode.object
+                                        [ ( "somePrimitive", Encode.maybe Encode.string dto.somePrimitive )
+                                        , ( "someList", Encode.list (Encode.maybe Encode.string) dto.someList )
+                                        , ( "someDto", Encode.maybe encodeAppAccountSomeDto dto.someDto )
+                                        ]
+                                """
+                            }
+                in
+                Expect.equal expected (generateElm input)
         ]

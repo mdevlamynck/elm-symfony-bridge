@@ -1,6 +1,5 @@
 module Dto.Types exposing (..)
 
-import Dict exposing (Dict)
 import Json.Encode as Json
 
 
@@ -10,7 +9,7 @@ type Dto
 
 type alias Dto_ =
     { fqn : String
-    , fields : Dict String Type
+    , fields : List ( String, Type )
     }
 
 

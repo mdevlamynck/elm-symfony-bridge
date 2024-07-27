@@ -1,6 +1,5 @@
 module Dto.ParserTest exposing (suite)
 
-import Dict
 import Dto.Parser exposing (readJsonContent)
 import Dto.Types exposing (..)
 import Expect
@@ -48,11 +47,10 @@ suite =
                             [ D
                                 { fqn = "App\\Account\\UserInterface\\RestController\\SignInDto"
                                 , fields =
-                                    Dict.fromList
-                                        [ ( "email", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
-                                        , ( "password", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
-                                        , ( "passwordRepeat", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
-                                        ]
+                                    [ ( "email", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
+                                    , ( "password", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
+                                    , ( "passwordRepeat", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
+                                    ]
                                 }
                             ]
                 in
