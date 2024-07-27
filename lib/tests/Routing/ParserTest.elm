@@ -1,6 +1,6 @@
 module Routing.ParserTest exposing (suite)
 
-import Expect exposing (Expectation)
+import Expect
 import Routing.Data exposing (ArgumentType(..), Path(..))
 import Routing.Parser exposing (parseRoutingContent)
 import Test exposing (..)

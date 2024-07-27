@@ -1,11 +1,11 @@
 module Translation.IntlIcu.ParserTest exposing (suite)
 
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, string)
+import Expect
+import Fuzz exposing (string)
+import StringUtil exposing (unindent)
 import Test exposing (..)
 import Translation.IntlIcu.Data exposing (..)
 import Translation.IntlIcu.Parser exposing (parseTranslationContent)
-import StringUtil exposing (unindent)
 
 
 longString : String
@@ -17,8 +17,8 @@ longString =
 -}
 suite : Test
 suite =
-    describe "Parses a translation" <|
-        [ describe "Success cases" <|
+    describe "Parses a translation"
+        [ describe "Success cases"
             [ fuzz string "Should work on any string" <|
                 \input ->
                     Expect.ok (parseTranslationContent input)
@@ -137,7 +137,7 @@ suite =
                 \_ ->
                     parseTranslationContent "</close>"
                         |> Expect.equal (Ok [ Text "</close>" ])
-            , describe "Whitespace handling" <|
+            , describe "Whitespace handling"
                 [ test "Should allow whitespace in and around text elements" <|
                     \_ ->
                         let
@@ -159,7 +159,7 @@ suite =
                         parseTranslationContent (white ++ "{" ++ white ++ "p" ++ white ++ "}" ++ white)
                             |> Expect.equal (Ok [ Text white, Var { name = "p", type_ = Raw }, Text white ])
                 ]
-            , describe "escaping" <|
+            , describe "escaping"
                 [ test "Should allow escaping of { via '" <|
                     \_ ->
                         parseTranslationContent "'{'"
@@ -209,27 +209,28 @@ suite =
                 \_ ->
                     let
                         msg =
-                            unindent """{gender_of_host, select,
-                                            female {{num_guests, plural, offset:1
-                                                =0    {{host} does not give a party.}
-                                                =1    {{host} invites {guest} to her party.}
-                                                =2    {{host} invites {guest} and one other person to her party.}
-                                                other {{host} invites {guest} and # other people to her party.}
-                                            }}
-                                            male {{num_guests, plural, offset:1
-                                                =0    {{host} does not give a party.}
-                                                =1    {{host} invites {guest} to his party.}
-                                                =2    {{host} invites {guest} and one other person to his party.}
-                                                other {{host} invites {guest} and # other people to his party.}
-                                            }}
-                                            other {{num_guests, plural, offset:1
-                                                =0    {{host} does not give a party.}
-                                                =1    {{host} invites {guest} to their party.}
-                                                =2    {{host} invites {guest} and one other person to their party.}
-                                                other {{host} invites {guest} and # other people to their party.}
-                                            }}
-                                        }
-                        """
+                            unindent """
+                                {gender_of_host, select,
+                                    female {{num_guests, plural, offset:1
+                                        =0    {{host} does not give a party.}
+                                        =1    {{host} invites {guest} to her party.}
+                                        =2    {{host} invites {guest} and one other person to her party.}
+                                        other {{host} invites {guest} and # other people to her party.}
+                                    }}
+                                    male {{num_guests, plural, offset:1
+                                        =0    {{host} does not give a party.}
+                                        =1    {{host} invites {guest} to his party.}
+                                        =2    {{host} invites {guest} and one other person to his party.}
+                                        other {{host} invites {guest} and # other people to his party.}
+                                    }}
+                                    other {{num_guests, plural, offset:1
+                                        =0    {{host} does not give a party.}
+                                        =1    {{host} invites {guest} to their party.}
+                                        =2    {{host} invites {guest} and one other person to their party.}
+                                        other {{host} invites {guest} and # other people to their party.}
+                                    }}
+                                }
+                                """
                     in
                     parseTranslationContent msg
                         |> Expect.equal
@@ -369,78 +370,80 @@ suite =
                                 ]
                             )
             ]
-        , describe "Failure cases" <|
-            [ test "Fails on extra closing brace" <|
-                \_ ->
-                    parseTranslationContent ""
-                        |> Expect.ok
-            , test "Fails on empty placeholder" <|
-                \_ ->
-                    parseTranslationContent "{}"
-                        |> Expect.ok
-            , test "Fails on open brace in placeholder" <|
-                \_ ->
-                    parseTranslationContent "{n{"
-                        |> Expect.ok
-            , test "Fails on missing type" <|
-                \_ ->
-                    parseTranslationContent "{n,}"
-                        |> Expect.ok
-            , test "Fails on unknown type" <|
-                \_ ->
-                    parseTranslationContent "{a, custom, one}"
-                        |> Expect.ok
-            , test "Fails on open brace after type" <|
-                \_ ->
-                    parseTranslationContent "{n,d{"
-                        |> Expect.ok
-            , test "Fails on missing style" <|
-                \_ ->
-                    parseTranslationContent "{n,t,}"
-                        |> Expect.ok
-            , test "Fails on missing sub-messages for select" <|
-                \_ ->
-                    parseTranslationContent "{n,select}"
-                        |> Expect.ok
-            , test "Fails on missing sub-messages for selectordinal" <|
-                \_ ->
-                    parseTranslationContent "{n,selectordinal}"
-                        |> Expect.ok
-            , test "Fails on missing sub-messages for plural" <|
-                \_ ->
-                    parseTranslationContent "{n,plural}"
-                        |> Expect.ok
-            , test "Fails on missing other for select" <|
-                \_ ->
-                    parseTranslationContent "{n,select,}"
-                        |> Expect.ok
-            , test "Fails on missing other for selectordinal" <|
-                \_ ->
-                    parseTranslationContent "{n,selectordinal,}"
-                        |> Expect.ok
-            , test "Fails on missing other for plural" <|
-                \_ ->
-                    parseTranslationContent "{n,plural,}"
-                        |> Expect.ok
-            , test "Fails on missing selector" <|
-                \_ ->
-                    parseTranslationContent "{n,select,{a}}"
-                        |> Expect.ok
-            , test "Fails on missing { for sub-message" <|
-                \_ ->
-                    parseTranslationContent "{n,select,other a}"
-                        |> Expect.ok
-            , test "Fails on missing } for sub-message" <|
-                \_ ->
-                    parseTranslationContent "{n,select,other{a"
-                        |> Expect.ok
-            , test "Fails on missing offset number" <|
-                \_ ->
-                    parseTranslationContent "{n,plural,offset:}"
-                        |> Expect.ok
-            , test "Fails on missing closing brace" <|
-                \_ ->
-                    parseTranslationContent "{a,b,c"
-                        |> Expect.ok
-            ]
+        , todo "Failure cases"
+
+        -- We currently discard parse failures
+        --[ test "Fails on extra closing brace" <|
+        --    \_ ->
+        --        parseTranslationContent ""
+        --            |> Expect.equal (Err "Unexpected } found")
+        --, test "Fails on empty placeholder" <|
+        --    \_ ->
+        --        parseTranslationContent "{}"
+        --            |> Expect.equal (Err "Expected placeholder id but found }")
+        --, test "Fails on open brace in placeholder" <|
+        --    \_ ->
+        --        parseTranslationContent "{n{"
+        --            |> Expect.equal (Err "Expected , or } but found {")
+        --, test "Fails on missing type" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,}"
+        --            |> Expect.equal (Err "Expected placeholder type but found }")
+        --, test "Fails on unknown type" <|
+        --    \_ ->
+        --        parseTranslationContent "{a, custom, one}"
+        --            |> Expect.equal (Err "Expected know type but found \"custom\"")
+        --, test "Fails on open brace after type" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,d{"
+        --            |> Expect.equal (Err "Expected , or } but found {")
+        --, test "Fails on missing style" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,t,}"
+        --            |> Expect.equal (Err "Expected placeholder style name but found }")
+        --, test "Fails on missing sub-messages for select" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,select}"
+        --            |> Expect.equal (Err "Expected select sub-messages but found }")
+        --, test "Fails on missing sub-messages for selectordinal" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,selectordinal}"
+        --            |> Expect.equal (Err "Expected selectordinal sub-messages but found }")
+        --, test "Fails on missing sub-messages for plural" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,plural}"
+        --            |> Expect.equal (Err "Expected plural sub-messages but found }")
+        --, test "Fails on missing other for select" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,select,}"
+        --            |> Expect.equal (Err "\"other\" sub-message must be specified in select")
+        --, test "Fails on missing other for selectordinal" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,selectordinal,}"
+        --            |> Expect.equal (Err "\"other\" sub-message must be specified in selectordinal")
+        --, test "Fails on missing other for plural" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,plural,}"
+        --            |> Expect.equal (Err "\"other\" sub-message must be specified in plural")
+        --, test "Fails on missing selector" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,select,{a}}"
+        --            |> Expect.equal (Err "Expected sub-message selector but found {")
+        --, test "Fails on missing { for sub-message" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,select,other a}"
+        --            |> Expect.equal (Err "Expected { to start sub-message but found a")
+        --, test "Fails on missing } for sub-message" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,select,other{a"
+        --            |> Expect.equal (Err "Expected } to end sub-message but found end of message pattern")
+        --, test "Fails on missing offset number" <|
+        --    \_ ->
+        --        parseTranslationContent "{n,plural,offset:}"
+        --            |> Expect.equal (Err "Expected offset number but found }")
+        --, test "Fails on missing closing brace" <|
+        --    \_ ->
+        --        parseTranslationContent "{a,b,c"
+        --            |> Expect.equal (Err "Expected } but found end of message pattern")
+        --]
         ]

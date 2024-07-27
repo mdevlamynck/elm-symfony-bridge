@@ -8,6 +8,7 @@ port module Main exposing (main, Msg(..), update, decodeJsValue)
 
 import Dict exposing (Dict)
 import Dict.Extra as Dict
+import Dto.Generator as Dto
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode exposing (Value)
@@ -51,6 +52,7 @@ type Msg
     = NoOp
     | TranspileRouting RequestId Routing.Command
     | TranspileTranslation RequestId Translation.Command
+    | GenerateDto RequestId Dto.Command
     | CommandError String
 
 
@@ -81,6 +83,12 @@ update message =
                 |> formatResult translation.name
                 |> encodeTranslationResult id
 
+        GenerateDto id dto ->
+            dto
+                |> Dto.generateElm
+                |> formatResult "Dto"
+                |> encodeDtoResult id
+
         CommandError error ->
             Encode.object
                 [ ( "succeeded", Encode.bool False )
@@ -102,6 +110,7 @@ commandDecoder =
     Decode.oneOf
         [ routingDecoder
         , translationDecoder
+        , dtoDecoder
         ]
 
 
@@ -129,10 +138,20 @@ translationDecoder =
             )
 
 
+dtoDecoder : Decoder Msg
+dtoDecoder =
+    Decode.succeed GenerateDto
+        |> Decode.required "id" Decode.string
+        |> Decode.required "dto"
+            (Decode.succeed Dto.Command
+                |> Decode.required "content" Decode.string
+            )
+
+
 envVariableDecoder : Decoder (Dict String String)
 envVariableDecoder =
     Decode.dict (Decode.maybe Decode.string)
-        |> Decode.map (Dict.filterMap (\k maybeV -> maybeV))
+        |> Decode.map (Dict.filterMap (\_ maybeV -> maybeV))
 
 
 {-| Encode transpiled routing results.
@@ -155,6 +174,27 @@ encodeRoutingResult id result =
 -}
 encodeTranslationResult : RequestId -> Result String File -> Value
 encodeTranslationResult id result =
+    Encode.object
+        [ ( "id", Encode.string id )
+        , ( "succeeded", Encode.bool <| Result.isOk result )
+        , case result of
+            Ok file ->
+                ( "file"
+                , Encode.object
+                    [ ( "name", Encode.string file.name )
+                    , ( "content", Encode.string file.content )
+                    ]
+                )
+
+            Err err ->
+                ( "error", Encode.string err )
+        ]
+
+
+{-| Encode generated dto results.
+-}
+encodeDtoResult : RequestId -> Result String File -> Value
+encodeDtoResult id result =
     Encode.object
         [ ( "id", Encode.string id )
         , ( "succeeded", Encode.bool <| Result.isOk result )

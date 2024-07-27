@@ -1,6 +1,6 @@
 module StringUtilTest exposing (suite)
 
-import Expect exposing (Expectation)
+import Expect
 import StringUtil exposing (indent)
 import Test exposing (..)
 

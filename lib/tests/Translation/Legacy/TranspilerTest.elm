@@ -1,7 +1,7 @@
 module Translation.Legacy.TranspilerTest exposing (suite)
 
 import Dict
-import Expect exposing (Expectation)
+import Expect
 import StringUtil exposing (..)
 import Test exposing (..)
 import Translation.Transpiler exposing (transpileToElm)
@@ -9,24 +9,22 @@ import Translation.Transpiler exposing (transpileToElm)
 
 suite : Test
 suite =
-    describe "Converts a translation json to an elm module" <|
-        [ describe "Successful conversion" <|
+    describe "Converts a translation json to an elm module"
+        [ describe "Successful conversion"
             [ test "Works with empty translation file" <|
                 \_ ->
                     let
                         input =
                             { name = "+"
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": []
-                                            }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": []
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -44,17 +42,15 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {"translation": null}
-                                            }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {"translation": null}
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -77,17 +73,15 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {"translation": ""}
-                                            }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {"translation": ""}
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -110,20 +104,18 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "button.validate.global": "Ok",
-                                                    "button.validate.save": "Enregistrer"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "button.validate.global": "Ok",
+                                                "button.validate.save": "Enregistrer"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -151,22 +143,20 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "boolean_false": false,
-                                                    "boolean_true": true,
-                                                    "float": 3.14,
-                                                    "integer": 42
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "boolean_false": false,
+                                                "boolean_true": true,
+                                                "float": 3.14,
+                                                "integer": 42
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -204,22 +194,20 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "array": [42, 3.14, null],
-                                                    "object": { "invalid": "invalid", "number": 42 },
-                                                    "null": null,
-                                                    "valid": "valid"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "array": [42, 3.14, null],
+                                                "object": { "invalid": "invalid", "number": 42 },
+                                                "null": null,
+                                                "valid": "valid"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -257,20 +245,18 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "page.error.503": "Error 503",
-                                                    "form.step2.save": "Enregistrer"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "page.error.503": "Error 503",
+                                                "form.step2.save": "Enregistrer"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -298,19 +284,17 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "multiline.html.translation": "<a href=\\"%link%\\">\\n</a>\\n"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -334,19 +318,17 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "This value is not valid.": "Cette valeur n'est pas valide."
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "This value is not valid.": "Cette valeur n'est pas valide."
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -369,20 +351,18 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "__name__label__": "__name__label__",
-                                                    "9things": "9things"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "__name__label__": "__name__label__",
+                                                "9things": "9things"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -410,20 +390,18 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "user.notifications": "%count% notifications non lues",
-                                                    "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "user.notifications": "%count% notifications non lues",
+                                                "user.welcome": "Bonjour %firstname% %lastname% et bienvenu !"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -451,20 +429,18 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
-                                                    "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "user.notifications": "{0}%user%, pas de notification|{1}%user%, %count% notification non lue|[2, Inf[%user%, %count% notifications non lues",
+                                                "user.account.balance": "]-Inf, 0[Negative|[0, Inf[Positive"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -500,19 +476,17 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "apples": "{0} Il n'y a pas de pomme|one: Il y a une pomme|{5} Il y a cinq pommes|more: Il y a %count% pommes"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -542,19 +516,17 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "en": {
-                                                "messages": {
-                                                    "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "en": {
+                                            "messages": {
+                                                "apples": "{0} There are no apples|one: There is one apple|{5}There are five apples|more: There are %count% apples"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -584,20 +556,18 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "messages": {
-                                                    "honorific_title.keyname.miss": "Miss",
-                                                    "honorific_title.keyname.mister": "Mister"
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "honorific_title.keyname.miss": "Miss",
+                                                "honorific_title.keyname.mister": "Mister"
                                             }
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -638,17 +608,15 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                    {
-                                        "translations": {
-                                            "fr": {
-                                                "weird-domain": []
-                                            }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "weird-domain": []
                                         }
                                     }
-                                    """
+                                }
+                                """
                             , envVariables = Dict.empty
                             }
 
@@ -666,19 +634,17 @@ suite =
                     let
                         input =
                             { name = ""
-                            , content =
-                                unindent
-                                    """
-                                        {
-                                            "translations": {
-                                                "fr": {
-                                                    "messages": {
-                                                        "env.variable": "une %variable% remplaçée"
-                                                    }
-                                                }
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages": {
+                                                "env.variable": "une %variable% remplaçée"
                                             }
                                         }
-                                        """
+                                    }
+                                }
+                                """
                             , envVariables = Dict.fromList [ ( "%variable%", "value" ) ]
                             }
 
@@ -686,18 +652,18 @@ suite =
                             Ok
                                 { name = "Trans/Messages.elm"
                                 , content = unindent """
-                                        module Trans.Messages exposing (..)
+                                    module Trans.Messages exposing (..)
 
 
-                                        env_variable : String
-                                        env_variable =
-                                            "une value remplaçée"
-                                        """
+                                    env_variable : String
+                                    env_variable =
+                                        "une value remplaçée"
+                                    """
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
             ]
-        , describe "Failed conversion" <|
+        , describe "Failed conversion"
             [ test "Prints invalid json input" <|
                 \_ ->
                     let
@@ -708,15 +674,13 @@ suite =
                             }
 
                         expected =
-                            Err <|
-                                unindent
-                                    """
-                                    Problem with the given value:
+                            Err <| unindent """
+                                Problem with the given value:
 
-                                    "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
+                                "{ \\"translations\\": { \\"fr\\": { \\"messages\\": { \\"button.validate.global\\" \\"Ok\\" } } } }"
 
-                                    This is not valid JSON! Expected ':' after property name in JSON at position 67
-                                    """
+                                This is not valid JSON! Expected ':' after property name in JSON at position 67
+                                """
                     in
                     Expect.equal expected (transpileToElm input)
             ]

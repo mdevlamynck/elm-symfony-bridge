@@ -120,7 +120,7 @@ replaceEnvVariables envVariables json =
         replace translation =
             Dict.foldl String.replace translation envVariables
     in
-    { json | translations = Dict.map (\k v -> replace v) json.translations }
+    { json | translations = Dict.map (\_ v -> replace v) json.translations }
 
 
 {-| Parses the translations into usable type.

@@ -6,10 +6,9 @@ module Routing.Transpiler exposing (Command, transpileToElm)
 
 -}
 
-import Char
 import Dict exposing (Dict)
 import Elm exposing (..)
-import Json.Decode exposing (Decoder, decodeString, dict, errorToString, map, oneOf, string, succeed)
+import Json.Decode exposing (Decoder, decodeString, dict, errorToString, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (required)
 import Result.Extra as Result
 import Routing.Data exposing (ArgumentType(..), Path(..), Routing)
@@ -74,7 +73,7 @@ replaceEnvVariables envVariables =
         replace routing =
             Dict.foldl String.replace routing envVariables
     in
-    Dict.map (\k r -> { r | path = replace r.path })
+    Dict.map (\_ r -> { r | path = replace r.path })
 
 
 {-| Turns the raw extracted data into our internal representation.
@@ -194,6 +193,7 @@ routeToElmFunction urlPrefix ( routeName, routing ) =
                             Variable String name ->
                                 "params_." ++ name
                     )
+                |> List.filter (\s -> s /= "" && s /= "\"\"")
                 |> String.join " ++ "
     in
     Function routeName arguments "String" (Expr url)

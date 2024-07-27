@@ -2,14 +2,14 @@ module ElmTest exposing (suite)
 
 import Dict
 import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
-import Expect exposing (Expectation)
+import Expect
 import StringUtil exposing (..)
 import Test exposing (..)
 
 
 suite : Test
 suite =
-    describe "Render a simple elm AST to string" <|
+    describe "Render a simple elm AST to string"
         [ test "Renders a module correctly" <|
             \_ ->
                 let

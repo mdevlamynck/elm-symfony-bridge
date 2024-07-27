@@ -132,7 +132,7 @@ renderElmParam arg =
         Primitive _ param ->
             param
 
-        Record types ->
+        Record _ ->
             "params_"
 
 
@@ -144,7 +144,7 @@ renderElmExpr expr =
         Ifs alternatives ->
             case alternatives of
                 -- Don't render condition when there is only one branch
-                [ ( Expr cond, Expr subExpr ) ] ->
+                [ ( Expr _, Expr subExpr ) ] ->
                     subExpr
 
                 ( Expr cond, Expr headExpr ) :: tail ->
@@ -192,7 +192,7 @@ renderLetVar ( name, body ) =
 renderElseIf : List ( Expr, Expr ) -> String
 renderElseIf alternatives =
     case alternatives of
-        [ ( Expr cond, Expr expr ) ] ->
+        [ ( Expr _, Expr expr ) ] ->
             [ "else"
             , indent expr
             ]

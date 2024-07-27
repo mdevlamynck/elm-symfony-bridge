@@ -98,7 +98,7 @@ hasCountVariable translationContent =
     case translationContent of
         SingleMessage chunks ->
             chunks
-                |> List.any ((==) VariableCount)
+                |> List.member VariableCount
 
         PluralizedMessage _ ->
             True
@@ -171,34 +171,34 @@ indexedConditions lang =
     else if List.member lang [ "cs", "sk" ] then
         [ Expr "count == 1", Expr "count >= 2 && count <= 4", Expr "True" ]
 
-    else if List.member lang [ "ga" ] then
+    else if lang == "ga" then
         [ Expr "count == 1", Expr "count == 2", Expr "True" ]
 
-    else if List.member lang [ "lt" ] then
+    else if lang == "lt" then
         [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
 
-    else if List.member lang [ "sl" ] then
+    else if lang == "sl" then
         [ Expr "count % 100 == 1", Expr "count % 100 == 2", Expr "count % 100 == 3 || count % 100 == 4", Expr "True" ]
 
-    else if List.member lang [ "mk" ] then
+    else if lang == "mk" then
         [ Expr "count % 10 == 1", Expr "True" ]
 
-    else if List.member lang [ "mt" ] then
+    else if lang == "mt" then
         [ Expr "count == 1", Expr "count == 0 || count % 100 > 1 && count % 100 < 11", Expr "count % 100 > 10 && count % 100 < 20", Expr "True" ]
 
-    else if List.member lang [ "lv" ] then
+    else if lang == "lv" then
         [ Expr "count == 0", Expr "count % 10 == 1 && count % 100 /= 11", Expr "True" ]
 
-    else if List.member lang [ "pl" ] then
+    else if lang == "pl" then
         [ Expr "count == 1", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)", Expr "True" ]
 
-    else if List.member lang [ "cy" ] then
+    else if lang == "cy" then
         [ Expr "count == 1", Expr "count == 2", Expr "count == 8 || count == 11", Expr "True" ]
 
-    else if List.member lang [ "ro" ] then
+    else if lang == "ro" then
         [ Expr "count == 1", Expr "count == 0 || (count % 100 > 0 && count % 100 < 20)", Expr "True" ]
 
-    else if List.member lang [ "ar" ] then
+    else if lang == "ar" then
         [ Expr "count == 0", Expr "count == 1", Expr "count == 2", Expr "count % 100 >= 3 && count % 100 <= 10", Expr "count % 100 >= 11 && count % 100 <= 99", Expr "True" ]
 
     else
@@ -310,6 +310,7 @@ combineChunks list =
         string =
             list
                 |> List.map chunkToString
+                |> List.filter (\s -> s /= "" && s /= "\"\"")
                 |> String.join " ++ "
     in
     if String.isEmpty string then

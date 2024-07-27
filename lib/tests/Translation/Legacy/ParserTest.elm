@@ -1,7 +1,7 @@
 module Translation.Legacy.ParserTest exposing (suite)
 
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, string)
+import Expect
+import Fuzz exposing (string)
 import Test exposing (..)
 import Translation.Legacy.Data exposing (..)
 import Translation.Legacy.Parser exposing (parseTranslationContent)
@@ -14,8 +14,8 @@ longString =
 
 suite : Test
 suite =
-    describe "Parses a translation" <|
-        [ describe "Successfull parsing" <|
+    describe "Parses a translation"
+        [ describe "Successfull parsing"
             [ fuzz string "Should work on any string" <|
                 \input ->
                     Expect.ok (parseTranslationContent input)

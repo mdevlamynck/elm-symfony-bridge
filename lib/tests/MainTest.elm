@@ -1,8 +1,8 @@
 module MainTest exposing (suite)
 
 import Dict
-import Expect exposing (Expectation)
-import Json.Encode as Encode exposing (Value)
+import Expect
+import Json.Encode as Encode
 import Main exposing (Msg(..), decodeJsValue, update)
 import StringUtil exposing (..)
 import Test exposing (..)
@@ -10,8 +10,8 @@ import Test exposing (..)
 
 suite : Test
 suite =
-    describe "Main" <|
-        [ describe "Command parser" <|
+    describe "Main"
+        [ describe "Command parser"
             [ test "Valid transpile translation command" <|
                 \_ ->
                     let
@@ -50,9 +50,25 @@ suite =
                             TranspileRouting "id" { urlPrefix = "/", content = "{}", envVariables = Dict.fromList [ ( "key", "value" ) ] }
                     in
                     Expect.equal expected (decodeJsValue input)
+            , test "Valid generate dto with encoders / decoders" <|
+                \_ ->
+                    let
+                        input =
+                            Encode.object
+                                [ ( "dto"
+                                  , Encode.object
+                                        [ ( "content", Encode.string "{}" )
+                                        ]
+                                  )
+                                ]
+
+                        expected =
+                            GenerateDto { content = "{}" }
+                    in
+                    Expect.equal expected (decodeJsValue input)
             ]
-        , describe "Commands" <|
-            [ describe "NoOp" <|
+        , describe "Commands"
+            [ describe "NoOp"
                 [ test "NoOp does nothing" <|
                     \_ ->
                         let
@@ -64,7 +80,7 @@ suite =
                         in
                         Expect.equal expected (update NoOp)
                 ]
-            , describe "TranspileTranslation" <|
+            , describe "TranspileTranslation"
                 [ test "Works with valid command that should succeed" <|
                     \_ ->
                         let

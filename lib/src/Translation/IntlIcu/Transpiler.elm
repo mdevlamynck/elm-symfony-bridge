@@ -167,7 +167,7 @@ chunkToElm chunk =
                 Select variants ->
                     selectToElm ("params_." ++ var.name) variants
 
-                Plural opts variants ->
+                Plural _ variants ->
                     pluralToElm ("params_." ++ var.name) variants
 
 

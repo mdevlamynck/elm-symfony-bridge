@@ -1,7 +1,7 @@
 module Routing.TranspilerTest exposing (suite)
 
 import Dict
-import Expect exposing (Expectation)
+import Expect
 import Routing.Transpiler exposing (transpileToElm)
 import StringUtil exposing (..)
 import Test exposing (..)
@@ -16,21 +16,18 @@ suite =
                     let
                         input =
                             { urlPrefix = ""
-                            , content =
-                                unindent """ """
+                            , content = unindent """ """
                             , envVariables = Dict.empty
                             }
 
                         expected =
-                            Err <|
-                                unindent
-                                    """
-                                    Problem with the given value:
+                            Err <| unindent """
+                                Problem with the given value:
 
-                                    ""
+                                ""
 
-                                    This is not valid JSON! Unexpected end of JSON input
-                                    """
+                                This is not valid JSON! Unexpected end of JSON input
+                                """
                     in
                     Expect.equal expected (transpileToElm input)
             , test "Missing path" <|
@@ -38,8 +35,7 @@ suite =
                     let
                         input =
                             { urlPrefix = ""
-                            , content =
-                                unindent """
+                            , content = unindent """
                                 {
                                     "app_front_home": {
                                         "requirements": "NO CUSTOM"
@@ -50,17 +46,15 @@ suite =
                             }
 
                         expected =
-                            Err <|
-                                unindent
-                                    """
-                                    Problem with the value at json['app_front_home']:
+                            Err <| unindent """
+                                Problem with the value at json['app_front_home']:
 
-                                        {
-                                            "requirements": "NO CUSTOM"
-                                        }
+                                    {
+                                        "requirements": "NO CUSTOM"
+                                    }
 
-                                    Expecting an OBJECT with a field named `path`
-                                    """
+                                Expecting an OBJECT with a field named `path`
+                                """
                     in
                     Expect.equal expected (transpileToElm input)
             , test "Missing requirements" <|
@@ -68,8 +62,7 @@ suite =
                     let
                         input =
                             { urlPrefix = ""
-                            , content =
-                                unindent """
+                            , content = unindent """
                                 {
                                     "app_front_home": {
                                     }
@@ -79,15 +72,13 @@ suite =
                             }
 
                         expected =
-                            Err <|
-                                unindent
-                                    """
-                                    Problem with the value at json['app_front_home']:
+                            Err <| unindent """
+                                Problem with the value at json['app_front_home']:
 
-                                        {}
+                                    {}
 
-                                    Expecting an OBJECT with a field named `requirements`
-                                    """
+                                Expecting an OBJECT with a field named `requirements`
+                                """
                     in
                     Expect.equal expected (transpileToElm input)
             ]
@@ -98,17 +89,16 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_rest_user_find_friend": {
-                                                "path": "/user/{id/find-friend/{_username}",
-                                                "requirements": {
-                                                    "id": """ ++ "\"\\\\d+\"" ++ """,
-                                                    "_username": ""
-                                                }
+                                , content = unindent """
+                                    {
+                                        "app_rest_user_find_friend": {
+                                            "path": "/user/{id/find-friend/{_username}",
+                                            "requirements": {
+                                                "id": """ ++ "\"\\\\d+\"" ++ """,
+                                                "_username": ""
                                             }
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
@@ -124,21 +114,19 @@ suite =
                         let
                             input =
                                 { urlPrefix = "/app_dev.php"
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_front_home": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM"
-                                            }
+                                , content = unindent """
+                                    {
+                                        "app_front_home": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM"
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
@@ -153,45 +141,43 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "9things": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM"
-                                            },
-                                            "_ignored_route": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM"
-                                            },
-                                            "app_front_home": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM"
-                                            }
+                                , content = unindent """
+                                    {
+                                        "9things": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM"
+                                        },
+                                        "_ignored_route": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM"
+                                        },
+                                        "app_front_home": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM"
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_front_home : String
                                     app_front_home =
-                                        "" ++ "/home"
+                                        "/home"
 
 
                                     f_9things : String
                                     f_9things =
-                                        "" ++ "/home"
+                                        "/home"
 
 
                                     f_ignored_route : String
                                     f_ignored_route =
-                                        "" ++ "/home"
+                                        "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -200,28 +186,26 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_front_home": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM",
-                                                "extraField": null
-                                            }
+                                , content = unindent """
+                                    {
+                                        "app_front_home": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM",
+                                            "extraField": null
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_front_home : String
                                     app_front_home =
-                                        "" ++ "/home"
+                                        "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -230,27 +214,25 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "aPP_fR@n|_h0m3": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM"
-                                            }
+                                , content = unindent """
+                                    {
+                                        "aPP_fR@n|_h0m3": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM"
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_fr_n__h0m3 : String
                                     app_fr_n__h0m3 =
-                                        "" ++ "/home"
+                                        "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -259,27 +241,25 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_front_home": {
-                                                "path": "/home",
-                                                "requirements": "NO CUSTOM"
-                                            }
+                                , content = unindent """
+                                    {
+                                        "app_front_home": {
+                                            "path": "/home",
+                                            "requirements": "NO CUSTOM"
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_front_home : String
                                     app_front_home =
-                                        "" ++ "/home"
+                                        "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -288,30 +268,28 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_rest_user_find_friend": {
-                                                "path": "/user/{id}/find-friend/{_username}",
-                                                "requirements": {
-                                                    "id": """ ++ "\"\\\\d+\"" ++ """,
-                                                    "_username": ""
-                                                }
+                                , content = unindent """
+                                    {
+                                        "app_rest_user_find_friend": {
+                                            "path": "/user/{id}/find-friend/{_username}",
+                                            "requirements": {
+                                                "id": """ ++ "\"\\\\d+\"" ++ """,
+                                                "_username": ""
                                             }
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_rest_user_find_friend : { id : Int, username : String } -> String
                                     app_rest_user_find_friend params_ =
-                                        "" ++ "/user/" ++ (String.fromInt params_.id) ++ "/find-friend/" ++ params_.username
+                                        "/user/" ++ (String.fromInt params_.id) ++ "/find-friend/" ++ params_.username
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -320,29 +298,27 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_rest_user_type": {
-                                                "path": "/user/types/{type}",
-                                                "requirements": {
-                                                    "type": ""
-                                                }
+                                , content = unindent """
+                                    {
+                                        "app_rest_user_type": {
+                                            "path": "/user/types/{type}",
+                                            "requirements": {
+                                                "type": ""
                                             }
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.empty
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_rest_user_type : { type_ : String } -> String
                                     app_rest_user_type params_ =
-                                        "" ++ "/user/types/" ++ params_.type_
+                                        "/user/types/" ++ params_.type_
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -351,29 +327,27 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content =
-                                    unindent """
-                                        {
-                                            "app_rest_user_type": {
-                                                "path": "/user/types/{variable}",
-                                                "requirements": {
-                                                    "type": ""
-                                                }
+                                , content = unindent """
+                                    {
+                                        "app_rest_user_type": {
+                                            "path": "/user/types/{variable}",
+                                            "requirements": {
+                                                "type": ""
                                             }
                                         }
+                                    }
                                     """
                                 , envVariables = Dict.fromList [ ( "{variable}", "value" ) ]
                                 }
 
                             expected =
-                                Ok <|
-                                    unindent """
+                                Ok <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_rest_user_type : String
                                     app_rest_user_type =
-                                        "" ++ "/user/types/value"
+                                        "/user/types/value"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
