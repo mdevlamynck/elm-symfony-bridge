@@ -1,6 +1,6 @@
 module Elm exposing
     ( Module(..), Function(..), Arg(..), Expr(..)
-    , Version(..), renderElmModule
+    , renderElmModule
     , normalizeModuleName, normalizeFunctionName
     , keywords, quote
     )
@@ -15,7 +15,7 @@ module Elm exposing
 
 # Rendering
 
-@docs Version, renderElmModule
+@docs renderElmModule
 
 
 # Utils
@@ -71,36 +71,16 @@ type Expr
     | Expr String
 
 
-{-| Supported Elm versions.
+{-| Renders a whole module to string.
 -}
-type Version
-    = Elm_0_18
-    | Elm_0_19
-
-
-{-| Renders a whole module to string compatible with the given elm version.
--}
-renderElmModule : Version -> Module -> String
-renderElmModule version (Module name body) =
+renderElmModule : Module -> String
+renderElmModule (Module name body) =
     let
         renderedBody =
-            List.map renderElmFunction (toStringHelper version :: body)
+            List.map renderElmFunction body
     in
     (("module " ++ name ++ " exposing (..)") :: renderedBody)
         |> String.join "\n\n\n"
-
-
-{-| AST of an helper function to abstract differences between elm versions on handling int to string conversions.
--}
-toStringHelper : Version -> Function
-toStringHelper version =
-    Function "fromInt" [ Primitive "Int" "int" ] "String" <|
-        case version of
-            Elm_0_18 ->
-                Expr "toString int"
-
-            Elm_0_19 ->
-                Expr "String.fromInt int"
 
 
 {-| Renders a function to string.

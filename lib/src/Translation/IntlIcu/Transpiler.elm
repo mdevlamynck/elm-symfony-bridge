@@ -153,7 +153,7 @@ chunkToElm chunk =
                     Expr <| "params_." ++ var.name
 
                 Number _ ->
-                    Expr <| "(fromInt params_." ++ var.name ++ ")"
+                    Expr <| "(String.fromInt params_." ++ var.name ++ ")"
 
                 Date _ ->
                     Debug.todo ""

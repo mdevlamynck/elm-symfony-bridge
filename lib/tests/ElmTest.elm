@@ -1,10 +1,10 @@
 module ElmTest exposing (suite)
 
 import Dict
-import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), Version(..), renderElmModule)
+import Elm exposing (Arg(..), Expr(..), Function(..), Module(..), renderElmModule)
 import Expect exposing (Expectation)
-import Test exposing (..)
 import StringUtil exposing (..)
+import Test exposing (..)
 
 
 suite : Test
@@ -24,11 +24,6 @@ suite =
                             module Trans.Messages exposing (..)
 
 
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
-
-
                             button_validate_global : String
                             button_validate_global =
                                 "Ok"
@@ -39,7 +34,7 @@ suite =
                                 "Enregistrer"
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders functions with arguments correctly" <|
             \_ ->
                 let
@@ -58,17 +53,12 @@ suite =
                             module Trans.Messages exposing (..)
 
 
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
-
-
                             user_welcome : Int -> { firstname : String, lastname : String } -> String
                             user_welcome choice params_ =
                                 "Ok"
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders if blocks correctly" <|
             \_ ->
                 let
@@ -90,11 +80,6 @@ suite =
                             module Trans.Messages exposing (..)
 
 
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
-
-
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 if choice < 0 then
@@ -105,7 +90,7 @@ suite =
                                     "Positive"
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
+                Expect.equal expected (renderElmModule input)
         , test "No if when there is only one variant" <|
             \_ ->
                 let
@@ -125,17 +110,12 @@ suite =
                             module Trans.Messages exposing (..)
 
 
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
-
-
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 "Negative"
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders case … of expressions correctly" <|
             \_ ->
                 let
@@ -157,11 +137,6 @@ suite =
                             module Trans.Messages exposing (..)
 
 
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
-
-
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 case choice of
@@ -175,7 +150,7 @@ suite =
                                         ""
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders nested case … of expressions correctly" <|
             \_ ->
                 let
@@ -207,11 +182,6 @@ suite =
                             module Trans.Messages exposing (..)
 
 
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
-
-
                             user_account_balance : Int -> String
                             user_account_balance choice =
                                 case choice of
@@ -235,7 +205,7 @@ suite =
                                         ""
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
+                Expect.equal expected (renderElmModule input)
         , test "Renders nested let … in … correctly" <|
             \_ ->
                 let
@@ -255,11 +225,6 @@ suite =
                     expected =
                         unindent """
                             module Trans.Messages exposing (..)
-
-
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
 
 
                             test_nested_let_in : String
@@ -282,8 +247,8 @@ suite =
                                 var1 ++ var2
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
-        , test "Renders module with fromInt for 0.19" <|
+                Expect.equal expected (renderElmModule input)
+        , test "Renders module" <|
             \_ ->
                 let
                     input =
@@ -292,29 +257,7 @@ suite =
                     expected =
                         unindent """
                             module Trans.Messages exposing (..)
-
-
-                            fromInt : Int -> String
-                            fromInt int =
-                                String.fromInt int
                             """
                 in
-                Expect.equal expected (renderElmModule Elm_0_19 input)
-        , test "Renders module with fromInt for 0.18" <|
-            \_ ->
-                let
-                    input =
-                        Module "Trans.Messages" []
-
-                    expected =
-                        unindent """
-                            module Trans.Messages exposing (..)
-
-
-                            fromInt : Int -> String
-                            fromInt int =
-                                toString int
-                            """
-                in
-                Expect.equal expected (renderElmModule Elm_0_18 input)
+                Expect.equal expected (renderElmModule input)
         ]

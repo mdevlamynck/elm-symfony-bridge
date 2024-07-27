@@ -21,7 +21,6 @@ import Routing.Parser as Parser
 type alias Command =
     { urlPrefix : String
     , content : String
-    , version : Version
     , envVariables : Dict String String
     }
 
@@ -34,7 +33,7 @@ transpileToElm command =
         |> readJsonContent
         |> Result.map (replaceEnvVariables command.envVariables)
         |> Result.andThen parseRouting
-        |> Result.map (convertToElm command.version command.urlPrefix)
+        |> Result.map (convertToElm command.urlPrefix)
 
 
 {-| Represents the content of a JSON routing.
@@ -143,14 +142,14 @@ removeLeadingUnderscore name =
 
 {-| Turns the routing information into an elm module.
 -}
-convertToElm : Version -> String -> Dict String Routing -> String
-convertToElm version urlPrefix routing =
+convertToElm : String -> Dict String Routing -> String
+convertToElm urlPrefix routing =
     Module "Routing"
         (routing
             |> Dict.toList
             |> List.map (routeToElmFunction urlPrefix)
         )
-        |> renderElmModule version
+        |> renderElmModule
 
 
 {-| Turns one route into an elm function.
@@ -190,7 +189,7 @@ routeToElmFunction urlPrefix ( routeName, routing ) =
                                 quote path
 
                             Variable Int name ->
-                                "(fromInt params_." ++ name ++ ")"
+                                "(String.fromInt params_." ++ name ++ ")"
 
                             Variable String name ->
                                 "params_." ++ name

@@ -331,7 +331,7 @@ chunkToString chunk =
             "params_." ++ variable
 
         VariableCount ->
-            "(fromInt count)"
+            "(String.fromInt count)"
 
 
 {-| Creates all extra keyname translation functions.
