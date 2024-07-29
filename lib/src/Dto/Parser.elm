@@ -13,60 +13,50 @@ readJsonContent =
 
 decodeDto : Decoder Dto
 decodeDto =
-    Decode.lazy <|
-        \() ->
-            Decode.succeed Dto_
-                |> Decode.required "fqn" Decode.string
-                |> Decode.required "fields" (Decode.keyValuePairs decodeType)
-                |> Decode.map D
+    Decode.succeed Dto
+        |> Decode.required "fqn" (Decode.string |> Decode.map buildDtoReference)
+        |> Decode.required "fields" (Decode.keyValuePairs decodeType)
 
 
 decodeType : Decoder Type
 decodeType =
-    Decode.lazy <|
-        \() ->
-            Decode.succeed Type_
-                |> Decode.required "type" decodeTypeKind
-                |> Decode.required "isNullable" Decode.bool
-                |> Decode.required "canBeAbsent" Decode.bool
-                |> Decode.required "defaultValue" (Decode.nullable decodeValue)
-                |> Decode.map T
+    Decode.succeed Type
+        |> Decode.required "type" decodeTypeKind
+        |> Decode.required "isNullable" Decode.bool
+        |> Decode.required "canBeAbsent" Decode.bool
+        |> Decode.required "defaultValue" (Decode.nullable decodeValue)
 
 
 decodeTypeKind : Decoder TypeKind
 decodeTypeKind =
-    Decode.lazy <|
-        \() ->
-            Decode.oneOf
-                [ Decode.map TypePrimitive decodePrimitive
-                , Decode.map TypeCollection decodeCollection
-                , Decode.map TypeDtoReference decodeDtoReference
-                ]
+    Decode.oneOf
+        [ Decode.map TypePrimitive decodePrimitive
+        , Decode.map TypeCollection decodeCollection
+        , Decode.map TypeDtoReference decodeDtoReference
+        ]
 
 
 decodePrimitive : Decoder Primitive
 decodePrimitive =
-    Decode.lazy <|
-        \() ->
-            Decode.string
-                |> Decode.andThen
-                    (\s ->
-                        case s of
-                            "bool" ->
-                                Decode.succeed Bool
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "bool" ->
+                        Decode.succeed Bool
 
-                            "int" ->
-                                Decode.succeed Int
+                    "int" ->
+                        Decode.succeed Int
 
-                            "float" ->
-                                Decode.succeed Float
+                    "float" ->
+                        Decode.succeed Float
 
-                            "string" ->
-                                Decode.succeed String
+                    "string" ->
+                        Decode.succeed String
 
-                            _ ->
-                                Decode.fail <| "Failed to decode Primitive : \"" ++ s ++ "\""
-                    )
+                    _ ->
+                        Decode.fail <| "Failed to decode Primitive : \"" ++ s ++ "\""
+            )
 
 
 decodeCollection : Decoder Collection
@@ -81,17 +71,28 @@ decodeCollection =
 
 decodeDtoReference : Decoder DtoReference
 decodeDtoReference =
-    Decode.lazy <|
-        \() ->
-            Decode.succeed DtoReference_
-                |> Decode.required "fqn" Decode.string
-                |> Decode.map DR
+    Decode.succeed buildDtoReference
+        |> Decode.required "fqn" Decode.string
 
 
 decodeValue : Decoder Value
 decodeValue =
-    Decode.lazy <|
-        \() ->
-            Decode.succeed Value_
-                |> Decode.required "value" Decode.value
-                |> Decode.map V
+    Decode.succeed Value
+        |> Decode.required "value" Decode.value
+
+
+buildDtoReference : String -> DtoReference
+buildDtoReference fqn =
+    let
+        chunks =
+            String.split "\\" fqn
+                -- filter some parts out? like App\Account\UserInterface\RestController\SignInDto -> ["App", "Account", "SignInDto"]
+                |> List.filter (\part -> not <| List.member part [ "UserInterface", "RestController" ])
+                |> (::) "Dto"
+
+        last =
+            List.reverse chunks |> List.head |> Maybe.withDefault ""
+    in
+    { fqn = chunks |> String.join "."
+    , name = last
+    }

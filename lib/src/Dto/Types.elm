@@ -1,23 +1,24 @@
 module Dto.Types exposing (..)
 
+import Dict exposing (Dict)
 import Json.Encode as Json
+import Set exposing (Set)
 
 
-type Dto
-    = D Dto_
+type alias Context =
+    { cycles : Set String
+    , references : Dict String (Set String)
+    , dtos : List Dto
+    }
 
 
-type alias Dto_ =
-    { fqn : String
+type alias Dto =
+    { ref : DtoReference
     , fields : List ( String, Type )
     }
 
 
-type Type
-    = T Type_
-
-
-type alias Type_ =
+type alias Type =
     { type_ : TypeKind
     , isNullable : Bool
     , canBeAbsent : Bool
@@ -48,18 +49,11 @@ type alias Collection_ =
     }
 
 
-type DtoReference
-    = DR DtoReference_
-
-
-type alias DtoReference_ =
+type alias DtoReference =
     { fqn : String
+    , name : String
     }
 
 
-type Value
-    = V Value_
-
-
-type alias Value_ =
+type alias Value =
     { value : Json.Value }

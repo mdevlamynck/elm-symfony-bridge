@@ -193,18 +193,22 @@ encodeTranslationResult id result =
 
 {-| Encode generated dto results.
 -}
-encodeDtoResult : RequestId -> Result String File -> Value
+encodeDtoResult : RequestId -> Result String (List File) -> Value
 encodeDtoResult id result =
     Encode.object
         [ ( "id", Encode.string id )
         , ( "succeeded", Encode.bool <| Result.isOk result )
         , case result of
-            Ok file ->
-                ( "file"
-                , Encode.object
-                    [ ( "name", Encode.string file.name )
-                    , ( "content", Encode.string file.content )
-                    ]
+            Ok files ->
+                ( "files"
+                , Encode.list
+                    (\file ->
+                        Encode.object
+                            [ ( "name", Encode.string file.name )
+                            , ( "content", Encode.string file.content )
+                            ]
+                    )
+                    files
                 )
 
             Err err ->

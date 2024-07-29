@@ -19,21 +19,26 @@ suite =
                                 {
                                     "fqn": "App\\\\Account\\\\UserInterface\\\\RestController\\\\SignInDto",
                                     "fields": {
-                                        "email": {
+                                        "somePrimitive": {
                                             "defaultValue": null,
                                             "type": "string",
                                             "isNullable": true,
                                             "canBeAbsent": false
                                         },
-                                        "password": {
+                                        "someList": {
                                             "defaultValue": null,
-                                            "type": "string",
-                                            "isNullable": true,
+                                            "type": {
+                                                "type": "string",
+                                                "allowsNull": true
+                                            },
+                                            "isNullable": false,
                                             "canBeAbsent": false
                                         },
-                                        "passwordRepeat": {
+                                        "someDto": {
                                             "defaultValue": null,
-                                            "type": "string",
+                                            "type": {
+                                                "fqn": "App\\\\Account\\\\UserInterface\\\\RestController\\\\SomeDto"
+                                            },
                                             "isNullable": true,
                                             "canBeAbsent": false
                                         }
@@ -44,14 +49,44 @@ suite =
 
                     expected =
                         Ok
-                            [ D
-                                { fqn = "App\\Account\\UserInterface\\RestController\\SignInDto"
-                                , fields =
-                                    [ ( "email", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
-                                    , ( "password", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
-                                    , ( "passwordRepeat", T { type_ = TypePrimitive String, isNullable = True, canBeAbsent = False, defaultValue = Nothing } )
+                            [ { ref =
+                                    { fqn = "Dto.App.Account.SignInDto"
+                                    , name = "SignInDto"
+                                    }
+                              , fields =
+                                    [ ( "somePrimitive"
+                                      , { canBeAbsent = False
+                                        , defaultValue = Nothing
+                                        , isNullable = True
+                                        , type_ = TypePrimitive String
+                                        }
+                                      )
+                                    , ( "someList"
+                                      , { canBeAbsent = False
+                                        , defaultValue = Nothing
+                                        , isNullable = False
+                                        , type_ =
+                                            TypeCollection
+                                                (C
+                                                    { allowsNull = True
+                                                    , type_ = TypePrimitive String
+                                                    }
+                                                )
+                                        }
+                                      )
+                                    , ( "someDto"
+                                      , { canBeAbsent = False
+                                        , defaultValue = Nothing
+                                        , isNullable = True
+                                        , type_ =
+                                            TypeDtoReference
+                                                { fqn = "Dto.App.Account.SomeDto"
+                                                , name = "SomeDto"
+                                                }
+                                        }
+                                      )
                                     ]
-                                }
+                              }
                             ]
                 in
                 Expect.equal expected (readJsonContent input)

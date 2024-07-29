@@ -1,9 +1,12 @@
 module Dto.Generator exposing (Command, File, generateElm)
 
+import Dict
+import Dto.Graph as Graph
 import Dto.Parser exposing (readJsonContent)
-import Dto.Types exposing (Collection(..), Dto(..), DtoReference(..), Primitive(..), Type(..), TypeKind(..))
-import Elm.CodeGen as Gen exposing (Declaration, Expression, TypeAnnotation)
+import Dto.Types exposing (Collection(..), Context, Dto, DtoReference, Primitive(..), Type, TypeKind(..))
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
 import Elm.Pretty as Gen
+import Set
 import StringUtil exposing (trimEmptyLines)
 
 
@@ -24,54 +27,98 @@ type alias File =
 
 {-| Converts a JSON containing dto metadata to an Elm file.
 -}
-generateElm : Command -> Result String File
+generateElm : Command -> Result String (List File)
 generateElm command =
     command.content
         |> readJsonContent
-        |> Result.map generateElmModule
+        |> Result.map buildContext
+        |> Result.map generateElmModules
 
 
-generateElmModule : List Dto -> File
-generateElmModule dtos =
-    { name = "Dto.elm"
+buildContext : List Dto -> Context
+buildContext dtos =
+    let
+        graph : Graph.Graph
+        graph =
+            dtos
+                |> List.map
+                    (\dto ->
+                        ( dto.ref.fqn
+                        , dto.fields
+                            |> List.filterMap (Tuple.second >> .type_ >> extractType)
+                            |> Set.fromList
+                        )
+                    )
+                |> Dict.fromList
+    in
+    { cycles = Graph.findNodesInCycles graph
+    , references = graph
+    , dtos = dtos
+    }
+
+
+extractType : TypeKind -> Maybe String
+extractType type_ =
+    case type_ of
+        TypeCollection (C collection) ->
+            extractType collection.type_
+
+        TypeDtoReference dto ->
+            Just dto.fqn
+
+        _ ->
+            Nothing
+
+
+generateElmModules : Context -> List File
+generateElmModules context =
+    List.map (generateElmModule context) context.dtos
+
+
+generateElmModule : Context -> Dto -> File
+generateElmModule context dto =
+    { name = String.replace "." "/" dto.ref.fqn ++ ".elm"
     , content =
         Gen.file
-            (Gen.normalModule [ "Dto" ] [])
-            [ Gen.importStmt [ "Json", "Decode" ] (Just [ "Decode" ]) Nothing
-            , Gen.importStmt [ "Json", "Decode", "Pipeline" ] (Just [ "Decode" ]) Nothing
-            , Gen.importStmt [ "Json", "Encode" ] (Just [ "Encode" ]) Nothing
-            , Gen.importStmt [ "Json", "Encode", "Extra" ] (Just [ "Encode" ]) Nothing
+            (Gen.normalModule (String.split "." dto.ref.fqn) [])
+            (generateImports context dto
+                ++ decode.imports
+                ++ encode.imports
+            )
+            [ generateType dto
+            , generateDecoder dto
+            , generateEncoder dto
             ]
-            (List.concatMap generateDto dtos)
             Nothing
             |> Gen.pretty 80
             |> trimEmptyLines
     }
 
 
-generateDto : Dto -> List Declaration
-generateDto dto =
-    [ generateType dto
-    , generateDecoder dto
-    , generateEncoder dto
-    ]
+generateImports : Context -> Dto -> List Import
+generateImports context dto =
+    let
+        buildImport path =
+            Gen.importStmt path Nothing Nothing
+    in
+    context.references
+        |> Dict.get dto.ref.fqn
+        |> Maybe.withDefault Set.empty
+        |> Set.toList
+        |> List.map (String.split "." >> buildImport)
 
 
 generateType : Dto -> Declaration
 generateType dto =
-    Gen.aliasDecl Nothing (alias dto).name [] (generateRecord dto)
-
-
-generateRecord : Dto -> TypeAnnotation
-generateRecord (D dto) =
-    Gen.recordAnn
-        (dto.fields
-            |> (List.map << Tuple.mapSecond) generateRecordField
-        )
+    Gen.aliasDecl Nothing dto.ref.name [] <|
+        Gen.recordAnn
+            (dto.fields
+                |> (List.map << Tuple.mapSecond) generateRecordField
+            )
 
 
 generateRecordField : Type -> TypeAnnotation
-generateRecordField (T type_) =
+generateRecordField type_ =
     let
         wrapMaybeIfNullable =
             if type_.isNullable then
@@ -109,115 +156,91 @@ generateTypeKind type_ =
             in
             Gen.listAnn (wrapMaybeIfNullable (generateTypeKind collection.type_))
 
-        TypeDtoReference (DR dto) ->
-            Gen.fqTyped [] (toAlias dto.fqn) []
+        TypeDtoReference dto ->
+            toType dto
 
 
 generateDecoder : Dto -> Declaration
 generateDecoder dto =
-    let
-        dtoData =
-            alias dto
-    in
-    Gen.funDecl Nothing (Just dtoData.decoderSig) dtoData.decoder [] <|
-        Gen.binOpChain (Gen.apply [ Gen.fqFun [ "Decode" ] "succeed", Gen.val dtoData.name ])
+    Gen.funDecl Nothing (Just (decode.decoder dto.ref.name)) "decode" [] <|
+        Gen.binOpChain (Gen.apply [ decode.succeed, toConstruct dto.ref ])
             Gen.piper
-            (generateFieldsDecoder dto)
-
-
-generateFieldsDecoder : Dto -> List Expression
-generateFieldsDecoder (D dto) =
-    dto.fields
-        |> List.map generateFieldDecoder
+            (dto.fields |> List.map generateFieldDecoder)
 
 
 generateFieldDecoder : ( String, Type ) -> Expression
 generateFieldDecoder ( name, type_ ) =
-    Gen.apply
-        [ Gen.fqFun [ "Decode" ] "required"
-        , Gen.string name
-        , generateFieldTypeDecoder type_
-        ]
+    Gen.apply [ decode.required, Gen.string name, generateFieldTypeDecoder type_ ]
 
 
 generateFieldTypeDecoder : Type -> Expression
-generateFieldTypeDecoder (T type_) =
+generateFieldTypeDecoder type_ =
     let
         wrapMaybeIfNullable decoder =
             if type_.isNullable then
-                Gen.apply [ Gen.fqFun [ "Decode" ] "maybe", decoder ]
+                Gen.apply [ decode.maybe, decoder ]
 
             else
                 decoder
     in
-    wrapMaybeIfNullable <| generateTypeKindDecoder type_.type_
+    wrapMaybeIfNullable (generateTypeKindDecoder type_.type_)
 
 
 generateTypeKindDecoder : TypeKind -> Expression
 generateTypeKindDecoder type_ =
     case type_ of
         TypePrimitive Bool ->
-            Gen.fqVal [ "Decode" ] "bool"
+            decode.bool
 
         TypePrimitive Int ->
-            Gen.fqVal [ "Decode" ] "int"
+            decode.int
 
         TypePrimitive Float ->
-            Gen.fqVal [ "Decode" ] "float"
+            decode.float
 
         TypePrimitive String ->
-            Gen.fqVal [ "Decode" ] "string"
+            decode.string
 
         TypeCollection (C collection) ->
             let
                 wrapMaybeIfNullable decoder =
                     if collection.allowsNull then
-                        Gen.apply [ Gen.fqFun [ "Decode" ] "maybe", decoder ]
+                        Gen.apply [ decode.maybe, decoder ]
 
                     else
                         decoder
             in
-            Gen.apply [ Gen.fqFun [ "Decode" ] "list", wrapMaybeIfNullable (generateTypeKindDecoder collection.type_) ]
+            Gen.apply [ decode.list, wrapMaybeIfNullable (generateTypeKindDecoder collection.type_) ]
 
-        TypeDtoReference (DR dto) ->
-            Gen.val (toDecoder <| toAlias dto.fqn)
+        TypeDtoReference dto ->
+            toDecoder dto
 
 
 generateEncoder : Dto -> Declaration
 generateEncoder dto =
-    let
-        dtoData =
-            alias dto
-    in
-    Gen.funDecl Nothing (Just dtoData.encoderSig) dtoData.encoder [ Gen.varPattern "dto" ] <|
-        Gen.apply
-            [ Gen.fqFun [ "Encode" ] "object"
-            , Gen.list (generateFieldsEncoder dto)
-            ]
+    Gen.funDecl Nothing (Just (encode.encoder dto.ref.name)) "encode" [ Gen.varPattern "dto" ] <|
+        Gen.apply [ encode.object, Gen.list (generateFieldsEncoder dto) ]
 
 
 generateFieldsEncoder : Dto -> List Expression
-generateFieldsEncoder (D dto) =
+generateFieldsEncoder dto =
     dto.fields
         |> List.map
             (\( name, type_ ) ->
-                Gen.tuple
-                    [ Gen.string name
-                    , generateFieldEncoder name type_
-                    ]
+                Gen.tuple [ Gen.string name, generateFieldEncoder name type_ ]
             )
 
 
 generateFieldEncoder : String -> Type -> Expression
-generateFieldEncoder name (T type_) =
+generateFieldEncoder name type_ =
     let
         wrapMaybeIfNullable encoders =
             if type_.isNullable then
                 if List.length encoders > 1 then
-                    Gen.fqFun [ "Encode" ] "maybe" :: [ Gen.parens (Gen.apply encoders) ]
+                    encode.maybe :: [ Gen.parens (Gen.apply encoders) ]
 
                 else
-                    Gen.fqFun [ "Encode" ] "maybe" :: encoders
+                    encode.maybe :: encoders
 
             else
                 encoders
@@ -233,61 +256,128 @@ generateTypeKindEncoder : TypeKind -> List Expression
 generateTypeKindEncoder type_ =
     case type_ of
         TypePrimitive Bool ->
-            [ Gen.fqVal [ "Encode" ] "bool" ]
+            [ encode.bool ]
 
         TypePrimitive Int ->
-            [ Gen.fqVal [ "Encode" ] "int" ]
+            [ encode.int ]
 
         TypePrimitive Float ->
-            [ Gen.fqVal [ "Encode" ] "float" ]
+            [ encode.float ]
 
         TypePrimitive String ->
-            [ Gen.fqVal [ "Encode" ] "string" ]
+            [ encode.string ]
 
         TypeCollection (C collection) ->
             let
                 wrapMaybeIfNullable encoders =
                     if collection.allowsNull then
                         [ Gen.parens <|
-                            Gen.apply (Gen.fqFun [ "Encode" ] "maybe" :: encoders)
+                            Gen.apply (encode.maybe :: encoders)
                         ]
 
                     else
                         encoders
             in
-            Gen.fqFun [ "Encode" ] "list" :: wrapMaybeIfNullable (generateTypeKindEncoder collection.type_)
+            encode.list :: wrapMaybeIfNullable (generateTypeKindEncoder collection.type_)
 
-        TypeDtoReference (DR dto) ->
-            [ Gen.val (toEncoder <| toAlias dto.fqn) ]
+        TypeDtoReference dto ->
+            [ toEncoder dto ]
 
 
-alias : Dto -> { name : String, decoder : String, encoder : String, decoderSig : TypeAnnotation, encoderSig : TypeAnnotation }
-alias (D dto) =
+toType : DtoReference -> TypeAnnotation
+toType ref =
     let
-        name =
-            toAlias dto.fqn
+        fullPath =
+            [ ref.fqn
+            , ref.name
+            ]
+                |> String.join "."
     in
-    { name = name
-    , decoder = toDecoder name
-    , encoder = toEncoder name
-    , decoderSig = Gen.fqTyped [ "Decode" ] "Decoder" [ Gen.typeVar name ]
-    , encoderSig = Gen.funAnn (Gen.typeVar name) (Gen.typeVar "Encode.Value")
+    Gen.fqTyped [] fullPath []
+
+
+toConstruct : DtoReference -> Expression
+toConstruct ref =
+    Gen.val ref.name
+
+
+toDecoder : DtoReference -> Expression
+toDecoder ref =
+    Gen.val (ref.fqn ++ ".decode")
+
+
+toEncoder : DtoReference -> Expression
+toEncoder ref =
+    Gen.val (ref.fqn ++ ".encode")
+
+
+decode :
+    { succeed : Expression
+    , map : Expression
+    , required : Expression
+    , bool : Expression
+    , int : Expression
+    , float : Expression
+    , string : Expression
+    , maybe : Expression
+    , list : Expression
+    , decoder : String -> TypeAnnotation
+    , imports : List Import
+    }
+decode =
+    let
+        fn =
+            Gen.fqFun [ "Decode" ]
+
+        val =
+            Gen.fqFun [ "Decode" ]
+    in
+    { succeed = fn "succeed"
+    , map = fn "map"
+    , required = fn "required"
+    , bool = val "bool"
+    , int = val "int"
+    , float = val "float"
+    , string = val "string"
+    , maybe = fn "maybe"
+    , list = fn "list"
+    , decoder = \t -> Gen.fqTyped [ "Decode" ] "Decoder" [ Gen.typeVar t ]
+    , imports =
+        [ Gen.importStmt [ "Json", "Decode" ] (Just [ "Decode" ]) Nothing
+        , Gen.importStmt [ "Json", "Decode", "Pipeline" ] (Just [ "Decode" ]) Nothing
+        ]
     }
 
 
-toAlias : String -> String
-toAlias fqn =
-    String.split "\\" fqn
-        -- filter some parts out? like App\Account\UserInterface\RestController\SignInDto -> App_Account_SignInDto
-        |> List.filter (\part -> not <| List.member part [ "UserInterface", "RestController" ])
-        |> String.join ""
+encode :
+    { object : Expression
+    , bool : Expression
+    , int : Expression
+    , float : Expression
+    , string : Expression
+    , maybe : Expression
+    , list : Expression
+    , encoder : String -> TypeAnnotation
+    , imports : List Import
+    }
+encode =
+    let
+        fn =
+            Gen.fqFun [ "Encode" ]
 
-
-toDecoder : String -> String
-toDecoder name =
-    "decode" ++ name
-
-
-toEncoder : String -> String
-toEncoder name =
-    "encode" ++ name
+        val =
+            Gen.fqFun [ "Encode" ]
+    in
+    { object = fn "object"
+    , bool = val "bool"
+    , int = val "int"
+    , float = val "float"
+    , string = val "string"
+    , maybe = fn "maybe"
+    , list = fn "list"
+    , encoder = \t -> Gen.funAnn (Gen.typeVar t) (Gen.fqTyped [ "Encode" ] "Value" [])
+    , imports =
+        [ Gen.importStmt [ "Json", "Encode" ] (Just [ "Encode" ]) Nothing
+        , Gen.importStmt [ "Json", "Encode", "Extra" ] (Just [ "Encode" ]) Nothing
+        ]
+    }
