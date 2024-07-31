@@ -91,7 +91,6 @@ generateElmModule context dto =
             ]
             Nothing
             |> Gen.pretty 80
-            |> trimEmptyLines
     }
 
 

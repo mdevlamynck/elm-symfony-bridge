@@ -126,7 +126,7 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
@@ -161,23 +161,23 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_front_home : String
                                     app_front_home =
-                                        "/home"
+                                        "" ++ "/home"
 
 
                                     f_9things : String
                                     f_9things =
-                                        "/home"
+                                        "" ++ "/home"
 
 
                                     f_ignored_route : String
                                     f_ignored_route =
-                                        "/home"
+                                        "" ++ "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -199,13 +199,13 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_front_home : String
                                     app_front_home =
-                                        "/home"
+                                        "" ++ "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -226,13 +226,13 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_fr_n__h0m3 : String
                                     app_fr_n__h0m3 =
-                                        "/home"
+                                        "" ++ "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -253,13 +253,13 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_front_home : String
                                     app_front_home =
-                                        "/home"
+                                        "" ++ "/home"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -283,13 +283,17 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_rest_user_find_friend : { id : Int, username : String } -> String
                                     app_rest_user_find_friend params_ =
-                                        "/user/" ++ (String.fromInt params_.id) ++ "/find-friend/" ++ params_.username
+                                        ""
+                                            ++ "/user/"
+                                            ++ String.fromInt params_.id
+                                            ++ "/find-friend/"
+                                            ++ params_.username
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -312,13 +316,13 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_rest_user_type : { type_ : String } -> String
                                     app_rest_user_type params_ =
-                                        "/user/types/" ++ params_.type_
+                                        "" ++ "/user/types/" ++ params_.type_
                                     """
                         in
                         Expect.equal expected (transpileToElm input)
@@ -327,7 +331,7 @@ suite =
                         let
                             input =
                                 { urlPrefix = ""
-                                , content = unindent """
+                                , content = addEmptyLineAtEnd <| unindent """
                                     {
                                         "app_rest_user_type": {
                                             "path": "/user/types/{variable}",
@@ -341,13 +345,13 @@ suite =
                                 }
 
                             expected =
-                                Ok <| unindent """
+                                Ok <| addEmptyLineAtEnd <| unindent """
                                     module Routing exposing (..)
 
 
                                     app_rest_user_type : String
                                     app_rest_user_type =
-                                        "/user/types/value"
+                                        "" ++ "/user/types/value"
                                     """
                         in
                         Expect.equal expected (transpileToElm input)

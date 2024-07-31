@@ -7,7 +7,9 @@ module Routing.Transpiler exposing (Command, transpileToElm)
 -}
 
 import Dict exposing (Dict)
-import Elm exposing (..)
+import Elm exposing (normalizeFunctionName)
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
+import Elm.Pretty as Gen
 import Json.Decode exposing (Decoder, decodeString, dict, errorToString, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (required)
 import Result.Extra as Result
@@ -143,57 +145,65 @@ removeLeadingUnderscore name =
 -}
 convertToElm : String -> Dict String Routing -> String
 convertToElm urlPrefix routing =
-    Module "Routing"
+    Gen.file (Gen.normalModule [ "Routing" ] [])
+        []
         (routing
             |> Dict.toList
             |> List.map (routeToElmFunction urlPrefix)
         )
-        |> renderElmModule
+        Nothing
+        |> Gen.pretty 80
 
 
 {-| Turns one route into an elm function.
 -}
-routeToElmFunction : String -> ( String, Routing ) -> Function
+routeToElmFunction : String -> ( String, Routing ) -> Declaration
 routeToElmFunction urlPrefix ( routeName, routing ) =
     let
         record =
-            routing
-                |> List.filterMap
-                    (\chunk ->
-                        case chunk of
-                            Variable Int name ->
-                                Just ( name, "Int" )
+            List.filterMap recordField routing
 
-                            Variable String name ->
-                                Just ( name, "String" )
-
-                            _ ->
-                                Nothing
-                    )
-                |> Dict.fromList
-
-        arguments =
-            if Dict.isEmpty record then
-                []
+        ( signature, arguments ) =
+            if List.isEmpty record then
+                ( Gen.stringAnn, [] )
 
             else
-                [ Record record ]
-
-        url =
-            (Constant urlPrefix :: routing)
-                |> List.map
-                    (\chunk ->
-                        case chunk of
-                            Constant path ->
-                                quote path
-
-                            Variable Int name ->
-                                "(String.fromInt params_." ++ name ++ ")"
-
-                            Variable String name ->
-                                "params_." ++ name
-                    )
-                |> List.filter (\s -> s /= "" && s /= "\"\"")
-                |> String.join " ++ "
+                ( Gen.funAnn (Gen.recordAnn record) Gen.stringAnn, [ Gen.varPattern "params_" ] )
     in
-    Function routeName arguments "String" (Expr url)
+    Gen.funDecl Nothing (Just signature) routeName arguments <|
+        chunksToElm urlPrefix routing
+
+
+recordField : Path -> Maybe ( String, TypeAnnotation )
+recordField chunk =
+    case chunk of
+        Variable Int name ->
+            Just ( name, Gen.intAnn )
+
+        Variable String name ->
+            Just ( name, Gen.stringAnn )
+
+        _ ->
+            Nothing
+
+
+chunksToElm : String -> Routing -> Expression
+chunksToElm urlPrefix routing =
+    Gen.binOpChain (Gen.string urlPrefix) Gen.append (List.map chunkToElm routing)
+
+
+chunkToElm : Path -> Expression
+chunkToElm chunk =
+    case chunk of
+        Constant path ->
+            Gen.string path
+
+        Variable Int name ->
+            Gen.parens <|
+                Gen.apply
+                    [ Gen.fqVal [ "String" ] "fromInt"
+                    , Gen.access (Gen.val "params_") name
+                    ]
+
+        Variable String name ->
+            Gen.access (Gen.val "params_") name
