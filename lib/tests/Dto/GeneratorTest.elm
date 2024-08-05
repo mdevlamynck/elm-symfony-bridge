@@ -2,7 +2,7 @@ module Dto.GeneratorTest exposing (suite)
 
 import Dto.Generator exposing (generateElm)
 import Expect
-import StringUtil exposing (addEmptyLineAtEnd, unindent)
+import StringUtil exposing (addOneEmptyLineAtEnd, unindent)
 import Test exposing (..)
 
 
@@ -50,7 +50,7 @@ suite =
                     expected =
                         Ok
                             [ { name = "Dto/App/Account/SignInDto.elm"
-                              , content = addEmptyLineAtEnd <| unindent """
+                              , content = addOneEmptyLineAtEnd <| unindent """
                                   module Dto.App.Account.SignInDto exposing (..)
 
                                   import Dto.App.Account.SomeDto

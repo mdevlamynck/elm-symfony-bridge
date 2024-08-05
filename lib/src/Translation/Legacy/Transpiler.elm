@@ -2,7 +2,9 @@ module Translation.Legacy.Transpiler exposing (keynameTranslations, parseTransla
 
 import Dict exposing (Dict)
 import Dict.Extra as Dict
-import Elm exposing (..)
+import Elm as Gen
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, Pattern, TypeAnnotation)
+import List.Extra as List
 import List.Unique
 import Result
 import String.Extra as String
@@ -56,39 +58,46 @@ extractVariables translationContent =
 
 {-| Turns a translation into an elm function.
 -}
-translationToElm : String -> Translation -> Function
+translationToElm : String -> Translation -> Declaration
 translationToElm lang translation =
     let
         arguments =
             count ++ keyname ++ record
 
+        signature =
+            List.foldr Gen.funAnn Gen.stringAnn (List.map Tuple.first arguments)
+
+        patterns =
+            List.map Tuple.second arguments
+
         count =
             if hasCountVariable translation.content then
-                [ Primitive "Int" "count" ]
+                [ ( Gen.intAnn, Gen.varPattern "count" ) ]
 
             else
                 []
 
         keyname =
             if hasKeynameVariable translation.content then
-                [ Primitive "String" "keyname" ]
+                [ ( Gen.stringAnn, Gen.varPattern "keyname" ) ]
+
+            else
+                []
+
+        record =
+            if not <| Dict.isEmpty recordArgs then
+                [ ( Gen.recordAnn (Dict.toList recordArgs), Gen.varPattern "params_" ) ]
 
             else
                 []
 
         recordArgs =
             translation.variables
-                |> List.map (\arg -> ( arg, "String" ))
+                |> List.map (\arg -> ( arg, Gen.stringAnn ))
                 |> Dict.fromList
-
-        record =
-            if Dict.isEmpty recordArgs then
-                []
-
-            else
-                [ Record recordArgs ]
     in
-    Function translation.name arguments "String" (translationContentToElm lang translation.content)
+    Gen.funDecl Nothing (Just signature) translation.name patterns <|
+        translationContentToElm lang translation.content
 
 
 {-| Does a TranslationContent contains a `count` variable?
@@ -121,32 +130,31 @@ hasKeynameVariable translationContent =
 
 {-| Turns a TranslationContent into the body of an elm function.
 -}
-translationContentToElm : String -> TranslationContent -> Expr
+translationContentToElm : String -> TranslationContent -> Expression
 translationContentToElm lang translationContent =
     case translationContent of
         SingleMessage chunks ->
-            Expr (combineChunks chunks)
+            combineChunks chunks
 
         PluralizedMessage alternatives ->
-            Ifs
-                (alternatives
-                    |> List.foldl alternativeToElm ( indexedConditions lang, [] )
-                    |> Tuple.second
-                )
+            alternatives
+                |> List.foldl alternativeToElm ( indexedConditions lang, [] )
+                |> Tuple.second
+                |> genIfElse
 
         Keyname variants ->
-            Case "keyname" (toElmCaseVariants variants)
+            Gen.caseExpr (Gen.val "keyname") (toElmCaseVariants variants)
 
 
-toElmCaseVariants : List ( String, String ) -> List ( String, Expr )
+toElmCaseVariants : List ( String, String ) -> List ( Pattern, Expression )
 toElmCaseVariants variants =
     List.map toElmCaseVariant variants
-        ++ [ ( "_", Expr <| quote "" ) ]
+        ++ [ ( Gen.allPattern, Gen.string "" ) ]
 
 
-toElmCaseVariant : ( String, String ) -> ( String, Expr )
+toElmCaseVariant : ( String, String ) -> ( Pattern, Expression )
 toElmCaseVariant ( name, value ) =
-    ( quote name, Expr value )
+    ( Gen.stringPattern name, Gen.val value )
 
 
 {-| Indexed variant application conditions depending on the lang.
@@ -154,108 +162,113 @@ toElmCaseVariant ( name, value ) =
 Source: <https://github.com/symfony/translation/blob/master/PluralizationRules.php>
 
 -}
-indexedConditions : String -> List Expr
+indexedConditions : String -> List Expression
 indexedConditions lang =
     if List.member lang [ "az", "bo", "dz", "id", "ja", "jv", "ka", "km", "kn", "ko", "ms", "th", "tr", "vi", "zh" ] then
-        [ Expr "True" ]
+        [ Gen.val "True" ]
 
     else if List.member lang [ "af", "bn", "bg", "ca", "da", "de", "el", "en", "eo", "es", "et", "eu", "fa", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "he", "hu", "is", "it", "ku", "lb", "ml", "mn", "mr", "nah", "nb", "ne", "nl", "nn", "no", "om", "or", "pa", "pap", "ps", "pt", "so", "sq", "sv", "sw", "ta", "te", "tk", "ur", "zu" ] then
-        [ Expr "count == 1", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "True" ]
 
     else if List.member lang [ "am", "bh", "fil", "fr", "gun", "hi", "hy", "ln", "mg", "nso", "xbr", "ti", "wa" ] then
-        [ Expr "count == 0 || count == 1", Expr "True" ]
+        [ Gen.val "count == 0 || count == 1", Gen.val "True" ]
 
     else if List.member lang [ "be", "bs", "hr", "ru", "sr", "uk" ] then
-        [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
+        [ Gen.val "count % 10 == 1 && count % 100 /= 11", Gen.val "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)", Gen.val "True" ]
 
     else if List.member lang [ "cs", "sk" ] then
-        [ Expr "count == 1", Expr "count >= 2 && count <= 4", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "count >= 2 && count <= 4", Gen.val "True" ]
 
     else if lang == "ga" then
-        [ Expr "count == 1", Expr "count == 2", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "count == 2", Gen.val "True" ]
 
     else if lang == "lt" then
-        [ Expr "count % 10 == 1 && count % 100 /= 11", Expr "count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)", Expr "True" ]
+        [ Gen.val "count % 10 == 1 && count % 100 /= 11", Gen.val "count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)", Gen.val "True" ]
 
     else if lang == "sl" then
-        [ Expr "count % 100 == 1", Expr "count % 100 == 2", Expr "count % 100 == 3 || count % 100 == 4", Expr "True" ]
+        [ Gen.val "count % 100 == 1", Gen.val "count % 100 == 2", Gen.val "count % 100 == 3 || count % 100 == 4", Gen.val "True" ]
 
     else if lang == "mk" then
-        [ Expr "count % 10 == 1", Expr "True" ]
+        [ Gen.val "count % 10 == 1", Gen.val "True" ]
 
     else if lang == "mt" then
-        [ Expr "count == 1", Expr "count == 0 || count % 100 > 1 && count % 100 < 11", Expr "count % 100 > 10 && count % 100 < 20", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "count == 0 || count % 100 > 1 && count % 100 < 11", Gen.val "count % 100 > 10 && count % 100 < 20", Gen.val "True" ]
 
     else if lang == "lv" then
-        [ Expr "count == 0", Expr "count % 10 == 1 && count % 100 /= 11", Expr "True" ]
+        [ Gen.val "count == 0", Gen.val "count % 10 == 1 && count % 100 /= 11", Gen.val "True" ]
 
     else if lang == "pl" then
-        [ Expr "count == 1", Expr "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)", Gen.val "True" ]
 
     else if lang == "cy" then
-        [ Expr "count == 1", Expr "count == 2", Expr "count == 8 || count == 11", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "count == 2", Gen.val "count == 8 || count == 11", Gen.val "True" ]
 
     else if lang == "ro" then
-        [ Expr "count == 1", Expr "count == 0 || (count % 100 > 0 && count % 100 < 20)", Expr "True" ]
+        [ Gen.val "count == 1", Gen.val "count == 0 || (count % 100 > 0 && count % 100 < 20)", Gen.val "True" ]
 
     else if lang == "ar" then
-        [ Expr "count == 0", Expr "count == 1", Expr "count == 2", Expr "count % 100 >= 3 && count % 100 <= 10", Expr "count % 100 >= 11 && count % 100 <= 99", Expr "True" ]
+        [ Gen.val "count == 0", Gen.val "count == 1", Gen.val "count == 2", Gen.val "count % 100 >= 3 && count % 100 <= 10", Gen.val "count % 100 >= 11 && count % 100 <= 99", Gen.val "True" ]
 
     else
-        [ Expr "True" ]
+        [ Gen.val "True" ]
+
+
+genIfElse : List ( Expression, Expression ) -> Expression
+genIfElse conditions =
+    case List.reverse conditions of
+        ( _, last ) :: rest ->
+            List.foldl (\( cond, val ) -> Gen.ifExpr cond val)
+                last
+                rest
+
+        _ ->
+            Gen.string ""
 
 
 {-| Turns a pluralization variant into an elm expression.
 -}
-alternativeToElm : Alternative -> ( List Expr, List ( Expr, Expr ) ) -> ( List Expr, List ( Expr, Expr ) )
+alternativeToElm : Alternative -> ( List Expression, List ( Expression, Expression ) ) -> ( List Expression, List ( Expression, Expression ) )
 alternativeToElm { appliesTo, chunks } ( indexedCondition, content ) =
     case appliesTo of
         Intervals intervals ->
             ( indexedCondition
-            , content ++ [ ( Expr (combineIntervals intervals), Expr (combineChunks chunks) ) ]
+            , content ++ [ ( combineIntervals intervals, combineChunks chunks ) ]
             )
 
         Indexed ->
             case indexedCondition of
                 head :: tail ->
                     ( tail
-                    , content ++ [ ( head, Expr (combineChunks chunks) ) ]
+                    , content ++ [ ( head, combineChunks chunks ) ]
                     )
 
                 [] ->
                     ( []
-                    , content ++ [ ( Expr "False", Expr (combineChunks chunks) ) ]
+                    , content ++ [ ( Gen.val "False", combineChunks chunks ) ]
                     )
 
 
 {-| Turns a list of Intervals into an elm expression usable in a if.
 -}
-combineIntervals : List Interval -> String
+combineIntervals : List Interval -> Expression
 combineIntervals intervals =
-    case intervals of
-        head :: [] ->
-            intervalToCondExpr head
-
-        intervals_ ->
-            let
-                conditions =
-                    intervals_
-                        |> List.map intervalToCondExpr
-                        |> String.join ") || ("
-            in
-            "(" ++ conditions ++ ")"
+    intervals
+        |> List.map intervalToCondExpr
+        |> List.foldl1 (\l r -> Gen.applyBinOp l Gen.or r)
+        |> Maybe.map Gen.parens
+        |> Maybe.withDefault (Gen.string "")
 
 
 {-| Turns a Interval into an elm expression usable in a if.
 -}
-intervalToCondExpr : Interval -> String
+intervalToCondExpr : Interval -> Expression
 intervalToCondExpr interval =
     let
         isLowEqualToHigh =
             case ( interval.low, interval.high ) of
                 ( Included low, Included high ) ->
                     if low == high then
-                        Just <| "count == " ++ String.fromInt low
+                        Just <| Gen.applyBinOp (Gen.val "count") Gen.equals (Gen.int low)
 
                     else
                         Nothing
@@ -269,10 +282,10 @@ intervalToCondExpr interval =
                     Nothing
 
                 Included bound ->
-                    Just <| "count >= " ++ String.fromInt bound
+                    Just <| Gen.applyBinOp (Gen.val "count") Gen.gte (Gen.int bound)
 
                 Excluded bound ->
-                    Just <| "count > " ++ String.fromInt bound
+                    Just <| Gen.applyBinOp (Gen.val "count") Gen.gt (Gen.int bound)
 
         highBound =
             case interval.high of
@@ -280,17 +293,17 @@ intervalToCondExpr interval =
                     Nothing
 
                 Included bound ->
-                    Just <| "count <= " ++ String.fromInt bound
+                    Just <| Gen.applyBinOp (Gen.val "count") Gen.lte (Gen.int bound)
 
                 Excluded bound ->
-                    Just <| "count < " ++ String.fromInt bound
+                    Just <| Gen.applyBinOp (Gen.val "count") Gen.lt (Gen.int bound)
     in
     case ( isLowEqualToHigh, lowBound, highBound ) of
         ( Just value, _, _ ) ->
             value
 
         ( _, Just low, Just high ) ->
-            low ++ " && " ++ high
+            Gen.applyBinOp low Gen.and high
 
         ( _, Just low, Nothing ) ->
             low
@@ -299,40 +312,29 @@ intervalToCondExpr interval =
             high
 
         _ ->
-            "True"
+            Gen.val "True"
 
 
 {-| Turns a list of Chunks into an elm expression usable in the body of a function.
 -}
-combineChunks : List Chunk -> String
+combineChunks : List Chunk -> Expression
 combineChunks list =
-    let
-        string =
-            list
-                |> List.map chunkToString
-                |> List.filter (\s -> s /= "" && s /= "\"\"")
-                |> String.join " ++ "
-    in
-    if String.isEmpty string then
-        quote string
-
-    else
-        string
+    Gen.stringConcat (List.map chunkToString list)
 
 
 {-| Turns a Chunk into an elm expression usable in the body of a function.
 -}
-chunkToString : Chunk -> String
+chunkToString : Chunk -> Expression
 chunkToString chunk =
     case chunk of
         Text text ->
-            quote text
+            Gen.string text
 
         Variable variable ->
-            "params_." ++ variable
+            Gen.access (Gen.val "params_") variable
 
         VariableCount ->
-            "(String.fromInt count)"
+            Gen.apply [ Gen.fqFun [ "String" ] "fromInt", Gen.val "count" ]
 
 
 {-| Creates all extra keyname translation functions.

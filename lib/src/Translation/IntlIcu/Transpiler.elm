@@ -1,7 +1,6 @@
 module Translation.IntlIcu.Transpiler exposing (parseTranslation, translationToElm)
 
-import Dict
-import Elm exposing (..)
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
 import Result
 import Translation.IntlIcu.Data exposing (..)
 import Translation.IntlIcu.Parser as Parser
@@ -22,10 +21,10 @@ parseTranslation ( name, message ) =
 
 {-| Turns a translation into an elm function.
 -}
-translationToElm : Translation -> Function
+translationToElm : Translation -> Declaration
 translationToElm translation =
-    Function translation.name (extractArguments translation.content) "String" <|
-        chunksToElm translation.content
+    Gen.funDecl Nothing Nothing "" [] <|
+        Gen.string ""
 
 
 extractArguments : Chunks -> List Arg

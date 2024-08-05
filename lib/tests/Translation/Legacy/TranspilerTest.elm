@@ -31,7 +31,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addEmptyLinesAtEnd 3 <| unindent """
                                     module Trans.Messages exposing (..)
                                     """
                                 }
@@ -57,7 +57,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -88,7 +88,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -122,7 +122,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -163,7 +163,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -214,7 +214,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -263,7 +263,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -301,14 +301,13 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
                                     multiline_html_translation : { link : String } -> String
                                     multiline_html_translation params_ =
-                                        \"\"\"<a href=\"\"\"\" ++ params_.link ++ \"\"\"\">
-                                        </a>\"\"\"
+                                        "<a href=\\"" ++ params_.link ++ "\\">\\n</a>"
                                     """
                                 }
                     in
@@ -335,7 +334,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -369,7 +368,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -408,18 +407,22 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
                                     user_notifications : Int -> String
                                     user_notifications count =
-                                        (String.fromInt count) ++ " notifications non lues"
+                                        String.fromInt count ++ " notifications non lues"
 
 
                                     user_welcome : { firstname : String, lastname : String } -> String
                                     user_welcome params_ =
-                                        "Bonjour " ++ params_.firstname ++ " " ++ params_.lastname ++ " et bienvenu !"
+                                        "Bonjour "
+                                            ++ params_.firstname
+                                            ++ " "
+                                            ++ params_.lastname
+                                            ++ " et bienvenu !"
                                     """
                                 }
                     in
@@ -447,7 +450,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -455,6 +458,7 @@ suite =
                                     user_account_balance count =
                                         if count < 0 then
                                             "Negative"
+
                                         else
                                             "Positive"
 
@@ -463,10 +467,15 @@ suite =
                                     user_notifications count params_ =
                                         if count == 0 then
                                             params_.user ++ ", pas de notification"
+
                                         else if count == 1 then
-                                            params_.user ++ ", " ++ (String.fromInt count) ++ " notification non lue"
+                                            params_.user ++ ", " ++ String.fromInt count ++ " notification non lue"
+
                                         else
-                                            params_.user ++ ", " ++ (String.fromInt count) ++ " notifications non lues"
+                                            params_.user
+                                                ++ ", "
+                                                ++ String.fromInt count
+                                                ++ " notifications non lues"
                                     """
                                 }
                     in
@@ -493,7 +502,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -501,12 +510,15 @@ suite =
                                     apples count =
                                         if count == 0 then
                                             "Il n'y a pas de pomme"
+
                                         else if count == 0 || count == 1 then
                                             "Il y a une pomme"
+
                                         else if count == 5 then
                                             "Il y a cinq pommes"
+
                                         else
-                                            "Il y a " ++ (String.fromInt count) ++ " pommes"
+                                            "Il y a " ++ String.fromInt count ++ " pommes"
                                     """
                                 }
                     in
@@ -533,7 +545,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -541,12 +553,15 @@ suite =
                                     apples count =
                                         if count == 0 then
                                             "There are no apples"
+
                                         else if count == 1 then
                                             "There is one apple"
+
                                         else if count == 5 then
                                             "There are five apples"
+
                                         else
-                                            "There are " ++ (String.fromInt count) ++ " apples"
+                                            "There are " ++ String.fromInt count ++ " apples"
                                     """
                                 }
                     in
@@ -574,7 +589,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 
@@ -623,7 +638,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/WeirdDomain.elm"
-                                , content = unindent """
+                                , content = addEmptyLinesAtEnd 3 <| unindent """
                                     module Trans.WeirdDomain exposing (..)
                                         """
                                 }
@@ -651,7 +666,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/Messages.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.Messages exposing (..)
 
 

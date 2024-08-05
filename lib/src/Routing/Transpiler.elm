@@ -7,7 +7,7 @@ module Routing.Transpiler exposing (Command, transpileToElm)
 -}
 
 import Dict exposing (Dict)
-import Elm exposing (normalizeFunctionName)
+import Elm as Gen exposing (normalizeFunctionName)
 import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
 import Elm.Pretty as Gen
 import Json.Decode exposing (Decoder, decodeString, dict, errorToString, oneOf, string, succeed)
@@ -189,7 +189,7 @@ recordField chunk =
 
 chunksToElm : String -> Routing -> Expression
 chunksToElm urlPrefix routing =
-    Gen.binOpChain (Gen.string urlPrefix) Gen.append (List.map chunkToElm routing)
+    Gen.stringConcat (Gen.string urlPrefix :: List.map chunkToElm routing)
 
 
 chunkToElm : Path -> Expression

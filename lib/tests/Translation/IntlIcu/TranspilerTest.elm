@@ -31,7 +31,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addEmptyLinesAtEnd 3 <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
                                     """
                                 }
@@ -57,7 +57,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -88,7 +88,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -122,7 +122,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -163,7 +163,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -214,7 +214,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -263,7 +263,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -301,7 +301,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -336,7 +336,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -370,7 +370,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -408,7 +408,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -441,7 +441,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -477,7 +477,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -522,7 +522,7 @@ suite =
                         expected =
                             Ok
                                 { name = "Trans/MessagesIntlIcu.elm"
-                                , content = unindent """
+                                , content = addOneEmptyLineAtEnd <| unindent """
                                     module Trans.MessagesIntlIcu exposing (..)
 
 
@@ -568,7 +568,7 @@ suite =
             --        expected =
             --            Ok
             --                { name = "Trans/MessagesIntlIcu.elm"
-            --                , content = unindent """
+            --                , content = addOneEmptyLineAtEnd <| unindent """
             --                module Trans.MessagesIntlIcu exposing (..)
             --
             --
@@ -614,7 +614,7 @@ suite =
             --        expected =
             --            Ok
             --                { name = "Trans/MessagesIntlIcu.elm"
-            --                , content = unindent """
+            --                , content = addOneEmptyLineAtEnd <| unindent """
             --                    module Trans.MessagesIntlIcu exposing (..)
             --
             --
@@ -703,7 +703,7 @@ suite =
                     expected =
                         Ok
                             { name = "Trans/WeirdDomainIntlIcu.elm"
-                            , content = unindent """
+                            , content = addEmptyLinesAtEnd 3 <| unindent """
                                     module Trans.WeirdDomainIntlIcu exposing (..)
                                     """
                             }
