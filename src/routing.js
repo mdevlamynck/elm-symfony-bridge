@@ -14,9 +14,15 @@ function transpile(global, callback = null) {
     let content = symfony.queryRouting(global.options);
 
     const elmSubscription = data => {
-        utils.onSuccess('routing', data, () => {
+        if (data.type !== 'routing') {
+            return;
+        }
+
+        if (data.succeeded) {
             fs.writeIfChanged(global.options.elmRoot + '/Routing.elm', data.content);
-        });
+        } else {
+            utils.error(data.error)
+        }
 
         global.transpiler.ports.sendToJs.unsubscribe(elmSubscription);
 

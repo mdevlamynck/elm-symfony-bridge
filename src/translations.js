@@ -18,9 +18,15 @@ function transpile(global, callback = null) {
     let remainingTranslations = files.length;
 
     const elmSubscription = data => {
-        utils.onSuccess('translation', data, () => {
+        if (data.type !== 'translation') {
+            return;
+        }
+
+        if (data.succeeded) {
             fs.writeIfChanged(global.options.elmRoot + '/' + data.file.name, data.file.content);
-        });
+        } else {
+            utils.error(data.error)
+        }
 
         remainingTranslations--;
         if (remainingTranslations === 0) {

@@ -64,14 +64,6 @@ function arrayAny(array, predicate) {
     return false;
 }
 
-function onSuccess(type, data, callback) {
-    if (data.type === type && data.succeeded === true) {
-        callback();
-    } else if (data.succeeded === false) {
-        error(data.error);
-    }
-}
-
 function error(msg, cause) {
     if (cause) {
         console.error(`[ERROR elm-symfony-bridge] ${msg}: ${cause}`);
@@ -88,6 +80,5 @@ module.exports = {
     setDefaultValueIfAbsent,
     arrayPushIfNotPresent,
     arrayAny,
-    onSuccess,
     error,
 };
