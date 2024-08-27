@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import fs from './filesystem.js';
-import glob from 'glob';
+import { globSync } from 'glob';
 import path from 'path';
 import symfony from './symfony.js';
 import utils from './utils.js';
@@ -15,7 +15,7 @@ function guessImplicit(global) {
 }
 
 function guessUrlPrefix() {
-    let filePath = glob.sync('{public/index,web/app_dev}.php')[0] || null;
+    let filePath = globSync('{public/index,web/app_dev}.php')[0] || null;
     return filePath !== null
         ? '/' + path.parse(filePath).base
         : null;

@@ -1,5 +1,4 @@
 import fs from 'fs';
-import mkdirp from 'mkdirp';
 import path from 'path';
 import utils from './utils.js';
 
@@ -9,7 +8,7 @@ function exists(filePath) {
 
 function makeDir(dir) {
     try {
-        mkdirp.sync(dir);
+        fs.mkdirSync(dir, { recursive: true });
     } catch (err) {
         if (err.code !== 'EEXIST') {
             throw err

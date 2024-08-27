@@ -1,5 +1,5 @@
 import fs from './filesystem.js';
-import glob from 'glob';
+import { globSync } from 'glob';
 import symfony from './symfony.js';
 import utils from './utils.js';
 
@@ -14,7 +14,7 @@ function transpile(global, callback = null) {
 
     symfony.dumpTranslations(global.options);
 
-    const files = glob.sync(global.options.outputFolder + '/translations/*/' + global.options.lang + '.json');
+    const files = globSync(global.options.outputFolder + '/translations/*/' + global.options.lang + '.json');
     let remainingTranslations = files.length;
 
     const elmSubscription = data => {
