@@ -1,18 +1,16 @@
 {
-  "name": "vite-plugin-elm-symfony-bridge",
+  "name": "elm-symfony-bridge-lib",
   "version": "2.0.0-rc2",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
-  "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge/tree/master/vite#readme",
-  "description": "Vite plugin exposing symfony's translations and routing to elm.",
+  "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge/tree/master/lib#readme",
+  "description": "Library used to build plugin exposing symfony's translations and routing to elm.",
   "keywords": [
     "elm",
     "symfony",
     "bridge",
     "tools",
-    "vite",
     "plugin",
-    "vite-plugin",
     "translation",
     "routing"
   ],
@@ -35,13 +33,18 @@
     }
   },
   "scripts": {
-    "build": "parcel build && yarn pack"
+    "test": "elm-verify-examples && elm-test",
+    "check-format": "elm-format --validate .",
+    "build": "parcel build index.js && yarn pack"
   },
   "dependencies": {
-    "elm-symfony-bridge-lib": "2.0.0-rc2",
-    "picomatch": "^4.0.2"
+    "dotenv": "^16.4.5",
+    "glob": "^11.0.0"
   },
   "devDependencies": {
+    "elm-format": "^0.8.7",
+    "elm-test": "^0.19.1-revision12",
+    "elm-verify-examples": "^6.0.3",
     "parcel": "^2.12.0"
   }
 }

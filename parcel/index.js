@@ -1,10 +1,5 @@
-import ElmWorker from '../src/Main.elm';
+import { ElmWorker, config, fs, routing, translations, utils } from 'elm-symfony-bridge-lib';
 import chokidar from 'chokidar';
-import config from '../src/config.js';
-import fs from '../src/filesystem.js';
-import routing from '../src/routing.js';
-import translations from '../src/translations.js';
-import utils from '../src/utils.js';
 
 function run(bundler) {
     const global = {

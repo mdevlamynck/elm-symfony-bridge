@@ -1,10 +1,5 @@
-import ElmWorker from '../src/Main.elm';
-import config from '../src/config.js';
-import fs from '../src/filesystem.js';
-import routing from '../src/routing.js';
+import { ElmWorker, config, fs, routing, translations, utils } from 'elm-symfony-bridge-lib';
 import schema from './schema.json';
-import translations from '../src/translations.js';
-import utils from '../src/utils.js';
 import { validate } from 'schema-utils';
 
 const watchedDirs = ['src', 'config', 'translations'];

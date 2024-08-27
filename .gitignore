@@ -1,8 +1,8 @@
 elm-stuff
-tests/VerifyExamples
+lib/tests/VerifyExamples
 doc.json
 node_modules
-.cache
+.parcel-cache
 dist
 .idea
 .*.sw*
