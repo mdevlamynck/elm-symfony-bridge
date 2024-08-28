@@ -50,9 +50,13 @@ port sendToJs : Value -> Cmd msg
 -}
 type Msg
     = NoOp
-    | TranspileRouting Routing.Command
-    | TranspileTranslation Translation.Command
+    | TranspileRouting RequestId Routing.Command
+    | TranspileTranslation RequestId Translation.Command
     | CommandError String
+
+
+type alias RequestId =
+    String
 
 
 {-| Run received commands.
@@ -66,17 +70,17 @@ update message =
                 , ( "error", Encode.string "Invalid command" )
                 ]
 
-        TranspileRouting routing ->
+        TranspileRouting id routing ->
             routing
                 |> Routing.transpileToElm
                 |> formatResult "Routing"
-                |> encodeRoutingResult
+                |> encodeRoutingResult id
 
-        TranspileTranslation translation ->
+        TranspileTranslation id translation ->
             translation
                 |> Translation.transpileToElm
                 |> formatResult translation.name
-                |> encodeTranslationResult
+                |> encodeTranslationResult id
 
         CommandError error ->
             Encode.object
@@ -105,6 +109,7 @@ commandDecoder =
 routingDecoder : Decoder Msg
 routingDecoder =
     Decode.succeed TranspileRouting
+        |> Decode.required "id" Decode.string
         |> Decode.required "routing"
             (Decode.succeed Routing.Command
                 |> Decode.required "urlPrefix" Decode.string
@@ -117,6 +122,7 @@ routingDecoder =
 translationDecoder : Decoder Msg
 translationDecoder =
     Decode.succeed TranspileTranslation
+        |> Decode.required "id" Decode.string
         |> Decode.required "translation"
             (Decode.succeed Translation.Command
                 |> Decode.required "name" Decode.string
@@ -151,11 +157,11 @@ envVariableDecoder =
 
 {-| Encode transpiled routing results.
 -}
-encodeRoutingResult : Result String String -> Value
-encodeRoutingResult result =
+encodeRoutingResult : RequestId -> Result String String -> Value
+encodeRoutingResult id result =
     Encode.object
-        [ ( "succeeded", Encode.bool <| Result.isOk result )
-        , ( "type", Encode.string "routing" )
+        [ ( "id", Encode.string id )
+        , ( "succeeded", Encode.bool <| Result.isOk result )
         , case result of
             Ok content ->
                 ( "content", Encode.string content )
@@ -167,11 +173,11 @@ encodeRoutingResult result =
 
 {-| Encode transpiled translation results.
 -}
-encodeTranslationResult : Result String File -> Value
-encodeTranslationResult result =
+encodeTranslationResult : RequestId -> Result String File -> Value
+encodeTranslationResult id result =
     Encode.object
-        [ ( "succeeded", Encode.bool <| Result.isOk result )
-        , ( "type", Encode.string "translation" )
+        [ ( "id", Encode.string id )
+        , ( "succeeded", Encode.bool <| Result.isOk result )
         , case result of
             Ok file ->
                 ( "file"

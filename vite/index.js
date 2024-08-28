@@ -48,7 +48,7 @@ export default function elmSymfonyBridgePlugin (userConfig) {
 
         load: {
             order: 'pre',
-            handler(id) {
+            async handler(id) {
                 if (!isElm(id)) {
                     return null;
                 }
@@ -60,8 +60,8 @@ export default function elmSymfonyBridgePlugin (userConfig) {
                     return null;
                 }
 
-                routing.transpile(global);
-                translations.transpile(global);
+                await routing.transpile(global);
+                await translations.transpile(global);
 
                 needBuilding = false;
 
@@ -69,12 +69,12 @@ export default function elmSymfonyBridgePlugin (userConfig) {
             }
         },
 
-        handleHotUpdate (ctx) {
+        async handleHotUpdate (ctx) {
             if (needRebuilding && utils.arrayAny(hmrPatterns, (isMatch) => isMatch(ctx.file))) {
                 needRebuilding = false;
 
-                routing.transpile(global);
-                translations.transpile(global);
+                await routing.transpile(global);
+                await translations.transpile(global);
             }
 
             return ctx.modules;

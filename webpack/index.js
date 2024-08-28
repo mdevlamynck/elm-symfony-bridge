@@ -56,9 +56,11 @@ module.exports = function (source) {
     return source;
 };
 
-module.exports.pitch = function () {
+module.exports.pitch = async function () {
     setupOptions(this.getOptions());
 
-    routing.transpile(that);
-    translations.transpile(that);
+    await Promise.all([
+        routing.transpile(that),
+        translations.transpile(that),
+    ]);
 };

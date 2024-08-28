@@ -18,7 +18,8 @@ suite =
                     let
                         input =
                             Encode.object
-                                [ ( "translation"
+                                [ ( "id", Encode.string "id" )
+                                , ( "translation"
                                   , Encode.object
                                         [ ( "name", Encode.string "fileName" )
                                         , ( "content", Encode.string "{}" )
@@ -29,7 +30,7 @@ suite =
                                 ]
 
                         expected =
-                            TranspileTranslation { name = "fileName", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
+                            TranspileTranslation "id" { name = "fileName", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
                     in
                     Expect.equal expected (decodeJsValue input)
             , test "Valid transpile routing command" <|
@@ -37,7 +38,8 @@ suite =
                     let
                         input =
                             Encode.object
-                                [ ( "routing"
+                                [ ( "id", Encode.string "id" )
+                                , ( "routing"
                                   , Encode.object
                                         [ ( "urlPrefix", Encode.string "/" )
                                         , ( "content", Encode.string "{}" )
@@ -48,7 +50,7 @@ suite =
                                 ]
 
                         expected =
-                            TranspileRouting { urlPrefix = "/", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
+                            TranspileRouting "id" { urlPrefix = "/", content = "{}", version = Elm_0_19, envVariables = Dict.fromList [ ( "key", "value" ) ] }
                     in
                     Expect.equal expected (decodeJsValue input)
             ]
@@ -70,7 +72,7 @@ suite =
                     \_ ->
                         let
                             input =
-                                TranspileTranslation <|
+                                TranspileTranslation "id" <|
                                     { name = "fileName"
                                     , content =
                                         unindent """
@@ -90,8 +92,8 @@ suite =
 
                             expected =
                                 Encode.object
-                                    [ ( "succeeded", Encode.bool True )
-                                    , ( "type", Encode.string "translation" )
+                                    [ ( "id", Encode.string "id" )
+                                    , ( "succeeded", Encode.bool True )
                                     , ( "file"
                                       , Encode.object
                                             [ ( "name", Encode.string "Trans/Messages.elm" )
@@ -119,7 +121,7 @@ suite =
                     \_ ->
                         let
                             input =
-                                TranspileTranslation <|
+                                TranspileTranslation "id" <|
                                     { name = "fileName"
                                     , content = """{ "translations": { "fr": { "messages": { "button.validate.global" "Ok" } } } }"""
                                     , version = Elm_0_19
@@ -128,8 +130,8 @@ suite =
 
                             expected =
                                 Encode.object
-                                    [ ( "succeeded", Encode.bool False )
-                                    , ( "type", Encode.string "translation" )
+                                    [ ( "id", Encode.string "id" )
+                                    , ( "succeeded", Encode.bool False )
                                     , ( "error"
                                       , Encode.string <|
                                             unindent
