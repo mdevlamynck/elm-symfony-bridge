@@ -1,7 +1,7 @@
 import { ElmWorker, config, fs, routing, translations, utils } from 'elm-symfony-bridge-lib';
 import chokidar from 'chokidar';
 
-function run(bundler) {
+module.exports = function (bundler) {
     const global = {
         transpiler: ElmWorker.Elm.Main.init(),
         options: {
@@ -63,5 +63,3 @@ function reloadConfig(global) {
     loadConfig(global);
     generate(global);
 }
-
-module.exports = run;

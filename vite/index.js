@@ -7,7 +7,7 @@ const isElm = (id) => {
     return pathname.endsWith('.elm') && !parsedId.searchParams.has('raw');
 }
 
-export default function elmSymfonyBridgePlugin (userConfig) {
+module.exports = function (userConfig) {
     let needBuilding = true;
     let needRebuilding = true;
     let toRebuild = new Set();
@@ -21,7 +21,7 @@ export default function elmSymfonyBridgePlugin (userConfig) {
         name: 'vite-plugin-elm-symfony-bridge',
 
         buildStart (options) {
-            global.options = utils.overrideDefaultsIfProvided(userConfig, {
+            global.options = utils.overrideDefaultsIfProvided(userConfig || {}, {
                 watch: this.meta.watchMode,
                 dev: process.env.NODE_ENV !== 'production',
                 projectRoot: './',
@@ -29,10 +29,10 @@ export default function elmSymfonyBridgePlugin (userConfig) {
                 outputFolder: './elm-stuff/generated-code/elm-symfony-bridge',
                 elmVersion: '0.19',
                 enableRouting: true,
-                urlPrefix: '',
+                urlPrefix: '/index.php',
                 enableTranslations: true,
                 lang: 'fr',
-                watchFolders: ['src', 'app', 'config', 'translations'],
+                watchFolders: ['src', 'config', 'translations'],
                 watchExtensions: ['php', 'yaml', 'yml', 'xml'],
                 envVariables: {},
             });
@@ -60,8 +60,10 @@ export default function elmSymfonyBridgePlugin (userConfig) {
                     return null;
                 }
 
-                await routing.transpile(global);
-                await translations.transpile(global);
+                await Promise.all([
+                    routing.transpile(global),
+                    translations.transpile(global),
+                ]);
 
                 needBuilding = false;
 
@@ -73,8 +75,10 @@ export default function elmSymfonyBridgePlugin (userConfig) {
             if (needRebuilding && utils.arrayAny(hmrPatterns, (isMatch) => isMatch(ctx.file))) {
                 needRebuilding = false;
 
-                await routing.transpile(global);
-                await translations.transpile(global);
+                await Promise.all([
+                    routing.transpile(global),
+                    translations.transpile(global),
+                ]);
             }
 
             return ctx.modules;

@@ -63,31 +63,49 @@ And you're all done!
 
 ## Configuration
 
-This plugin follows vite's zero-config philosophy and will automatically configure itself. You should be able to mostly ignore this section but if you really need to tweak something, here is the config along with the rules used to infer each value:
+Setup example with symfony's webpack encore:
 
-* `watch`: Do we watch for changes to regenerate elm code? (defaults to vite's own watch value, true for serve, false for build)
-* `watchFolders`: Which folders to watch (defaults to `src`, `app`, `config`, `translations`)
-* `watchExtensions`: Which file extensions to watch (defaults to `php`, `yaml`, `yml`, `xml`)
-* `dev`: Use symfony's env=dev or env=prod (defaults to vite's own dev value, true for serve, false for build)
-* `projectRoot`: Path to the root of your symfony project (defaults to `./`)
-* `elmRoot`: Where to put generated code (defaults to `./assets/elm`)
-* `outputFolder`: Where to put intermediate build artifacts (defaults to `./elm-stuff/generated-code/elm-symfony-bridge`)
-* `elmVersion`: Elm version the generated code should be compatible with (defaults to 0.19)
-* `enableRouting`: Enable generating routes (defaults to true)
-* `urlPrefix`: When dev is true, which prefix to use when generating urls (defaults to `/index.php` or `/app_dev.php` depending on which is found)
-* `enableTranslations`: Enable generating translations (defaults to true)
-* `lang`: Lang to use when exporting translations (defaults to 'en')
-* `envVariables`: Variables to replace during compile time, will also read env vars
+```js
+import { defineConfig } from "vite";
+import symfonyPlugin from "vite-plugin-symfony";
+import elmPlugin from 'vite-plugin-elm';
+import elmSymfonyBridgePlugin from 'vite-plugin-elm-symfony-bridge';
 
-If these rules don't work for you, you can override any of these parameters in your `package.json` under the `elm-symfony-bridge` key like so:
+export default defineConfig({
+    plugins: [
+        elmPlugin(),
+        symfonyPlugin(),
+        elmSymfonyBridgePlugin({
+            outputFolder: './elm-stuff/generated-code/elm-symfony-bridge'
+                                            // Optional: set the folder where to put intermediate build artifacts, defaults to './elm-stuff/generated-code/elm-symfony-bridge'
+            projectRoot: './',              // Optional: root folder of your symfony project, defaults to './'
+            elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to './assets/elm'
+            elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
 
-```json
-{
-  "elm-symfony-bridge": {
-    "enableRouting": false,
-    "lang": "fr"
-  },
-}
+            enableRouting: true,            // Optional: enable generating routes, defaults to true
+            urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses '/index.php', symfony < 4 '/app_dev.php')
+
+            enableTranslations: true,       // Optional: enable generating translations, defaults to true
+            lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
+
+            watchFolders: ['src', 'config', 'translations'],
+                                            // Optional: which folders to watch for changes that might trigger changes in generated elm code, defaults to ['src', 'config', 'translations']
+            watchExtensions: ['php', 'yaml', 'yml', 'xml'],
+                                            // Optional: which file extensions to watch for changes that might trigger changes in generated elm code, defaults to ['php', 'yaml', 'yml', 'xml']
+
+            envVariables: {                 // Optional: variables to replace during compile time, will also read env vars
+                '%variable%': 'ENV_VAR'
+            },
+        }),
+    ],
+    build: {
+        rollupOptions: {
+            input: {
+                app: "./assets/app.js"
+            },
+        }
+    },
+});
 ```
 
 ## Usage
