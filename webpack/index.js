@@ -1,33 +1,33 @@
-import { ElmWorker, config, fs, routing, translations, utils } from 'elm-symfony-bridge-lib';
+import { ElmWorker, config, data, fs, generate } from 'elm-symfony-bridge-lib';
 import schema from './schema.json';
 import { validate } from 'schema-utils';
 
 const watchedDirs = ['src', 'config', 'translations'];
 
-const that = {
+const global = {
     options: null,
     transpiler: ElmWorker.Elm.Main.init(),
 };
 
 function setupOptions(options) {
-    if (that.options !== null) {
+    if (global.options !== null) {
         return;
     }
 
-    that.options = options;
+    global.options = options;
 
-    validate(schema, that.options, 'elm-symfony-bridge');
+    validate(schema, global.options, 'elm-symfony-bridge');
 
-    utils.setDefaultValueIfAbsent(that.options, 'outputFolder', './elm-stuff/generated-code/elm-symfony-bridge');
-    utils.setDefaultValueIfAbsent(that.options, 'projectRoot', './');
-    utils.setDefaultValueIfAbsent(that.options, 'elmRoot', './assets/elm');
-    utils.setDefaultValueIfAbsent(that.options, 'elmVersion', '0.19');
-    utils.setDefaultValueIfAbsent(that.options, 'enableRouting', true);
-    utils.setDefaultValueIfAbsent(that.options, 'lang', 'en');
-    utils.setDefaultValueIfAbsent(that.options, 'enableTranslations', true);
-    utils.setDefaultValueIfAbsent(that.options, 'urlPrefix', '/index.php');
-    utils.setDefaultValueIfAbsent(that.options, 'envVariables', {});
-    config.loadEnvVariables(that);
+    data.setDefaultValueIfAbsent(global.options, 'outputFolder', './elm-stuff/generated-code/elm-symfony-bridge');
+    data.setDefaultValueIfAbsent(global.options, 'projectRoot', './');
+    data.setDefaultValueIfAbsent(global.options, 'elmRoot', './assets/elm');
+    data.setDefaultValueIfAbsent(global.options, 'elmVersion', '0.19');
+    data.setDefaultValueIfAbsent(global.options, 'enableRouting', true);
+    data.setDefaultValueIfAbsent(global.options, 'lang', 'en');
+    data.setDefaultValueIfAbsent(global.options, 'enableTranslations', true);
+    data.setDefaultValueIfAbsent(global.options, 'urlPrefix', '/index.php');
+    data.setDefaultValueIfAbsent(global.options, 'envVariables', {});
+    config.loadEnvVariables(global);
 }
 
 function removeGeneratedCodeFromDependencies(loader) {
@@ -46,7 +46,7 @@ function removeGeneratedCodeFromDependencies(loader) {
 }
 
 function addDirsToWatch(loader) {
-    watchedDirs.forEach((dir) => loader.addContextDependency(fs.resolve(dir, that.options)));
+    watchedDirs.forEach((dir) => loader.addContextDependency(fs.resolve(dir, global.options)));
 }
 
 module.exports = function (source) {
@@ -64,10 +64,7 @@ module.exports.pitch = async function () {
     try {
         setupOptions(this.getOptions());
 
-        await Promise.all([
-            routing.transpile(that),
-            translations.transpile(that),
-        ]);
+        await generate(global);
     } catch (e) {
         this.emitError(e);
     }

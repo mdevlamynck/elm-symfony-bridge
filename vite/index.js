@@ -1,4 +1,4 @@
-import { ElmWorker, config, fs, routing, translations, utils } from 'elm-symfony-bridge-lib';
+import { ElmWorker, config, data, fs, generate } from 'elm-symfony-bridge-lib';
 import picomatch from 'picomatch';
 
 const isElm = (id) => {
@@ -18,7 +18,7 @@ module.exports = function (userConfig) {
         name: 'vite-plugin-elm-symfony-bridge',
 
         buildStart (options) {
-            global.options = utils.overrideDefaultsIfProvided(userConfig || {}, {
+            global.options = data.overrideDefaultsIfProvided(userConfig || {}, {
                 watch: this.meta.watchMode,
                 dev: process.env.NODE_ENV !== 'production',
                 projectRoot: './',
@@ -36,7 +36,7 @@ module.exports = function (userConfig) {
 
             config.loadEnvVariables(global);
 
-            hmrPatterns = utils.combinations(
+            hmrPatterns = data.combinations(
                 global.options.watchFolders,
                 global.options.watchExtensions,
                 (folder, extension) => picomatch(fs.resolve(folder, global.options) + '/**/*.' + extension)
@@ -50,21 +50,15 @@ module.exports = function (userConfig) {
                     return null;
                 }
 
-                await Promise.all([
-                    routing.transpile(global),
-                    translations.transpile(global),
-                ]);
+                await generate(global);
 
                 return null;
             }
         },
 
         async handleHotUpdate (ctx) {
-            if (utils.arrayAny(hmrPatterns, (isMatch) => isMatch(ctx.file))) {
-                await Promise.all([
-                    routing.transpile(global),
-                    translations.transpile(global),
-                ]);
+            if (data.arrayAny(hmrPatterns, (isMatch) => isMatch(ctx.file))) {
+                await generate(global);
             }
 
             return ctx.modules;
