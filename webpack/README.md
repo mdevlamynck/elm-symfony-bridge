@@ -150,34 +150,7 @@ As a reminder, all contributors are expected to follow our [Code of Conduct](../
 
 ## Hacking
 
-The sources are organized in 4 main folders:
-
-* `/` the root contains the elm code: `src` for the sources and `tests` for the elm tests.
-* `/webpack` contains all the specifics for the webpack plugin (you are here).
-* `/parcel` contains all the specifics for the parcel plugin.
-* `/vite` contains all the specifics for the vite plugin.
-
-This project uses the following tools for development:
-
-* [yarn](https://yarnpkg.com/)
-* [elm](https://elm-lang.org/)
-* [elm-test](https://github.com/rtfeldman/node-test-runner)
-* [elm-verify-examples](https://github.com/stoeffel/elm-verify-examples)
-
-You'll find the following commands useful when hacking on this project:
-
-```bash
-# build the package
-yarn run build
-
-# run the tests and doc tests
-yarn run test
-
-# Using a local build in a project using webpack
-yarn install && yarn run build && yarn pack # build a package.tgz
-cd path/to/project/using/webpack            # go in the root directory of your project
-yarn install path/to/package.tgz            # install the locally built package
-```
+See the [README](../README.md#Hacking) at the root of the project for usefull information when hacking on this project.
 
 ## License
 

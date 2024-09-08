@@ -3,15 +3,13 @@
   "private": "true",
   "workspaces": [
     "lib",
-    "parcel",
     "vite",
     "webpack"
   ],
   "scripts": {
     "test": "yarn --cwd lib test",
     "check-format": "yarn --cwd lib check-format",
-    "build-all": "yarn --cwd lib build && yarn --cwd parcel build && yarn --cwd vite build && yarn --cwd webpack build",
-    "build-parcel": "yarn --cwd lib build && yarn --cwd parcel build",
+    "build-all": "yarn --cwd lib build && yarn --cwd vite build && yarn --cwd webpack build",
     "build-vite": "yarn --cwd lib build && yarn --cwd vite build",
     "build-webpack": "yarn --cwd lib build && yarn --cwd webpack build"
   },

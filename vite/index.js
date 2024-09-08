@@ -8,9 +8,6 @@ const isElm = (id) => {
 }
 
 module.exports = function (userConfig) {
-    let needBuilding = true;
-    let needRebuilding = true;
-    let toRebuild = new Set();
     let global = {
         transpiler: ElmWorker.Elm.Main.init(),
         options: {},
@@ -53,28 +50,17 @@ module.exports = function (userConfig) {
                     return null;
                 }
 
-                needRebuilding = true;
-                toRebuild.add(id);
-
-                if (!needBuilding) {
-                    return null;
-                }
-
                 await Promise.all([
                     routing.transpile(global),
                     translations.transpile(global),
                 ]);
-
-                needBuilding = false;
 
                 return null;
             }
         },
 
         async handleHotUpdate (ctx) {
-            if (needRebuilding && utils.arrayAny(hmrPatterns, (isMatch) => isMatch(ctx.file))) {
-                needRebuilding = false;
-
+            if (utils.arrayAny(hmrPatterns, (isMatch) => isMatch(ctx.file))) {
                 await Promise.all([
                     routing.transpile(global),
                     translations.transpile(global),

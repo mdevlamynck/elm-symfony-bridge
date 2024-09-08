@@ -3,13 +3,12 @@
 [![Build Status](https://travis-ci.org/mdevlamynck/elm-symfony-bridge.svg?branch=master)](https://travis-ci.org/mdevlamynck/elm-symfony-bridge)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mdevlamynck/elm-symfony-bridge/issues)
 [![webpack plugin](https://img.shields.io/npm/v/elm-symfony-bridge?label=webpack%20plugin&logo=webpack%20plugin)](https://www.npmjs.com/package/elm-symfony-bridge)
-[![parcel plugin](https://img.shields.io/npm/v/parcel-plugin-elm-symfony-bridge?label=parcel%20plugin&logo=parcel%20plugin)](https://www.npmjs.com/package/parcel-plugin-elm-symfony-bridge)
 [![vite plugin](https://img.shields.io/npm/v/vite-plugin-elm-symfony-bridge?label=vite%20plugin&logo=vite%20plugin)](https://www.npmjs.com/package/vite-plugin-elm-symfony-bridge)
 
-Webpack, Parcel and Vite plugin exposing Symfony's translations and routing to Elm. 
+Webpack and Vite plugin exposing Symfony's translations and routing to Elm.
 The translations are available through the `Trans.<domain>` Elm module and the routing is available through the `Routing` Elm module.
 
-For more information see [Webpack](webpack/README.md), [Parcel](parcel/README.md) or [Vite](vite/README.md) specific documentation.
+For more information see [Webpack](webpack/README.md) or [Vite](vite/README.md) specific documentation.
 
 ## Table of content
 
@@ -17,9 +16,6 @@ For more information see [Webpack](webpack/README.md), [Parcel](parcel/README.md
 * [Webpack](webpack/README.md)
     - [Installation](webpack/README.md#Installation)
     - [Configuration](webpack/README.md#Configuration)
-* [Parcel](parcel/README.md)
-    - [Installation](parcel/README.md#Installation)
-    - [Configuration](parcel/README.md#Configuration)
 * [Vite](vite/README.md)
     - [Installation](vite/README.md#Installation)
     - [Configuration](vite/README.md#Configuration)
@@ -84,9 +80,8 @@ As a reminder, all contributors are expected to follow our [Code of Conduct](COD
 
 The sources are organized in 4 main folders:
 
-* `/` the root contains the elm code: `src` for the sources and `tests` for the elm tests.
+* `/lib` contains the common js and elm code: `src` for the sources and `tests` for the elm tests.
 * `/webpack` contains all the specifics for the webpack plugin.
-* `/parcel` contains all the specifics for the parcel plugin.
 * `/vite` contains all the specifics for the vite plugin.
 
 This project uses the following tools for development:
@@ -99,23 +94,18 @@ This project uses the following tools for development:
 You'll find the following commands useful when hacking on this project:
 
 ```bash
-# run the tests and doc tests
-yarn run test
+# install dependencies for the whole workspace
+yarn install
 
-# Using a local build in a project using webpack
-cd webpack && yarn install && yarn run build && yarn pack # build a package.tgz
-cd path/to/project/using/webpack                          # go in the root directory of your project
-yarn install path/to/package.tgz                          # install the locally built package
+# build the common lib and all plugins
+yarn build-all
 
-# Using a local build in a project using parcel
-cd parcel && yarn install && yarn run build && yarn pack # build a package.tgz
-cd path/to/project/using/parcel                          # go in the root directory of your project
-yarn install path/to/package.tgz                         # install the locally built package
+# build the common lib and a specific plugin
+yarn build-vite    # for vite plugin
+yarn build-webpack # for webpack plugin
 
-# Using a local build in a project using vite
-cd vite && yarn install && yarn run build && yarn pack   # build a package.tgz
-cd path/to/project/using/vite                            # go in the root directory of your project
-yarn install path/to/package.tgz                         # install the locally built package
+# you can now use the yarn link feature or
+# yarn install the .tgz generated in the plugin folder
 ```
 
 ## License

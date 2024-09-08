@@ -50,17 +50,25 @@ function addDirsToWatch(loader) {
 }
 
 module.exports = function (source) {
-    removeGeneratedCodeFromDependencies(this);
-    addDirsToWatch(this);
+    try {
+        removeGeneratedCodeFromDependencies(this);
+        addDirsToWatch(this);
 
-    return source;
+        return source;
+    } catch (e) {
+        this.emitError(e);
+    }
 };
 
 module.exports.pitch = async function () {
-    setupOptions(this.getOptions());
+    try {
+        setupOptions(this.getOptions());
 
-    await Promise.all([
-        routing.transpile(that),
-        translations.transpile(that),
-    ]);
+        await Promise.all([
+            routing.transpile(that),
+            translations.transpile(that),
+        ]);
+    } catch (e) {
+        this.emitError(e);
+    }
 };
