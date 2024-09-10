@@ -57,72 +57,48 @@ npm install elm-symfony-bridge --save-dev
 yarn add elm-symfony-bridge --dev
 ```
 
-The usage example bellow also uses `@symfony/webpack-encore` and `elm-webpack-loader` which you can install with:
-
-```bash
-# NPM
-npm install @symfony/webpack-encore --save-dev
-npm install elm-webpack-loader --save-dev
-
-# Yarn
-yarn add @symfony/webpack-encore --dev
-yarn add elm-webpack-loader --dev
-```
+And you're all done!
 
 ## Configuration
 
-Setup example with symfony's webpack encore:
+Add the loader before elm-webpack-loader in your webpack configuration :
 
 ```js
-const Encore = require('@symfony/webpack-encore');
-const ElmSymfonyBridgePlugin = require('elm-symfony-bridge');
-
-Encore
-    .setOutputPath('public/static')
-    .setPublicPath('/static')
-    .addEntry('app', './assets/app.js')
-    .addLoader({
+    {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        use: {
-            loader: 'elm-webpack-loader',
-            options: {
-                pathToElm: 'node_modules/.bin/elm',
-                debug: !Encore.isProduction(),
-                optimize: Encore.isProduction()
+        use: [
+            {
+                loader: 'elm-symfony-bridge',
+                options: {
+                    dev: !Encore.isProduction(),    // Required: use symfony's env=dev or env=prod
+                    outputFolder: './elm-stuff/generated-code/elm-symfony-bridge'
+                                                    // Optional: set the folder where to put intermediate build artifacts, defaults to './elm-stuff/generated-code/elm-symfony-bridge'
+                    projectRoot: './',              // Optional: root folder of your symfony project, defaults to './'
+                    elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to './assets/elm'
+                    elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
+
+                    enableRouting: true,            // Optional: enable generating routes, defaults to true
+                    urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses '/index.php', symfony < 4 '/app_dev.php')
+
+                    enableTranslations: true,       // Optional: enable generating translations, defaults to true
+                    lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
+
+                    envVariables: {                 // Optional: variables to replace during compile time, will also read env vars
+                        '%variable%': 'ENV_VAR'
+                    },
+                }
+            },
+            {
+                loader: 'elm-webpack-loader',
+                options: {
+                    pathToElm: 'node_modules/.bin/elm',
+                    debug: !Encore.isProduction(),
+                    optimize: Encore.isProduction()
+                }
             }
-        }
+        ]
     })
-    .addPlugin(new ElmSymfonyBridgePlugin({
-        dev: !Encore.isProduction(),    // Required: use symfony's env=dev or env=prod
-        outputFolder: './elm-stuff/generated-code/elm-symfony-bridge'
-                                        // Optional: set the folder where to put intermediate build artifacts, defaults to './elm-stuff/generated-code/elm-symfony-bridge'
-        projectRoot: './',              // Optional: root folder of your symfony project, defaults to './'
-        elmRoot: './assets/elm',        // Optional: root folder of your elm code, defaults to './assets/elm'
-        elmVersion: '0.19',             // Optional: elm version the generated code should be compatible with, defaults to '0.19', available '0.19' and '0.18'
-
-        enableRouting: true,            // Optional: enable generating routes, defaults to true
-        urlPrefix: '/index.php',        // Optional: when dev is true, which prefix to use when generating urls, defaults to '/index.php' (symfony >= 4 uses '/index.php', symfony < 4 '/app_dev.php')
-
-        enableTranslations: true,       // Optional: enable generating translations, defaults to true
-        lang: 'en',                     // Optional: lang to use when exporting translations, defaults to 'en'
-
-        envVariables: {                 // Optional: variables to replace during compile time, will also read env vars
-            '%variable%': 'ENV_VAR'
-        },
-    }))
-    .configureFilenames({
-        js: '[name].[chunkhash].js',
-        css: '[name].[chunkhash].css',
-        images: 'images/[name].[ext]',
-        fonts: 'fonts/[name].[ext]',
-    })
-    .enableVersioning()
-    .enableSourceMaps(!Encore.isProduction())
-    .cleanupOutputBeforeBuild()
-;
-
-module.exports = Encore.getWebpackConfig();
 ```
 
 ## Usage

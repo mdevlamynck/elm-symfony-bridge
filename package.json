@@ -12,9 +12,5 @@
     "build-all": "yarn --cwd lib build && yarn --cwd vite build && yarn --cwd webpack build",
     "build-vite": "yarn --cwd lib build && yarn --cwd vite build",
     "build-webpack": "yarn --cwd lib build && yarn --cwd webpack build"
-  },
-  "devDependencies": {
-    "@parcel/transformer-elm": "2.12.0",
-    "elm": "^0.19.1-5"
   }
 }

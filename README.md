@@ -78,7 +78,7 @@ As a reminder, all contributors are expected to follow our [Code of Conduct](COD
 
 ## Hacking
 
-The sources are organized in 4 main folders:
+The sources are organized in 3 main folders:
 
 * `/lib` contains the common js and elm code: `src` for the sources and `tests` for the elm tests.
 * `/webpack` contains all the specifics for the webpack plugin.

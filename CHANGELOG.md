@@ -1,14 +1,28 @@
 # Changelog
 
+## 2.0.0
+
+Breaking changes:
+  * The webpack plugin has been converted to a loader, you will need to adapt your configuration, see the webpack plugin's readme.
+  * The parcel v1 plugin has been dropped.
+
+Bug fixes:
+  * Fix multiple compilations in watch mode
+
+## 1.3.1
+
+Bug fixes:
+  * Correctly handle errors when building in webpack plugin
+
 ## 1.3.0
 
 New features:
-* Add projectRoot option
+  * Add projectRoot option
 
 ## 1.2.1
 
 Bug fixes:
-* Fix env files variables merge
+  * Fix env files variables merge
 
 ## 1.2.0
 

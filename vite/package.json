@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-elm-symfony-bridge",
-  "version": "2.0.0-rc2",
+  "version": "2.0.0-rc3",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge/tree/master/vite#readme",
@@ -38,7 +38,7 @@
     "build": "parcel build && yarn pack"
   },
   "dependencies": {
-    "elm-symfony-bridge-lib": "2.0.0-rc2",
+    "elm-symfony-bridge-lib": "2.0.0-rc3",
     "picomatch": "^4.0.2"
   },
   "devDependencies": {

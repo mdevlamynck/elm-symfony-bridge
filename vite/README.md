@@ -47,15 +47,13 @@ makeHttpCall =
 
 ## Installation
 
-You can install the vite plugin with [npm](https://www.npmjs.com/get-npm):
+You can install the webpack plugin with [npm](https://www.npmjs.com/get-npm) or with [yarn](https://yarnpkg.com/getting-started/install):
 
 ```bash
+# NPM
 npm install vite-plugin-elm-symfony-bridge --save-dev
-```
 
-or with [yarn](https://yarnpkg.com/getting-started/install):
-
-```bash
+# Yarn
 yarn add vite-plugin-elm-symfony-bridge --dev
 ```
 
