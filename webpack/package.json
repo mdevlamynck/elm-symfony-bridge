@@ -1,6 +1,6 @@
 {
   "name": "elm-symfony-bridge",
-  "version": "2.0.0-rc3",
+  "version": "2.0.0",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge/tree/master/webpack#readme",
@@ -38,7 +38,7 @@
     "build": "parcel build && yarn pack"
   },
   "dependencies": {
-    "elm-symfony-bridge-lib": "2.0.0-rc3",
+    "elm-symfony-bridge-lib": "2.0.0",
     "schema-utils": "^4.2.0"
   },
   "devDependencies": {
