@@ -1,4 +1,4 @@
-module Dto.GraphTest exposing (..)
+module Dto.GraphTest exposing (suite)
 
 import Dict
 import Dto.Graph as Graph
@@ -21,7 +21,7 @@ suite =
                             ]
 
                     expected =
-                        Set.fromList []
+                        Set.empty
                 in
                 Expect.equal expected (Graph.findNodesInCycles input)
         , test "one cycle" <|
@@ -29,9 +29,9 @@ suite =
                 let
                     input =
                         Dict.fromList
-                            [ ( "A", Set.fromList [ "B" ] )
-                            , ( "B", Set.fromList [ "C" ] )
-                            , ( "C", Set.fromList [ "A" ] )
+                            [ ( "A", Set.singleton "B" )
+                            , ( "B", Set.singleton "C" )
+                            , ( "C", Set.singleton "A" )
                             ]
 
                     expected =
@@ -43,10 +43,10 @@ suite =
                 let
                     input =
                         Dict.fromList
-                            [ ( "A", Set.fromList [ "B" ] )
-                            , ( "B", Set.fromList [ "C" ] )
-                            , ( "C", Set.fromList [ "D" ] )
-                            , ( "D", Set.fromList [ "B" ] )
+                            [ ( "A", Set.singleton "B" )
+                            , ( "B", Set.singleton "C" )
+                            , ( "C", Set.singleton "D" )
+                            , ( "D", Set.singleton "B" )
                             ]
 
                     expected =

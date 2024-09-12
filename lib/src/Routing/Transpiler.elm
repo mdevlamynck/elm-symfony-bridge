@@ -8,7 +8,7 @@ module Routing.Transpiler exposing (Command, transpileToElm)
 
 import Dict exposing (Dict)
 import Elm as Gen exposing (normalizeFunctionName)
-import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
+import Elm.CodeGen as Gen exposing (Declaration, Expression, TypeAnnotation)
 import Elm.Pretty as Gen
 import Json.Decode exposing (Decoder, decodeString, dict, errorToString, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (required)

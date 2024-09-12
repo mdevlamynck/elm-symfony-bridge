@@ -7,7 +7,6 @@ import Dto.Types exposing (Collection(..), Context, Dto, DtoReference, Primitive
 import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
 import Elm.Pretty as Gen
 import Set
-import StringUtil exposing (trimEmptyLines)
 
 
 {-| Parameters to the generate.
@@ -236,7 +235,7 @@ generateFieldEncoder name type_ =
         wrapMaybeIfNullable encoders =
             if type_.isNullable then
                 if List.length encoders > 1 then
-                    encode.maybe :: [ Gen.parens (Gen.apply encoders) ]
+                    [ encode.maybe, Gen.parens (Gen.apply encoders) ]
 
                 else
                     encode.maybe :: encoders

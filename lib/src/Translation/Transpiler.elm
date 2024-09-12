@@ -8,7 +8,7 @@ module Translation.Transpiler exposing (transpileToElm, Command, File)
 
 import Dict exposing (Dict)
 import Elm exposing (normalizeFunctionName, normalizeModuleName)
-import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
+import Elm.CodeGen as Gen exposing (Declaration)
 import Elm.Pretty as Gen
 import Json.Decode exposing (bool, decodeString, dict, errorToString, float, int, map, oneOf, string, succeed, value)
 import Result

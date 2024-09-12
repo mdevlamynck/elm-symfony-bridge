@@ -1,14 +1,10 @@
-module Translation.IntlIcu.Data exposing (..)
+module Translation.IntlIcu.Data exposing (Chunk(..), Chunks, Format, PluralOption, PluralPattern(..), PluralVariant, PluralVariants, SelectPattern(..), SelectVariant, SelectVariants, Translation, Type(..), Variable, defaultPluralOption)
 
 
 type alias Translation =
     { name : String
     , content : Chunks
     }
-
-
-type alias TranslationContent =
-    Chunks
 
 
 type alias Chunks =

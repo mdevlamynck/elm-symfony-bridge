@@ -1,4 +1,7 @@
-port module Main exposing (main, Msg(..), update, decodeJsValue)
+port module Main exposing
+    ( main, Msg(..), update, decodeJsValue
+    , RequestId
+    )
 
 {-| Entry point, receive commands from js, dispatch to elm function and return result to js.
 

@@ -1,4 +1,4 @@
-module Translation.IntlIcu.Parser exposing (..)
+module Translation.IntlIcu.Parser exposing (parseTranslationContent)
 
 import Parser exposing (..)
 import Parser.Extra exposing (..)

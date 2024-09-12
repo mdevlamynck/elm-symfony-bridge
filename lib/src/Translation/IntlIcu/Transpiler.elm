@@ -2,7 +2,7 @@ module Translation.IntlIcu.Transpiler exposing (parseTranslation, translationToE
 
 import Dict
 import Elm as Gen
-import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, Pattern, TypeAnnotation)
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Pattern, TypeAnnotation)
 import Result
 import Translation.IntlIcu.Data exposing (..)
 import Translation.IntlIcu.Parser as Parser
@@ -122,23 +122,43 @@ chunkToElm chunk =
                 Raw ->
                     Gen.val <| "params_." ++ var.name
 
-                Number _ ->
-                    Gen.val <| "(String.fromInt params_." ++ var.name ++ ")"
+                Number format ->
+                    formatNumber format var.name
 
-                Date _ ->
-                    Debug.todo ""
+                Date format ->
+                    formatDate format var.name
 
-                Time _ ->
-                    Debug.todo ""
+                Time format ->
+                    formatTime format var.name
 
-                Duration _ ->
-                    Debug.todo ""
+                Duration format ->
+                    formatDuration format var.name
 
                 Select variants ->
                     selectToElm (Gen.val <| "params_." ++ var.name) variants
 
                 Plural _ variants ->
                     pluralToElm (Gen.val <| "params_." ++ var.name) variants
+
+
+formatNumber : Maybe String -> String -> Expression
+formatNumber _ name =
+    Gen.val <| "(String.fromInt params_." ++ name ++ ")"
+
+
+formatDate : Maybe String -> String -> Expression
+formatDate _ _ =
+    Debug.todo ""
+
+
+formatTime : Maybe String -> String -> Expression
+formatTime _ _ =
+    Debug.todo ""
+
+
+formatDuration : Maybe String -> String -> Expression
+formatDuration _ _ =
+    Debug.todo ""
 
 
 selectToElm : Expression -> SelectVariants -> Expression

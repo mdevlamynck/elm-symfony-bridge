@@ -1,6 +1,6 @@
 module StringUtil exposing
     ( indent, splitOn
-    , addEmptyLinesAtEnd, addOneEmptyLineAtEnd, trimEmptyLines, unindent
+    , addEmptyLinesAtEnd, addOneEmptyLineAtEnd, unindent
     )
 
 {-| Extra tools on strings.
@@ -108,14 +108,6 @@ splitOn predicate string =
     rec (String.toList string)
 
 
-trimEmptyLines : String -> String
-trimEmptyLines text =
-    text
-        |> String.lines
-        |> trimList (String.toList >> List.all ((==) ' '))
-        |> String.join "\n"
-
-
 addOneEmptyLineAtEnd : String -> String
 addOneEmptyLineAtEnd text =
     text ++ "\n"
@@ -123,7 +115,7 @@ addOneEmptyLineAtEnd text =
 
 addEmptyLinesAtEnd : Int -> String -> String
 addEmptyLinesAtEnd n text =
-    text ++ (String.concat <| List.repeat n "\n")
+    text ++ String.repeat n "\n"
 
 
 trimList : (a -> Bool) -> List a -> List a

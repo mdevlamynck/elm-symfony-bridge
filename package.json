@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "test": "yarn --cwd lib test",
+    "review": "yarn --cwd lib review",
     "check-format": "yarn --cwd lib check-format",
     "build-all": "yarn --cwd lib build && yarn --cwd vite build && yarn --cwd webpack build",
     "build-vite": "yarn --cwd lib build && yarn --cwd vite build",

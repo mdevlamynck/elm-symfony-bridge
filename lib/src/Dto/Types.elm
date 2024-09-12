@@ -1,4 +1,4 @@
-module Dto.Types exposing (..)
+module Dto.Types exposing (Collection(..), Collection_, Context, Dto, DtoReference, Primitive(..), Type, TypeKind(..), Value)
 
 import Dict exposing (Dict)
 import Json.Encode as Json

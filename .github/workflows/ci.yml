@@ -28,6 +28,11 @@ jobs:
         with:
           cmd: test
 
+      - name: Tests
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: review
+
       - name: Build
         uses: borales/actions-yarn@v5
         with:

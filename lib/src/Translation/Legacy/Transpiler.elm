@@ -3,7 +3,7 @@ module Translation.Legacy.Transpiler exposing (keynameTranslations, parseTransla
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import Elm as Gen
-import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, Pattern, TypeAnnotation)
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Pattern)
 import List.Extra as List
 import List.Unique
 import Result
