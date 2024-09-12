@@ -307,9 +307,7 @@ suite =
 
                                     multiline_html_translation : { link : String } -> String
                                     multiline_html_translation params_ =
-                                        \"\"\"<a href=\"\"\"\" ++ params_.link ++ \"\"\"\">
-                                        </a>
-                                        \"\"\"
+                                        "<a href=\\"" ++ params_.link ++ "\\">\\n</a>\\n"
                                     """
                                 }
                     in
@@ -414,7 +412,11 @@ suite =
 
                                     user_welcome : { firstname : String, lastname : String } -> String
                                     user_welcome params_ =
-                                        "Bonjour " ++ params_.firstname ++ " " ++ params_.lastname ++ " et bienvenu !"
+                                        "Bonjour "
+                                            ++ params_.firstname
+                                            ++ " "
+                                            ++ params_.lastname
+                                            ++ " et bienvenu !"
                                     """
                                 }
                     in
@@ -483,19 +485,15 @@ suite =
 
                                     global_expression_gender : { gender : String } -> String
                                     global_expression_gender params_ =
-                                        let
-                                            var0 =
-                                                case params_.gender of
-                                                    "female" ->
-                                                        "woman"
+                                        case params_.gender of
+                                            "female" ->
+                                                "woman"
 
-                                                    "male" ->
-                                                        "man"
+                                            "male" ->
+                                                "man"
 
-                                                    _ ->
-                                                        "person"
-                                        in
-                                        var0
+                                            _ ->
+                                                "person"
                                     """
                                 }
                     in
@@ -528,160 +526,169 @@ suite =
 
                                     global_expression_photos : { numPhotos : Int } -> String
                                     global_expression_photos params_ =
-                                        let
-                                            var0 =
-                                                case params_.numPhotos of
-                                                    0 ->
-                                                        "no photos"
+                                        case params_.numPhotos of
+                                            0 ->
+                                                "no photos"
 
-                                                    1 ->
-                                                        "one photo"
+                                            1 ->
+                                                "one photo"
 
-                                                    _ ->
-                                                        (String.fromInt params_.numPhotos) ++ " photos"
-                                        in
-                                        var0
+                                            _ ->
+                                                (String.fromInt params_.numPhotos) ++ " photos"
                                     """
                                 }
                     in
                     Expect.equal expected (transpileToElm input)
-            , todo "Works with translations containing plural variables with offset" -- <|
+            , test "Works with translations containing plural variables with offset" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages+intl-icu": {
+                                                "party.guests": "{numGuests, plural, offset:1 =0{no party} =1{host and a guest} other{# guests}}"
+                                            }
+                                        }
+                                    }
+                                }
+                                """
+                            , envVariables = Dict.empty
+                            }
 
-            --\_ ->
-            --    let
-            --        input =
-            --            { name = ""
-            --            , content = unindent """
-            --                {
-            --                    "translations": {
-            --                        "fr": {
-            --                            "messages+intl-icu": {
-            --                                "party.guests": "{numGuests, plural, offset:1 =0{no party} one{host and a guest} other{# guests}}"
-            --                            }
-            --                        }
-            --                    }
-            --                }
-            --                """
-            --            , envVariables = Dict.empty
-            --            }
-            --
-            --        expected =
-            --            Ok
-            --                { name = "Trans/MessagesIntlIcu.elm"
-            --                , content = addOneEmptyLineAtEnd <| unindent """
-            --                module Trans.MessagesIntlIcu exposing (..)
-            --
-            --
-            --                party_guests : { numGuests : Int } -> String
-            --                party_guests params_ =
-            --                    let
-            --                        var0 =
-            --                            case params_.numGuests - 1 of
-            --                                0 ->
-            --                                    "no party"
-            --
-            --                                1 ->
-            --                                    "host and a guest"
-            --
-            --                                _ ->
-            --                                    (String.fromInt (params_.numGuests - 1)) ++ " guests"
-            --                    in
-            --                    var0
-            --                """
-            --                }
-            --    in
-            --    Expect.equal expected (transpileToElm input)
-            , todo "Works with translations containing nested variables" -- <|
+                        expected =
+                            Ok
+                                { name = "Trans/MessagesIntlIcu.elm"
+                                , content = addOneEmptyLineAtEnd <| unindent """
+                                    module Trans.MessagesIntlIcu exposing (..)
 
-            --\_ ->
-            --    let
-            --        input =
-            --            { name = ""
-            --            , content = unindent """
-            --                {
-            --                    "translations": {
-            --                        "fr": {
-            --                            "messages+intl-icu": {
-            --                                "party.guests": "{gender_of_host, select, offset:1\\nfemale {{num_guests, plural, offset:1\\n=0    {{host} does not give a party.}\\n=1    {{host} invites {guest} to her party.}\\n=2    {{host} invites {guest} and one other person to her party.}\\nother {{host} invites {guest} and # other people to her party.}\\n}}\\nmale {{num_guests, plural, offset:1\\n=0    {{host} does not give a party.}\\n=1    {{host} invites {guest} to his party.}\\n=2    {{host} invites {guest} and one other person to his party.}\\nother {{host} invites {guest} and # other people to his party.}\\n}}\\nother {{num_guests, plural, offset:1\\n=0    {{host} does not give a party.}\\n=1    {{host} invites {guest} to their party.}\\n=2    {{host} invites {guest} and one other person to their party.}\\nother {{host} invites {guest} and # other people to their party.}\\n}}\\n}"
-            --                            }
-            --                        }
-            --                    }
-            --                }
-            --                """
-            --            , envVariables = Dict.empty
-            --            }
-            --
-            --        expected =
-            --            Ok
-            --                { name = "Trans/MessagesIntlIcu.elm"
-            --                , content = addOneEmptyLineAtEnd <| unindent """
-            --                    module Trans.MessagesIntlIcu exposing (..)
-            --
-            --
-            --                    party_guests : { gender_of_host : String, guest : String, host : String, num_guests : Int } -> String
-            --                    party_guests params_ =
-            --                        let
-            --                            var0 =
-            --                                case params_.gender_of_host of
-            --                                    "female" ->
-            --                                        let
-            --                                            var1 =
-            --                                                case (params_.num_guests - 1) of
-            --                                                    0 ->
-            --                                                        params_.host ++ " does not give a party."
-            --
-            --                                                    1 ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " to her party."
-            --
-            --                                                    2 ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and one other person to her party."
-            --
-            --                                                    _ ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (String.fromInt (params_.num_guests - 1)) ++ " other people to her party."
-            --                                        in
-            --                                        var1
-            --
-            --                                    "male" ->
-            --                                        let
-            --                                            var1 =
-            --                                                case (params_.num_guests - 1) of
-            --                                                    0 ->
-            --                                                        params_.host ++ " does not give a party."
-            --
-            --                                                    1 ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " to his party."
-            --
-            --                                                    2 ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and one other person to his party."
-            --
-            --                                                    _ ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (String.fromInt (params_.num_guests - 1)) ++ " other people to his party."
-            --                                        in
-            --                                        var1
-            --
-            --                                    _ ->
-            --                                        let
-            --                                            var1 =
-            --                                                case (params_.num_guests - 1) of
-            --                                                    0 ->
-            --                                                        params_.host ++ " does not give a party."
-            --
-            --                                                    1 ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " to their party."
-            --
-            --                                                    2 ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and one other person to their party."
-            --
-            --                                                    _ ->
-            --                                                        params_.host ++ " invites " ++ params_.guest ++ " and " ++ (String.fromInt (params_.num_guests - 1)) ++ " other people to their party."
-            --                                        in
-            --                                        var1
-            --                        in
-            --                        var0
-            --                    """
-            --                }
-            --    in
-            --    Expect.equal expected (transpileToElm input)
+
+                                    party_guests : { numGuests : Int } -> String
+                                    party_guests params_ =
+                                        case params_.numGuests - 1 of
+                                            0 ->
+                                                "no party"
+
+                                            1 ->
+                                                "host and a guest"
+
+                                            _ ->
+                                                (String.fromInt (params_.numGuests - 1)) ++ " guests"
+                                    """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
+            , test "Works with translations containing nested variables" <|
+                \_ ->
+                    let
+                        input =
+                            { name = ""
+                            , content = unindent """
+                                {
+                                    "translations": {
+                                        "fr": {
+                                            "messages+intl-icu": {
+                                                "party.guests": "{gender_of_host, select,\\nfemale {{num_guests, plural, offset:1\\n=0    {{host} does not give a party.}\\n=1    {{host} invites {guest} to her party.}\\n=2    {{host} invites {guest} and one other person to her party.}\\nother {{host} invites {guest} and # other people to her party.}\\n}}\\nmale {{num_guests, plural, offset:1\\n=0    {{host} does not give a party.}\\n=1    {{host} invites {guest} to his party.}\\n=2    {{host} invites {guest} and one other person to his party.}\\nother {{host} invites {guest} and # other people to his party.}\\n}}\\nother {{num_guests, plural, offset:1\\n=0    {{host} does not give a party.}\\n=1    {{host} invites {guest} to their party.}\\n=2    {{host} invites {guest} and one other person to their party.}\\nother {{host} invites {guest} and # other people to their party.}\\n}}\\n}"
+                                            }
+                                        }
+                                    }
+                                }
+                                """
+                            , envVariables = Dict.empty
+                            }
+
+                        expected =
+                            Ok
+                                { name = "Trans/MessagesIntlIcu.elm"
+                                , content = addOneEmptyLineAtEnd <| unindent """
+                                    module Trans.MessagesIntlIcu exposing (..)
+
+
+                                    party_guests :
+                                        { gender_of_host : String, guest : String, host : String, num_guests : Int }
+                                        -> String
+                                    party_guests params_ =
+                                        case params_.gender_of_host of
+                                            "female" ->
+                                                case (params_.num_guests - 1) of
+                                                    0 ->
+                                                        params_.host ++ " does not give a party."
+
+                                                    1 ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " to her party."
+
+                                                    2 ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " and one other person to her party."
+
+                                                    _ ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " and "
+                                                            ++ (String.fromInt (params_.num_guests - 1))
+                                                            ++ " other people to her party."
+
+                                            "male" ->
+                                                case (params_.num_guests - 1) of
+                                                    0 ->
+                                                        params_.host ++ " does not give a party."
+
+                                                    1 ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " to his party."
+
+                                                    2 ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " and one other person to his party."
+
+                                                    _ ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " and "
+                                                            ++ (String.fromInt (params_.num_guests - 1))
+                                                            ++ " other people to his party."
+
+                                            _ ->
+                                                case (params_.num_guests - 1) of
+                                                    0 ->
+                                                        params_.host ++ " does not give a party."
+
+                                                    1 ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " to their party."
+
+                                                    2 ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " and one other person to their party."
+
+                                                    _ ->
+                                                        params_.host
+                                                            ++ " invites "
+                                                            ++ params_.guest
+                                                            ++ " and "
+                                                            ++ (String.fromInt (params_.num_guests - 1))
+                                                            ++ " other people to their party."
+                                    """
+                                }
+                    in
+                    Expect.equal expected (transpileToElm input)
             ]
         , test "Works with translation domains not directly mapping to valid elm module name" <|
             \_ ->
@@ -704,8 +711,8 @@ suite =
                         Ok
                             { name = "Trans/WeirdDomainIntlIcu.elm"
                             , content = addEmptyLinesAtEnd 3 <| unindent """
-                                    module Trans.WeirdDomainIntlIcu exposing (..)
-                                    """
+                                module Trans.WeirdDomainIntlIcu exposing (..)
+                                """
                             }
                 in
                 Expect.equal expected (transpileToElm input)

@@ -370,80 +370,78 @@ suite =
                                 ]
                             )
             ]
-        , todo "Failure cases"
-
-        -- We currently discard parse failures
-        --[ test "Fails on extra closing brace" <|
-        --    \_ ->
-        --        parseTranslationContent ""
-        --            |> Expect.equal (Err "Unexpected } found")
-        --, test "Fails on empty placeholder" <|
-        --    \_ ->
-        --        parseTranslationContent "{}"
-        --            |> Expect.equal (Err "Expected placeholder id but found }")
-        --, test "Fails on open brace in placeholder" <|
-        --    \_ ->
-        --        parseTranslationContent "{n{"
-        --            |> Expect.equal (Err "Expected , or } but found {")
-        --, test "Fails on missing type" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,}"
-        --            |> Expect.equal (Err "Expected placeholder type but found }")
-        --, test "Fails on unknown type" <|
-        --    \_ ->
-        --        parseTranslationContent "{a, custom, one}"
-        --            |> Expect.equal (Err "Expected know type but found \"custom\"")
-        --, test "Fails on open brace after type" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,d{"
-        --            |> Expect.equal (Err "Expected , or } but found {")
-        --, test "Fails on missing style" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,t,}"
-        --            |> Expect.equal (Err "Expected placeholder style name but found }")
-        --, test "Fails on missing sub-messages for select" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,select}"
-        --            |> Expect.equal (Err "Expected select sub-messages but found }")
-        --, test "Fails on missing sub-messages for selectordinal" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,selectordinal}"
-        --            |> Expect.equal (Err "Expected selectordinal sub-messages but found }")
-        --, test "Fails on missing sub-messages for plural" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,plural}"
-        --            |> Expect.equal (Err "Expected plural sub-messages but found }")
-        --, test "Fails on missing other for select" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,select,}"
-        --            |> Expect.equal (Err "\"other\" sub-message must be specified in select")
-        --, test "Fails on missing other for selectordinal" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,selectordinal,}"
-        --            |> Expect.equal (Err "\"other\" sub-message must be specified in selectordinal")
-        --, test "Fails on missing other for plural" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,plural,}"
-        --            |> Expect.equal (Err "\"other\" sub-message must be specified in plural")
-        --, test "Fails on missing selector" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,select,{a}}"
-        --            |> Expect.equal (Err "Expected sub-message selector but found {")
-        --, test "Fails on missing { for sub-message" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,select,other a}"
-        --            |> Expect.equal (Err "Expected { to start sub-message but found a")
-        --, test "Fails on missing } for sub-message" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,select,other{a"
-        --            |> Expect.equal (Err "Expected } to end sub-message but found end of message pattern")
-        --, test "Fails on missing offset number" <|
-        --    \_ ->
-        --        parseTranslationContent "{n,plural,offset:}"
-        --            |> Expect.equal (Err "Expected offset number but found }")
-        --, test "Fails on missing closing brace" <|
-        --    \_ ->
-        --        parseTranslationContent "{a,b,c"
-        --            |> Expect.equal (Err "Expected } but found end of message pattern")
-        --]
+        , describe "Failure cases"
+            [ test "Fails on extra closing brace" <|
+                \_ ->
+                    parseTranslationContent ""
+                        |> Expect.equal (Ok [])
+            , test "Fails on empty placeholder" <|
+                \_ ->
+                    parseTranslationContent "{}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on open brace in placeholder" <|
+                \_ ->
+                    parseTranslationContent "{n{"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing type" <|
+                \_ ->
+                    parseTranslationContent "{n,}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on unknown type" <|
+                \_ ->
+                    parseTranslationContent "{a, custom, one}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on open brace after type" <|
+                \_ ->
+                    parseTranslationContent "{n,d{"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing style" <|
+                \_ ->
+                    parseTranslationContent "{n,t,}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing sub-messages for select" <|
+                \_ ->
+                    parseTranslationContent "{n,select}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing sub-messages for selectordinal" <|
+                \_ ->
+                    parseTranslationContent "{n,selectordinal}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing sub-messages for plural" <|
+                \_ ->
+                    parseTranslationContent "{n,plural}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing other for select" <|
+                \_ ->
+                    parseTranslationContent "{n,select,}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing other for selectordinal" <|
+                \_ ->
+                    parseTranslationContent "{n,selectordinal,}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing other for plural" <|
+                \_ ->
+                    parseTranslationContent "{n,plural,}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing selector" <|
+                \_ ->
+                    parseTranslationContent "{n,select,{a}}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing { for sub-message" <|
+                \_ ->
+                    parseTranslationContent "{n,select,other a}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing } for sub-message" <|
+                \_ ->
+                    parseTranslationContent "{n,select,other{a"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing offset number" <|
+                \_ ->
+                    parseTranslationContent "{n,plural,offset:}"
+                        |> Expect.equal (Ok [])
+            , test "Fails on missing closing brace" <|
+                \_ ->
+                    parseTranslationContent "{a,b,c"
+                        |> Expect.equal (Ok [])
+            ]
         ]

@@ -1,6 +1,8 @@
 module Translation.IntlIcu.Transpiler exposing (parseTranslation, translationToElm)
 
-import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, TypeAnnotation)
+import Dict
+import Elm as Gen
+import Elm.CodeGen as Gen exposing (Declaration, Expression, Import, Pattern, TypeAnnotation)
 import Result
 import Translation.IntlIcu.Data exposing (..)
 import Translation.IntlIcu.Parser as Parser
@@ -23,47 +25,63 @@ parseTranslation ( name, message ) =
 -}
 translationToElm : Translation -> Declaration
 translationToElm translation =
-    Gen.funDecl Nothing Nothing "" [] <|
-        Gen.string ""
+    let
+        arguments =
+            case extractArguments translation.content of
+                Just args ->
+                    ( Gen.funAnn args Gen.stringAnn, [ Gen.varPattern "params_" ] )
+
+                _ ->
+                    ( Gen.stringAnn, [] )
+
+        signature =
+            Tuple.first arguments
+
+        patterns =
+            Tuple.second arguments
+    in
+    Gen.funDecl Nothing (Just signature) translation.name patterns <|
+        chunksToElm translation.content
 
 
-extractArguments : Chunks -> List Arg
+extractArguments : Chunks -> Maybe TypeAnnotation
 extractArguments chunks =
     let
         toElmType t =
             case t of
                 Raw ->
-                    "String"
+                    Gen.stringAnn
 
                 Number _ ->
-                    "Int"
+                    Gen.intAnn
 
                 Date _ ->
-                    "Posix"
+                    Gen.fqTyped [ "Time" ] "Posix" []
 
                 Time _ ->
-                    "Posix"
+                    Gen.fqTyped [ "Time" ] "Posix" []
 
                 Duration _ ->
-                    "Int"
+                    Gen.intAnn
 
                 Select _ ->
-                    "String"
+                    Gen.stringAnn
 
                 Plural _ _ ->
-                    "Int"
+                    Gen.intAnn
 
         args =
             chunks
                 |> collectVariables
                 |> List.map (\var -> ( var.name, toElmType var.type_ ))
                 |> Dict.fromList
+                |> Dict.toList
     in
-    if Dict.isEmpty args then
-        []
+    if List.isEmpty args then
+        Nothing
 
     else
-        [ Record args ]
+        Just <| Gen.recordAnn args
 
 
 collectVariables : Chunks -> List Variable
@@ -86,73 +104,26 @@ collectVariables =
                             [ var ]
 
 
-chunksToElm : Chunks -> Expr
+chunksToElm : Chunks -> Expression
 chunksToElm chunks =
     chunks
         |> List.map chunkToElm
-        |> mergeExprs
+        |> Gen.stringConcat
 
 
-mergeExprs : List Expr -> Expr
-mergeExprs exprs =
-    let
-        varExprs =
-            exprs
-                |> indexedFilterMap convertToVarExpr
-
-        body =
-            exprs
-                |> List.indexedMap replaceWithLetVariable
-                |> mergeIntoExpr
-    in
-    LetIn varExprs <|
-        Expr body
-
-
-convertToVarExpr : Int -> Expr -> Maybe ( String, Expr )
-convertToVarExpr index expr =
-    case expr of
-        Expr _ ->
-            Nothing
-
-        _ ->
-            Just ( "var" ++ String.fromInt index, expr )
-
-
-replaceWithLetVariable : Int -> Expr -> String
-replaceWithLetVariable index expr =
-    case expr of
-        Expr content ->
-            content
-
-        _ ->
-            "var" ++ String.fromInt index
-
-
-mergeIntoExpr : List String -> String
-mergeIntoExpr exprs =
-    if List.isEmpty exprs then
-        quote ""
-
-    else
-        exprs
-            |> List.intersperse "++"
-            |> String.join " "
-
-
-chunkToElm : Chunk -> Expr
+chunkToElm : Chunk -> Expression
 chunkToElm chunk =
     case chunk of
         Text string ->
-            Expr <| quote string
+            Gen.string string
 
         Var var ->
             case var.type_ of
                 Raw ->
-                    Expr <| "params_." ++ var.name
+                    Gen.val <| "params_." ++ var.name
 
                 Number _ ->
-                    Expr <| "(String.fromInt params_." ++ var.name ++ ")"
+                    Gen.val <| "(String.fromInt params_." ++ var.name ++ ")"
 
                 Date _ ->
                     Debug.todo ""
@@ -164,15 +135,15 @@ chunkToElm chunk =
                     Debug.todo ""
 
                 Select variants ->
-                    selectToElm ("params_." ++ var.name) variants
+                    selectToElm (Gen.val <| "params_." ++ var.name) variants
 
                 Plural _ variants ->
-                    pluralToElm ("params_." ++ var.name) variants
+                    pluralToElm (Gen.val <| "params_." ++ var.name) variants
 
 
-selectToElm : String -> SelectVariants -> Expr
+selectToElm : Expression -> SelectVariants -> Expression
 selectToElm name variants =
-    Case name <|
+    Gen.caseExpr name <|
         List.map
             (\{ pattern, value } ->
                 ( selectPatternToElm pattern
@@ -182,19 +153,19 @@ selectToElm name variants =
             variants
 
 
-selectPatternToElm : SelectPattern -> String
+selectPatternToElm : SelectPattern -> Pattern
 selectPatternToElm pattern =
     case pattern of
         SelectText text ->
-            quote text
+            Gen.stringPattern text
 
         SelectOther ->
-            "_"
+            Gen.allPattern
 
 
-pluralToElm : String -> PluralVariants -> Expr
+pluralToElm : Expression -> PluralVariants -> Expression
 pluralToElm name variants =
-    Case name <|
+    Gen.caseExpr name <|
         List.map
             (\{ pattern, value } ->
                 ( pluralPatternToElm pattern
@@ -204,20 +175,20 @@ pluralToElm name variants =
             variants
 
 
-pluralPatternToElm : PluralPattern -> String
+pluralPatternToElm : PluralPattern -> Pattern
 pluralPatternToElm pattern =
     case pattern of
         Value value ->
-            String.fromInt value
+            Gen.intPattern value
 
         Zero ->
-            String.fromInt 0
+            Debug.todo ""
 
         One ->
-            String.fromInt 1
+            Debug.todo ""
 
         Two ->
-            String.fromInt 2
+            Debug.todo ""
 
         Few ->
             Debug.todo ""
@@ -226,9 +197,4 @@ pluralPatternToElm pattern =
             Debug.todo ""
 
         PluralOther ->
-            "_"
-
-
-indexedFilterMap : (Int -> a -> Maybe b) -> List a -> List b
-indexedFilterMap f =
-    List.indexedMap f >> List.filterMap identity
+            Gen.allPattern

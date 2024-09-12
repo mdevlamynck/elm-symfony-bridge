@@ -105,6 +105,7 @@ typeSelect =
         |. spaces
         |. symbol ","
         |= many selectVariant
+        |> andThen validateType
 
 
 selectVariant : Parser SelectVariant
@@ -131,6 +132,7 @@ typePlural =
         |= pluralOptions
         |. spaces
         |= many pluralVariant
+        |> andThen validateType
 
 
 pluralOptions : Parser PluralOption
@@ -258,3 +260,24 @@ replaceShorthand replaceWith c =
 
         _ ->
             c
+
+
+validateType : Type -> Parser Type
+validateType p =
+    case p of
+        Select variants ->
+            if variants |> List.map .pattern |> List.member SelectOther then
+                succeed p
+
+            else
+                problem ""
+
+        Plural _ variants ->
+            if variants |> List.map .pattern |> List.member PluralOther then
+                succeed p
+
+            else
+                problem ""
+
+        _ ->
+            succeed p

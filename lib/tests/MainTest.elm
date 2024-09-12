@@ -55,7 +55,8 @@ suite =
                     let
                         input =
                             Encode.object
-                                [ ( "dto"
+                                [ ( "id", Encode.string "id" )
+                                , ( "dto"
                                   , Encode.object
                                         [ ( "content", Encode.string "{}" )
                                         ]
@@ -63,7 +64,7 @@ suite =
                                 ]
 
                         expected =
-                            GenerateDto { content = "{}" }
+                            GenerateDto "id" { content = "{}" }
                     in
                     Expect.equal expected (decodeJsValue input)
             ]
@@ -110,7 +111,7 @@ suite =
                                       , Encode.object
                                             [ ( "name", Encode.string "Trans/Messages.elm" )
                                             , ( "content"
-                                              , Encode.string <| unindent """
+                                              , Encode.string <| addOneEmptyLineAtEnd <| unindent """
                                             module Trans.Messages exposing (..)
 
 

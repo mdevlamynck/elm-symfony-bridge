@@ -159,54 +159,59 @@ toElmCaseVariant ( name, value ) =
 
 {-| Indexed variant application conditions depending on the lang.
 
-Source: <https://github.com/symfony/translation/blob/master/PluralizationRules.php>
+Source: <https://github.com/symfony/symfony/blob/7.2/src/Symfony/Contracts/Translation/TranslatorTrait.php#L133>
 
 -}
 indexedConditions : String -> List Expression
 indexedConditions lang =
-    if List.member lang [ "az", "bo", "dz", "id", "ja", "jv", "ka", "km", "kn", "ko", "ms", "th", "tr", "vi", "zh" ] then
-        [ Gen.val "True" ]
+    let
+        locale =
+            if "pt_BR" /= lang && "en_US_POSIX" /= lang && String.length lang > 3 then
+                String.leftOf "_" lang
 
-    else if List.member lang [ "af", "bn", "bg", "ca", "da", "de", "el", "en", "eo", "es", "et", "eu", "fa", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "he", "hu", "is", "it", "ku", "lb", "ml", "mn", "mr", "nah", "nb", "ne", "nl", "nn", "no", "om", "or", "pa", "pap", "ps", "pt", "so", "sq", "sv", "sw", "ta", "te", "tk", "ur", "zu" ] then
+            else
+                lang
+    in
+    if List.member locale [ "af", "bn", "bg", "ca", "da", "de", "el", "en", "en_US_POSIX", "eo", "es", "et", "eu", "fa", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "he", "hu", "is", "it", "ku", "lb", "ml", "mn", "mr", "nah", "nb", "ne", "nl", "nn", "no", "oc", "om", "or", "pa", "pap", "ps", "pt", "so", "sq", "sv", "sw", "ta", "te", "tk", "ur", "zu" ] then
         [ Gen.val "count == 1", Gen.val "True" ]
 
-    else if List.member lang [ "am", "bh", "fil", "fr", "gun", "hi", "hy", "ln", "mg", "nso", "xbr", "ti", "wa" ] then
+    else if List.member locale [ "am", "bh", "fil", "fr", "gun", "hi", "hy", "ln", "mg", "nso", "pt_BR", "ti", "wa" ] then
         [ Gen.val "count == 0 || count == 1", Gen.val "True" ]
 
-    else if List.member lang [ "be", "bs", "hr", "ru", "sr", "uk" ] then
+    else if List.member locale [ "be", "bs", "hr", "ru", "sh", "sr", "uk" ] then
         [ Gen.val "count % 10 == 1 && count % 100 /= 11", Gen.val "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)", Gen.val "True" ]
 
-    else if List.member lang [ "cs", "sk" ] then
+    else if List.member locale [ "cs", "sk" ] then
         [ Gen.val "count == 1", Gen.val "count >= 2 && count <= 4", Gen.val "True" ]
 
-    else if lang == "ga" then
+    else if locale == "ga" then
         [ Gen.val "count == 1", Gen.val "count == 2", Gen.val "True" ]
 
-    else if lang == "lt" then
+    else if locale == "lt" then
         [ Gen.val "count % 10 == 1 && count % 100 /= 11", Gen.val "count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20)", Gen.val "True" ]
 
-    else if lang == "sl" then
+    else if locale == "sl" then
         [ Gen.val "count % 100 == 1", Gen.val "count % 100 == 2", Gen.val "count % 100 == 3 || count % 100 == 4", Gen.val "True" ]
 
-    else if lang == "mk" then
+    else if locale == "mk" then
         [ Gen.val "count % 10 == 1", Gen.val "True" ]
 
-    else if lang == "mt" then
+    else if locale == "mt" then
         [ Gen.val "count == 1", Gen.val "count == 0 || count % 100 > 1 && count % 100 < 11", Gen.val "count % 100 > 10 && count % 100 < 20", Gen.val "True" ]
 
-    else if lang == "lv" then
+    else if locale == "lv" then
         [ Gen.val "count == 0", Gen.val "count % 10 == 1 && count % 100 /= 11", Gen.val "True" ]
 
-    else if lang == "pl" then
+    else if locale == "pl" then
         [ Gen.val "count == 1", Gen.val "count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)", Gen.val "True" ]
 
-    else if lang == "cy" then
+    else if locale == "cy" then
         [ Gen.val "count == 1", Gen.val "count == 2", Gen.val "count == 8 || count == 11", Gen.val "True" ]
 
-    else if lang == "ro" then
+    else if locale == "ro" then
         [ Gen.val "count == 1", Gen.val "count == 0 || (count % 100 > 0 && count % 100 < 20)", Gen.val "True" ]
 
-    else if lang == "ar" then
+    else if locale == "ar" then
         [ Gen.val "count == 0", Gen.val "count == 1", Gen.val "count == 2", Gen.val "count % 100 >= 3 && count % 100 <= 10", Gen.val "count % 100 >= 11 && count % 100 <= 99", Gen.val "True" ]
 
     else
