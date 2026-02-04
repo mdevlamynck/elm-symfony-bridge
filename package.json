@@ -1,6 +1,5 @@
 {
-  "name": "elm-symfony-bridge",
-  "private": "true",
+  "name": "elm-symfony-bridge-workspace-root",
   "workspaces": [
     "lib",
     "vite",

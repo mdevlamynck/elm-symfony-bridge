@@ -2,6 +2,7 @@ elm-stuff
 lib/tests/VerifyExamples
 doc.json
 node_modules
+.yarn/
 .parcel-cache
 dist
 .idea

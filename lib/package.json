@@ -1,6 +1,6 @@
 {
   "name": "elm-symfony-bridge-lib",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Matthias Devlamynck <matthias.devlamynck@mailoo.fr>",
   "license": "MIT",
   "homepage": "https://github.com/mdevlamynck/elm-symfony-bridge/tree/master/lib#readme",
@@ -38,15 +38,15 @@
     "build": "parcel build index.js && yarn pack"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "glob": "^11.0.0"
+    "dotenv": "^17.2.3",
+    "glob": "^13.0.1"
   },
   "devDependencies": {
-    "@parcel/transformer-elm": "2.12.0",
+    "@parcel/transformer-elm": "2.16.4",
     "elm": "^0.19.1-5",
-    "elm-format": "^0.8.7",
+    "elm-format": "^0.8.8",
     "elm-test": "^0.19.1-revision12",
     "elm-verify-examples": "^6.0.3",
-    "parcel": "^2.12.0"
+    "parcel": "^2.16.4"
   }
 }
